@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maazim/guestLogIn.dart';
 import 'package:maazim/logIn.dart';
 import 'package:maazim/signUp.dart';
 
@@ -11,6 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Maazim Welcome Page',
+      debugShowCheckedModeBanner: false,
       home: WelcomePage(),
     );
   }
@@ -20,110 +22,86 @@ class WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF9a85a4), // Purple background color
+      backgroundColor: const Color(0xFF9a85a4), // Background color of the entire page
       body: SafeArea(
         child: Column(
-          children: <Widget>[
-            // Container for the top patterned border
+          children: [
+            // Container for the decorative top border image
             Container(
               width: double.infinity,
-              height: 100, // Fixed height for the pattern
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('/Users/hoorrml/Documents/GitHub/Maazim-SWE444-G4/assets/images/boarder/white.png'), // Replace with your asset name
+                  image: AssetImage('/Users/hoorrml/Documents/GitHub/Maazim-SWE444-G4/assets/images/boarder/white.png'), // Ensure the correct path
                   fit: BoxFit.cover,
                 ),
               ),
+              child: const SizedBox(
+                height: 120, // Height of the border image container
+              ),
             ),
-            const SizedBox(height: 16), // Space between buttons
-            // The rest of the content in a white rounded box
+            const SizedBox(height: 20),
             Expanded(
-              child: Stack(
-                clipBehavior: Clip.none, // Allows overflow of children outside the box
-                alignment: Alignment.topCenter,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(36.0),
-                        topRight: Radius.circular(36.0),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(50.0),bottom: Radius.circular(50.0)),
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 40), // Space for the top inside the white box
+                      Image.asset(
+                        '/Users/hoorrml/Documents/GitHub/Maazim-SWE444-G4/assets/Logo.PNG', // Ensure the correct path
+                        width: 160.0, // Logo width
+                        height: 160.0, // Logo height
                       ),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        const SizedBox(height: 80), // Space for the logo to overlay
-                        const Text(
-                          'Welcome to Maazim',
-                          style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 32), // Space between text and buttons
-                        // Login Button
-                        SizedBox(
-                          width: 160, // Button width
-                          height: 40, // Button height
-                          child: ElevatedButton(
-                            onPressed: () {
-                             Navigator.push(
-                               context,
-                               MaterialPageRoute(builder: (context) => LogIn()),
-                                 );
-                            },
-                            child: const Text(
-                              'Login',
-                               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
-                              ),
-                            style: ElevatedButton.styleFrom(
-                              primary: Color(0xFF9a85a4), // Button background color
-                              onPrimary: Colors.white, // Button text color
-                              shape: const StadiumBorder(), // Rounded edges
-                            ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Welcome to Maazim',
+                        style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 20),
+                      // Login Button
+                      SizedBox(
+                        width: 180,
+                        height: 60,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LogIn())),
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: const Color(0xFF9a85a4),
+                            shape: const StadiumBorder(),
                           ),
+                          child: const Text('Login', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                         ),
-                        const SizedBox(height: 16), // Space between buttons
-                        // Signup Button
-                        SizedBox(
-                          width: 160, // Button width
-                          height: 40, // Button height
-                          child: ElevatedButton(
-                            onPressed: () {
-                               Navigator.push(
-                               context,
-                               MaterialPageRoute(builder: (context) => SignUp()),
-                                 );
-                            },
-                            child: const Text(
-                              'Signup',
-                               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
-                              ),
-                            style: ElevatedButton.styleFrom(
-                              primary: Color(0xFF9a85a4), // Button background color
-                              onPrimary: Colors.white, // Button text color
-                              shape: const StadiumBorder(), // Rounded edges
-                            ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Signup Button
+                      SizedBox(
+                        width: 180,
+                        height: 60,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SignUp())),
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: const Color(0xFF9a85a4),
+                            shape: const StadiumBorder(),
                           ),
+                          child: const Text('Signup', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                         ),
-                        const SizedBox(height: 16), // Space between buttons
-                        // Continue as a guest Button
-                        TextButton(
-                          onPressed: () {
-                            // TODO: Handle Continue as Guest navigation
-                          },
-                          child: const Text('Continue as a guest', style: TextStyle(color: Colors.black)),
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Continue as a guest Button
+                      TextButton(
+                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const GuestLogIn())),
+                        child: const Text('Continue as a "Guest"', style: TextStyle(fontSize: 15, color: Colors.black)),
+                      ),
+                      const SizedBox(height: 40), // Additional space at the bottom
+                    ],
                   ),
-                  Positioned(
-                    top: 20, // Negative value to position it above the white box
-                    child: Image.asset('/Users/hoorrml/Documents/GitHub/Maazim-SWE444-G4/assets/Logo.PNG', width: 160), // Your logo here
-                  ),
-                ],
+                ),
               ),
             ),
           ],
