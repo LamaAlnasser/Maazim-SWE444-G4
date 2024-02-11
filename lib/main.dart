@@ -18,37 +18,40 @@ class MyApp extends StatelessWidget {
 }
 
 class WelcomePage extends StatelessWidget {
+  const WelcomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF9a85a4), // Purple background color
+      backgroundColor: const Color(0xFF9a85a4), // Purple background color
       body: SafeArea(
         child: Column(
           children: <Widget>[
             // Container for the top patterned border
             Container(
               width: double.infinity,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage('/Users/hoorrml/Documents/GitHub/Maazim-SWE444-G4/assets/images/boarder/white.png'), // replace with your asset name
-                  fit: BoxFit.cover )
+                  fit: BoxFit.cover,
+                ),
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24.0), // Add padding if necessary
                 child: Column(
                   children: <Widget>[
-                    Image.asset('/Users/hoorrml/Documents/GitHub/Maazim-SWE444-G4/assets/images/Logo.PNG', width: 100), // Your logo here
-                    SizedBox(height: 24), // Space between logo and text
+                    Image.asset('/Users/hoorrml/Documents/GitHub/Maazim-SWE444-G4/assets/Logo.PNG', width: 100), // Your logo here
+                    const SizedBox(height: 24), // Space between logo and text
                   ],
                 ),
               ),
             ),
+             const SizedBox(height: 16),
             Expanded(
               // This Container is the white rounded rectangle in the center of the screen
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(10.0),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(36.0),
@@ -58,39 +61,40 @@ class WelcomePage extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Text(
+                    const Text(
                       'Welcome to Maazim',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 24), // Space between text and buttons
+                    const SizedBox(height: 24), // Space between text and buttons
                     ElevatedButton(
                       onPressed: () {
                         // Handle Login navigation
                       },
-                      child: Text('Login'),
+                      child: const Text('Login'),
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.deepPurple, // Button background color
-                        onPrimary: Colors.white, // Button text color
-                        shape: StadiumBorder(), // Rounded edges
+                        foregroundColor: Colors.white, backgroundColor: Color(0xFF9a85a4), // Button text color
+                        shape: const StadiumBorder(), // Rounded edges
                       ),
                     ),
                     TextButton(
                       onPressed: () {
                         // Handle Signup navigation
                       },
-                      child: Text('Signup'),
-                      style: TextButton.styleFrom(
-                        primary: Colors.deepPurple, // Text color
+                      child: const Text('Signup'),
+                      style: ElevatedButton.styleFrom(
+                      foregroundColor: const Color.fromARGB(255, 255, 255, 255), 
+                      backgroundColor: Color(0xFF9a85a4), // Text color
+                      shape: const StadiumBorder(), // Rounded edges
                       ),
                     ),
                     TextButton(
                       onPressed: () {
                         // Handle Continue as a guest navigation
                       },
-                      child: Text('Continue as a guest'),
+                      child: const Text('Continue as a guest'),
                       style: TextButton.styleFrom(
-                        primary: Colors.deepPurple, // Text color
+                        foregroundColor: const Color.fromARGB(255, 0, 0, 0), // Text color
                       ),
                     ),
                   ],
