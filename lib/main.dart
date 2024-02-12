@@ -27,10 +27,10 @@ class WelcomePage extends StatelessWidget {
       body: Column(
         children: [
           // Container for the decorative top border image
-          SizedBox(height: 50),
+          const SizedBox(height: 50),
           Container(
             width: double.infinity,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                image: AssetImage(
               'assets/images/boarder/white.png'), // Ensure the correct path
@@ -39,16 +39,16 @@ class WelcomePage extends StatelessWidget {
             ),
             child: SizedBox(
               height: MediaQuery.of(context).padding.top +
-                  10, // Adjust the top space based on status bar height
+                  40, // Adjust the top space based on status bar height
             ),
           ),
           const SizedBox(height: 20),
           Expanded(
             child: Container(
               width: double.infinity,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius: const BorderRadius.vertical(
+                borderRadius: BorderRadius.vertical(
                     top: Radius.circular(120.0), bottom: Radius.circular(0.0)),
               ),
               child: SingleChildScrollView(
