@@ -87,6 +87,7 @@ class WelcomePage extends StatelessWidget {
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold)),
                         ),
+                        child: const Text('Login', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                       ),
                       const SizedBox(height: 20),
                       // Signup Button
@@ -107,6 +108,7 @@ class WelcomePage extends StatelessWidget {
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold)),
                         ),
+                        child: const Text('Signup', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                       ),
                       const SizedBox(height: 20),
                       // Continue as a guest Button
@@ -126,8 +128,8 @@ class WelcomePage extends StatelessWidget {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
