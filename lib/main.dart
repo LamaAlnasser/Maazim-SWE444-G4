@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:maazim/guestLogIn.dart';
 import 'package:maazim/logIn.dart';
 import 'package:maazim/signUp.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+Future<void> main() async {
+   WidgetsFlutterBinding
+      .ensureInitialized(); // Ensure the Flutter binding is initialized
+  await Firebase.initializeApp(); // Initialize Firebase
   runApp(MyApp());
 }
 
