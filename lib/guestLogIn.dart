@@ -1,11 +1,13 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:maazim/main.dart'; 
+import 'package:maazim/main.dart';
 import 'package:maazim/limited_functionality_page.dart'; // Create this file for limited functionality
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensure the Flutter binding is initialized
+void main() async {
+  WidgetsFlutterBinding
+      .ensureInitialized(); // Ensure the Flutter binding is initialized
   Firebase.initializeApp(); // Initialize Firebase
   runApp(const MyApp());
 }
@@ -37,6 +39,18 @@ class _GuestSignInPageState extends State<GuestLogIn> {
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
   String? _verificationId;
+
+  Country selectedCountry = Country(
+      phoneCode: "966",
+      countryCode: "SA",
+      e164Sc: 0,
+      geographic: true,
+      level: 1,
+      name: "SaudiArabia",
+      example: "SaudiArabia",
+      displayName: "SaudiArabia",
+      displayNameNoCountryCode: "KSA",
+      e164Key: "");
 
   @override
   void dispose() {
@@ -107,12 +121,42 @@ class _GuestSignInPageState extends State<GuestLogIn> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (_verificationId == null) ...[
-              TextField(
+              TextFormField(
+                cursorColor: Colors.blue,
                 controller: _phoneNumberController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
-                  prefix: Text('+'),
-                ),
+                decoration: InputDecoration(
+                    hintText: 'Phone Number',
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Colors.black12)),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Colors.black12)),
+                    prefixIcon: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      child: InkWell(
+                        onTap: () {
+                          showCountryPicker(
+                              context: context,
+                              countryListTheme: const CountryListThemeData(
+                                bottomSheetHeight: 500
+                              ),
+                              onSelect: (value) {
+                                setState(() {
+                                  selectedCountry = value;
+                                });
+                              });
+                        },
+                        child: Text(
+                          "${selectedCountry.flagEmoji} + ${selectedCountry.phoneCode}",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    )),
                 keyboardType: TextInputType.phone,
               ),
               ElevatedButton(
