@@ -114,12 +114,27 @@ class _GuestSignInPageState extends State<GuestLogIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Guest OTP Verification')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+      
+       backgroundColor:
+          const Color(0xFF9a85a4), // Background color of the entire page
+        body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+             const SizedBox(height: 50),
+            Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+               image: AssetImage(
+              'assets/images/boarder/white.png'), // Ensure the correct path
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: SizedBox(
+              height: MediaQuery.of(context).padding.top +
+                  40, // Adjust the top space based on status bar height
+            ),
+          ),
             if (_verificationId == null) ...[
               TextFormField(
                 cursorColor: Colors.blue,
@@ -178,8 +193,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
             ],
           ],
         ),
-      ),
-    );
+      );
   }
 }
 
