@@ -2,13 +2,13 @@ import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:maazim/main.dart';
+import 'package:maazim/main.dart'; //use it to go back
 import 'package:maazim/limited_functionality_page.dart'; // Create this file for limited functionality
 
 void main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Ensure the Flutter binding is initialized
-  Firebase.initializeApp(); // Initialize Firebase
+  await Firebase.initializeApp(); // Initialize Firebase
   runApp(const MyApp());
 }
 
