@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'firebase_options.dart';
-import 'package:maazim/main.dart'; //use it to go back
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -13,8 +12,8 @@ void main() async {
 
 }
 
-class LogIn extends StatelessWidget {
-  const LogIn({super.key});
+class GuestHome extends StatelessWidget {
+  const GuestHome({super.key});
 
   @override
   Widget build(BuildContext context) {
