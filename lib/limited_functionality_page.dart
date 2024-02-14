@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:maazim/guestLogIn.dart';
 import 'firebase_options.dart';
 
 
@@ -11,18 +12,32 @@ void main() async {
 
 }
 
-class GuestHome extends StatelessWidget {
-  const GuestHome({super.key});
+class LimitedFunctionalityPage extends StatelessWidget {
+  const LimitedFunctionalityPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Firebase Sign Up',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Limited Functionality'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => const GuestLogIn(),
+              ));
+            },
+          ),
+        ],
       ),
-      //home: const SignUpScreen(),
+      body: const Center(
+        child: Text(
+          'Welcome, Guest!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
     );
   }
 }
