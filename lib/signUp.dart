@@ -124,13 +124,27 @@ class _SignUpContentState extends State<SignUpContent> {
               validator: (value) => _validateName(value, 'first name'),
             ),
             ),
+                    
+                    SizedBox(height: 20.0), // to add a space between text fields
+              Container (
 
-
-            TextFormField(
+            child :TextFormField(
               controller: _lastNameController,
-              decoration: const InputDecoration(labelText: 'Last Name'),
+              decoration: InputDecoration(labelText: 'Last Name',
+               border: OutlineInputBorder(
+          
+                    borderRadius: BorderRadius.circular(10.0), // Adjust the border radius
+                  ),
+                    filled: true,
+                    fillColor: Colors.grey[200], // Adjust the background color
+                    contentPadding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0), // Adjust the content padding
+                   ),
+             
               validator: (value) => _validateName(value, 'last name'),
             ),
+              ),
+           
+           
             TextFormField(
               controller: _emailController,
               decoration: const InputDecoration(labelText: 'Email'),
