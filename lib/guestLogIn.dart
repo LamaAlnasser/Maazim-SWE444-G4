@@ -196,33 +196,3 @@ class _GuestSignInPageState extends State<GuestLogIn> {
       );
   }
 }
-
-class LimitedFunctionalityPage extends StatelessWidget {
-  const LimitedFunctionalityPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Limited Functionality'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => const GuestLogIn(),
-              ));
-            },
-          ),
-        ],
-      ),
-      body: const Center(
-        child: Text(
-          'Welcome, Guest!',
-          style: TextStyle(fontSize: 24),
-        ),
-      ),
-    );
-  }
-}
