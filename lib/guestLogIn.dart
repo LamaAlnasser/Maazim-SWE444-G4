@@ -45,6 +45,8 @@ class _GuestSignInPageState extends State<GuestLogIn> {
   String? _verificationId;
 
    final _formKey = GlobalKey<FormState>(); // Add a key for the form
+   bool _isOtpInvalid = false;
+
 
   Country selectedCountry = Country(
       phoneCode: "966",
@@ -104,15 +106,26 @@ class _GuestSignInPageState extends State<GuestLogIn> {
   }
 
   void _signInWithPhoneNumber() async {
-    if (_verificationId != null) {
-      final credential = PhoneAuthProvider.credential(
-        verificationId: _verificationId!,
-        smsCode: _otpController.text,
-      );
-      _signInWithCredential(credential);
-    } else {
-      _showSnackbar('Verification ID not found');
+   if (_verificationId != null && _otpController.text.length == 6) {
+    final credential = PhoneAuthProvider.credential(
+      verificationId: _verificationId!,
+      smsCode: _otpController.text,
+    );
+    try {
+       _signInWithCredential(credential);
+    } on FirebaseAuthException catch (e) {
+      // Check for specific error codes here if needed e.g. e.code == 'invalid-verification-code'
+      setState(() {
+        _isOtpInvalid = true; // Set this to true if the OTP is wrong
+      });
+      _showSnackbar('Invalid OTP entered, please try again.');
     }
+  } else {
+    setState(() {
+      _isOtpInvalid = true; // This will show the error if the verification ID is null or OTP length is not 6
+    });
+    _showSnackbar('Please enter the valid 6-digit code.');
+  }
   }
 
   void _showSnackbar(String message) {
@@ -127,16 +140,19 @@ class _GuestSignInPageState extends State<GuestLogIn> {
     }
   }
 
+
+
       @override
   Widget build(BuildContext context) {
     return CustomPage(
-      pageTitle: 'Guest Login', // Set the page title
+      pageTitle: '', // Set the page title
       content: Form( // Wrap content with a Form widget
         key: _formKey, // Associate the key with the form
       child: Column(
           children: [
-             const SizedBox(height: 50),
+             const SizedBox(height: 32),
             if (_verificationId == null) ...[
+              const SizedBox(height: 80),
               Padding(padding: const EdgeInsets.symmetric(horizontal: 24),
              child: TextFormField(
                 cursorColor: const Color(0xFF9a85a4),
@@ -146,7 +162,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                 FilteringTextInputFormatter.digitsOnly,
                ],
                 decoration: InputDecoration(
-                    hintText: 'Enter Phone Number',
+                    hintText: 'Phone Number',
                     hintStyle: const TextStyle(color: Colors.grey), // Hint text style
                     filled: true, // Needed for fillColor to take effect
                    fillColor: const Color(0xFF9a85a4).withOpacity(0.1), // Background color of the field
@@ -230,37 +246,83 @@ class _GuestSignInPageState extends State<GuestLogIn> {
             ] else ...[
                Column(
                 children: [
-                  const SizedBox(height: 20),
                   const Text(
-                    'Enter 6 digits verification code sent to your number',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold, color: Color.fromARGB(255, 0, 0, 0)),
-                  ),
+               'Verify Your ID',
+               textAlign: TextAlign.center,
+              style: TextStyle(
+        fontSize: 40,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
+      ),
+    ),
+    const SizedBox(height: 8,width: 8),
+    const Padding(padding: EdgeInsets.symmetric(horizontal: 8),
+    child: Text(
+      'Please enter the 6-digit code sent by SMS to your phone number',
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        color: Colors.black54,
+      ),
+    ),),
+                  
                   const SizedBox(height: 32),
                   Padding(padding: const EdgeInsets.symmetric(horizontal: 25), // Adjust the side padding as needed
                   child: PinCodeTextField(
+                    
                     appContext: context,
                     length: 6,
-                    onChanged: (String value) {},
+                    onChanged: (String value) {
+                            // Reset the error state when user starts typing again
+                    if (_isOtpInvalid) {
+      setState(() {
+        _isOtpInvalid = false;
+                    });
+                    }
+                    },
                      mainAxisAlignment: MainAxisAlignment.spaceBetween, // Add this line
                     pinTheme: PinTheme(
                       shape: PinCodeFieldShape.box,
-                      borderRadius: BorderRadius.circular(5),
-                      fieldHeight: 40,
-                      fieldWidth: 30,
-                      inactiveFillColor: Color.fromARGB(255, 76, 0, 111).withOpacity(0.1),
-                      activeFillColor: Color.fromARGB(255, 103, 15, 144).withOpacity(0.1),
-                      selectedFillColor: const Color(0xFF9a85a4).withOpacity(0.1),
-                      inactiveColor: Colors.grey.withOpacity(0.1),
-                      activeColor: const Color(0xFF9a85a4),
-                      selectedColor: const Color(0xFF9a85a4),
+                     borderRadius: BorderRadius.circular(5),
+                     fieldHeight: 40,
+                     fieldWidth: 30,
+                     inactiveFillColor: _isOtpInvalid ? Colors.red.shade50 : Color.fromARGB(255, 76, 0, 111).withOpacity(0.1),
+                     activeFillColor: _isOtpInvalid ? Colors.red.shade50 : Color.fromARGB(255, 103, 15, 144).withOpacity(0.1),
+                     selectedFillColor: _isOtpInvalid ? Colors.red.shade50 : const Color(0xFF9a85a4).withOpacity(0.1),
+                     inactiveColor: _isOtpInvalid ? Colors.red : Colors.grey.withOpacity(0.1),
+                     activeColor: _isOtpInvalid ? Colors.red : const Color(0xFF9a85a4),
+                     selectedColor: _isOtpInvalid ? Colors.red : const Color(0xFF9a85a4),
                         fieldOuterPadding: const EdgeInsets.symmetric(horizontal: 10), // Adjust the space between fields
                     ),
                     keyboardType: TextInputType.number,
-                    onCompleted: (value) {
-                      _otpController.text = value; // Assign the value to the OTP controller
-                    },
-                  ),),
+                    onCompleted: (value) async {
+    final credential = PhoneAuthProvider.credential(
+      verificationId: _verificationId!,
+      smsCode: value,
+    );
+    try {
+       _signInWithCredential(credential);
+    } catch (e) {
+      setState(() {
+        _isOtpInvalid = true;
+      });
+    }
+  },
+),
+
+                    
+                  ),
+
+              
+                   if (_isOtpInvalid) ...[
+                  const Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Text(
+                 'Invalid OTP entered, please try again.',
+                  style: TextStyle(color: Colors.red, fontSize: 14),
+                  ),
+                   ),
+                   ],
+
                   const SizedBox(height: 32), 
                     ElevatedButton(
                     onPressed: _signInWithPhoneNumber,
