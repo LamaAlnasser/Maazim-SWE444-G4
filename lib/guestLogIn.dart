@@ -214,9 +214,9 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                       borderRadius: BorderRadius.circular(5),
                       fieldHeight: 40,
                       fieldWidth: 30,
-                      inactiveFillColor: Colors.white,
-                      activeFillColor: Colors.white,
-                      selectedFillColor: Colors.white,
+                      inactiveFillColor: const Color(0xFF9a85a4).withOpacity(0.1),
+                      activeFillColor: const Color(0xFF9a85a4).withOpacity(0.1),
+                      selectedFillColor: const Color(0xFF9a85a4).withOpacity(0.1),
                       inactiveColor: Colors.black,
                       activeColor: const Color(0xFF9a85a4),
                       selectedColor: const Color(0xFF9a85a4),
@@ -229,8 +229,8 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                   ),),
                   const SizedBox(height: 32),
                   SizedBox(
-                    width: 200,
-                      height: 80,
+                    width: 120,
+                      height: 50,
                   child: ElevatedButton(
                     onPressed: _signInWithPhoneNumber,
                     style: ElevatedButton.styleFrom(
