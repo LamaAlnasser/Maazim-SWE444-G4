@@ -49,7 +49,7 @@ class WelcomePage extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const LogIn()),
               ),
                style: ElevatedButton.styleFrom(
-                 padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 140),
+                 padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 135),
                  shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30), // Rounded corners
                 ),
@@ -61,6 +61,32 @@ class WelcomePage extends StatelessWidget {
                     style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold, color: Color.fromARGB(255, 255, 255, 255))
               ),
             ),
+
+                    const SizedBox(height: 20),
+                    // Signup Button
+                    ElevatedButton(
+                        onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const SignUp())),
+                          
+                       style: ElevatedButton.styleFrom(
+                 padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 128),
+                 shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30), 
+                side: const BorderSide(style: BorderStyle.solid,
+                color: Color(0xFF9a85a4),
+                ),
+                // Rounded corners
+                ),
+                 backgroundColor: const Color(0xFF9a85a4).withOpacity(0.1), // Button background color
+                 elevation: 0, // Removes shadow
+                        ),
+                        child: const Text('Signup',
+                    style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold, color: Color(0xFF9a85a4))
+
+                      ),
+                    ),
 
           const SizedBox(height: 20),
           TextButton(
