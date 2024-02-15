@@ -162,13 +162,15 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                 FilteringTextInputFormatter.digitsOnly,
                ],
                 decoration: InputDecoration(
+                    labelText: 'Phone Number',
                     hintText: 'Phone Number',
+                    labelStyle: TextStyle(color:Color(0xFF9a85a4)),
                     hintStyle: const TextStyle(color: Colors.grey), // Hint text style
                     filled: true, // Needed for fillColor to take effect
-                   fillColor: const Color(0xFF9a85a4).withOpacity(0.1), // Background color of the field
+                   fillColor: Color.fromARGB(255, 0, 0, 0).withOpacity(0.1), // Background color of the field
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1))),
+                        borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0))),
                     focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                         borderSide:  BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6))),
@@ -178,6 +180,8 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                     focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                         borderSide: const BorderSide(color: Colors.red),),
+                        contentPadding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0), // Adjust the content padding
+
                     prefixIcon: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       
@@ -207,7 +211,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                         '+${selectedCountry.phoneCode}',
                         style: const TextStyle(
                         fontSize: 16,
-                        color: Color.fromARGB(255, 157, 157, 157),
+                        color: Color.fromARGB(255, 113, 113, 113),
                         fontWeight: FontWeight.bold,
                       ),
                      ),
@@ -227,7 +231,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                 ElevatedButton(
                  onPressed: _attemptPhoneNumberVerification,
                  style: ElevatedButton.styleFrom(
-                 padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 140),
+                 padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 135),
                  shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30), // Rounded corners
     ),
@@ -327,7 +331,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                     ElevatedButton(
                     onPressed: _signInWithPhoneNumber,
                       style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 140),
+                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 135),
                       shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30), // Rounded corners
                       ),
