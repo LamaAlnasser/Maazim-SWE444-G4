@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:maazim/limited_functionality_page.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:maazim/layoutpage.dart';
 //import 'package:maazim/main.dart'; //use it to go back
 //import 'package:maazim/limited_functionality_page.dart'; // Create this file for limited functionality
 
@@ -53,6 +54,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
       displayName: "SaudiArabia",
       displayNameNoCountryCode: "KSA",
       e164Key: "");
+
 
   @override
   void dispose() {
@@ -115,29 +117,13 @@ class _GuestSignInPageState extends State<GuestLogIn> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  @override
+      @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      
-       backgroundColor:
-          Color.fromARGB(255, 255, 255, 255), // Background color of the entire page
-        body: Column(
+    return CustomPage(
+      pageTitle: 'Guest Login', // Set the page title
+      content: Column(
           children: [
              const SizedBox(height: 50),
-            Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-               image: AssetImage(
-              'assets/images/boarder/boarder.png'), // Ensure the correct path
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: SizedBox(
-              height: MediaQuery.of(context).padding.top +
-                  40, // Adjust the top space based on status bar height
-            ),
-          ),
             if (_verificationId == null) ...[
               Padding(padding: const EdgeInsets.symmetric(horizontal: 24),
              child: TextFormField(
