@@ -2,6 +2,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:maazim/limited_functionality_page.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:maazim/layoutpage.dart';
@@ -42,6 +43,8 @@ class _GuestSignInPageState extends State<GuestLogIn> {
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
   String? _verificationId;
+
+   final _formKey = GlobalKey<FormState>(); // Add a key for the form
 
   Country selectedCountry = Country(
       phoneCode: "966",
@@ -117,11 +120,20 @@ class _GuestSignInPageState extends State<GuestLogIn> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
+  void _attemptPhoneNumberVerification() {
+    if (_formKey.currentState!.validate()) {
+      // If the form is valid, verify the phone number
+      _verifyPhoneNumber();
+    }
+  }
+
       @override
   Widget build(BuildContext context) {
     return CustomPage(
       pageTitle: 'Guest Login', // Set the page title
-      content: Column(
+      content: Form( // Wrap content with a Form widget
+        key: _formKey, // Associate the key with the form
+      child: Column(
           children: [
              const SizedBox(height: 50),
             if (_verificationId == null) ...[
@@ -129,7 +141,10 @@ class _GuestSignInPageState extends State<GuestLogIn> {
              child: TextFormField(
                 cursorColor: const Color(0xFF9a85a4),
                 controller: _phoneNumberController,
-                keyboardType: TextInputType.phone,
+                keyboardType: TextInputType.number, // Set keyboard type to number
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly,
+               ],
                 decoration: InputDecoration(
                     hintText: 'Enter Phone Number',
                     hintStyle: const TextStyle(color: Colors.grey), // Hint text style
@@ -137,10 +152,16 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                    fillColor: const Color(0xFF9a85a4).withOpacity(0.1), // Background color of the field
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
-                        borderSide: const BorderSide(color: Colors.black12)),
+                        borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1))),
                     focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
-                        borderSide: const BorderSide(color: Colors.black12)),
+                        borderSide:  BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6))),
+                    errorBorder: OutlineInputBorder(
+                         borderRadius: BorderRadius.circular(18),
+                         borderSide: const BorderSide(color: Colors.red),),
+                    focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: const BorderSide(color: Colors.red),),
                     prefixIcon: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       
@@ -159,50 +180,63 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                         },
 
                         child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              selectedCountry.flagEmoji,
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '+${selectedCountry.phoneCode}',
-              style: const TextStyle(
-                fontSize: 16,
-                color: Color.fromARGB(255, 157, 157, 157),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                        Text(
+                        selectedCountry.flagEmoji,
+                        style: const TextStyle(fontSize: 18),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                        '+${selectedCountry.phoneCode}',
+                        style: const TextStyle(
+                        fontSize: 16,
+                        color: Color.fromARGB(255, 157, 157, 157),
+                        fontWeight: FontWeight.bold,
                       ),
-                    )),
+                     ),
+                    ],
+                  ),
+                 ),
+               )),
+              validator: (value) {
+                if (value == null || value.isEmpty || value.length != 9) {
+                  return 'Please enter a 9-digit number'; // Error message
+                }
+                return null; // Return null to indicate the input is correct
+              },
               ),),
               const SizedBox(height: 32),
-                  SizedBox(
-                    width: 180,
-                      height: 40,
-              child: ElevatedButton(
-                onPressed: _verifyPhoneNumber,
-                style: ElevatedButton.styleFrom(
-                       foregroundColor: Colors.white,
-                          backgroundColor: const Color(0xFF9a85a4),
-                          shape: const StadiumBorder(),
-                    ),
-                child: const Text('Send OTP'),
-              ),
+
+                ElevatedButton(
+                 onPressed: _attemptPhoneNumberVerification,
+                 style: ElevatedButton.styleFrom(
+                 padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 140),
+                 shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30), // Rounded corners
+    ),
+    backgroundColor: const Color(0xFF9a85a4), // Button background color
+    elevation: 0, // Removes shadow
+  ),
+  child: const Text(
+    'Send OTP',
+    style: TextStyle(
+      fontSize: 16, // Font size
+      fontWeight: FontWeight.bold,
+      color: Colors.white, // Text color
+    ),
+  ),
               ),
             ] else ...[
                Column(
                 children: [
-                  const SizedBox(height: 35),
+                  const SizedBox(height: 20),
                   const Text(
                     'Enter 6 digits verification code sent to your number',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold, color: Color.fromARGB(255, 0, 0, 0)),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 32),
                   Padding(padding: const EdgeInsets.symmetric(horizontal: 25), // Adjust the side padding as needed
                   child: PinCodeTextField(
                     appContext: context,
@@ -214,10 +248,10 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                       borderRadius: BorderRadius.circular(5),
                       fieldHeight: 40,
                       fieldWidth: 30,
-                      inactiveFillColor: const Color(0xFF9a85a4).withOpacity(0.1),
-                      activeFillColor: const Color(0xFF9a85a4).withOpacity(0.1),
+                      inactiveFillColor: Color.fromARGB(255, 76, 0, 111).withOpacity(0.1),
+                      activeFillColor: Color.fromARGB(255, 103, 15, 144).withOpacity(0.1),
                       selectedFillColor: const Color(0xFF9a85a4).withOpacity(0.1),
-                      inactiveColor: Colors.black,
+                      inactiveColor: Colors.grey.withOpacity(0.1),
                       activeColor: const Color(0xFF9a85a4),
                       selectedColor: const Color(0xFF9a85a4),
                         fieldOuterPadding: const EdgeInsets.symmetric(horizontal: 10), // Adjust the space between fields
@@ -227,25 +261,27 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                       _otpController.text = value; // Assign the value to the OTP controller
                     },
                   ),),
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: 120,
-                      height: 50,
-                  child: ElevatedButton(
+                  const SizedBox(height: 32), 
+                    ElevatedButton(
                     onPressed: _signInWithPhoneNumber,
-                    style: ElevatedButton.styleFrom(
-                       foregroundColor: Colors.white,
-                          backgroundColor: const Color(0xFF9a85a4),
-                          shape: const StadiumBorder(),
+                      style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 140),
+                      shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30), // Rounded corners
+                      ),
+                      backgroundColor: const Color(0xFF9a85a4), // Button background color
+                    elevation: 0, // Removes shadow
                     ),
-                    child: const Text('Confirm'),
-                  ),
+                    child: const Text('Confirm',
+                    style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold, color: Color.fromARGB(255, 255, 255, 255))
+                    ),
                   ),
                 ],
                ),
             ],
           ],
         ),
+      ),
       );
   }
 }
