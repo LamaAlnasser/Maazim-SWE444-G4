@@ -60,19 +60,22 @@ class WelcomePage extends StatelessWidget {
                 child: Column(
                   children: [
                     const SizedBox(
-                        height: 40), // Space for the top inside the white box
+                        height: 70), // Space for the top inside the white box
                     Image.asset(
                       'assets/Logo.PNG', // Ensure the correct path
-                      width: 160.0, // Logo width
-                      height: 160.0, // Logo height
+                      width: 200.0, // Logo width
+                      height: 200.0, // Logo height
                     ),
+                    
+                  
                     const SizedBox(height: 20),
                     const Text(
                       'Welcome to Maazim',
                       style:
-                          TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
+                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
+
                     const SizedBox(height: 20),
                     // Login Button
                     SizedBox(
@@ -87,6 +90,7 @@ class WelcomePage extends StatelessWidget {
                           foregroundColor: Colors.white,
                           backgroundColor: const Color(0xFF9a85a4),
                           shape: const StadiumBorder(),
+
                         ),
                         child: const Text('Login',
                             style: TextStyle(
@@ -94,6 +98,7 @@ class WelcomePage extends StatelessWidget {
                       ),
                     ),
 
+/*
                     const SizedBox(height: 20),
                     // Signup Button
                     SizedBox(
@@ -113,7 +118,8 @@ class WelcomePage extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 20, fontWeight: FontWeight.bold)),
                       ),
-                    ),
+                    ),*/
+
                     const SizedBox(height: 20),
                     // Continue as a guest Button
                     TextButton(
