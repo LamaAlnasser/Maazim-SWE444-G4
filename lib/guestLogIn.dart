@@ -185,7 +185,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                     labelText: 'Phone Number',
                     labelStyle: TextStyle(color:Color(0xFF9a85a4)),
                     filled: true, // Needed for fillColor to take effect
-                   fillColor: Color.fromARGB(255, 0, 0, 0).withOpacity(0.1), // Background color of the field
+              fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                         borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0))),
