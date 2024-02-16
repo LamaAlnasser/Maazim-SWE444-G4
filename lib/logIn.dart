@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:maazim/guestLogIn.dart';
 import 'package:maazim/layout.dart';
+import 'package:maazim/limited_functionality_page.dart';
 import 'package:maazim/signUp.dart';
 import 'firebase_options.dart';
 import 'package:maazim/main.dart'; //use it to go back
@@ -15,7 +16,7 @@ void main() async {
   );
         runApp(LogIn());
 }
-
+/*
 class LogIn extends StatelessWidget {
   const LogIn({super.key});
 
@@ -201,4 +202,244 @@ Widget _signup(BuildContext context) {
           ))
     ],
   );
+}
+*/
+
+class LogIn extends StatelessWidget {
+  const LogIn({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: LoginScreen(),
+    );
+  }
+}
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key? key}) : super(key: key);
+
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  Future<void> _login(BuildContext context) async {
+    try {
+      if (_formKey.currentState!.validate()) {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SignUp()),//هنا وين بروح بعد اللوق ان
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message!),
+        ),
+      );
+    }
+  }
+  @override
+  Widget build(BuildContext context) {
+     return Scaffold(
+      body: Stack(
+         children: [
+     CustomPage(
+      pageTitle: '',
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          //heding 
+          const SizedBox(height: 20),
+             Text(
+             "Welcome Back",
+              style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+             ),
+             Text("Please enter your information to login",
+             style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+             textAlign: TextAlign.center,
+             ),
+
+         //Email
+         const SizedBox(height: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: TextFormField(
+            decoration: InputDecoration(
+              labelText: "Email",
+               labelStyle: TextStyle(color:Color(0xFF9a85a4)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: BorderSide.none,
+              ),
+              fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
+              enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1))),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide:  BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6))),
+                    errorBorder: OutlineInputBorder(
+                         borderRadius: BorderRadius.circular(18),
+                         borderSide: const BorderSide(color: Colors.red),),
+                    focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: const BorderSide(color: Colors.red),),
+
+              filled: true,
+              prefixIcon: const Icon(Icons.email),
+            ),
+            validator: (value) {
+              if (value?.isEmpty ?? true) {
+                return 'Please enter your email';
+              } /*else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                  .hasMatch(value!)) {
+                return 'Please enter a valid email';
+              }*/
+              return null;
+            },
+          ),
+        ),
+          
+
+          //password
+           const SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: TextFormField(
+            decoration: InputDecoration(
+              labelText: "Password",
+               labelStyle: TextStyle(color:Color(0xFF9a85a4)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: BorderSide.none,
+              ),
+              fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
+              enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1))),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide:  BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6))),
+                    errorBorder: OutlineInputBorder(
+                         borderRadius: BorderRadius.circular(18),
+                         borderSide: const BorderSide(color: Colors.red),),
+                    focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: const BorderSide(color: Colors.red),),
+
+              filled: true,
+              prefixIcon: const Icon(Icons.password),
+            ),
+            obscureText: true,
+            validator: (value) {
+              if (value?.isEmpty ?? true) {
+                return 'Please enter your password';
+              }
+              return null;
+            },
+          ),
+        ),
+
+          //Login Button 
+          const SizedBox(height: 30),
+          Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: ElevatedButton(
+            onPressed: () => _login(context),
+            style: ElevatedButton.styleFrom(
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              backgroundColor: const Color(0xFF9a85a4).withOpacity(0.9),
+            ),
+            child: const Text(
+              "Login",
+              style: TextStyle(
+                fontSize: 20,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          ),
+
+          //Forgit password
+          const SizedBox(height: 10),
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const GuestLogIn()),
+              );
+            },
+            child: const Text(
+              "Forgot password?",
+              style: TextStyle(
+                color: Color(0xFF9a85a4),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          //Sign up
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("New to Maazim? "),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SignUp()),
+                  );
+                },
+                child: const Text(
+                  "Sign Up",
+                  style: TextStyle(
+                    color: Color(0xFF9a85a4),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+        ],
+      ),
+    ),
+      Positioned(
+          bottom: 25.0,
+          left: 15, // Distance from the bottom
+          child: ElevatedButton(
+            onPressed: () {
+              // The action you want to perform when the button is pressed
+              // For example, navigate to the welcome screen:
+              Navigator.of(context).pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color.fromARGB(255, 255, 255, 255), // Background color
+              shape: CircleBorder(), // Circular shape
+              elevation: 0,
+              minimumSize:Size(50, 50),
+            ),
+            child: Icon(
+              Icons.arrow_back, // The icon for the button
+              color: Color.fromARGB(255, 0, 0, 0),
+              size: 30, // Icon color
+                 ),
+          ),
+        ),
+        ],
+      ),
+    );
+  }
 }
