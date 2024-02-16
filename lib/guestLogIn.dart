@@ -144,16 +144,36 @@ class _GuestSignInPageState extends State<GuestLogIn> {
 
       @override
   Widget build(BuildContext context) {
-    return CustomPage(
+    return Scaffold(
+      body: Stack(
+        children: [
+    CustomPage(
       pageTitle: '', // Set the page title
       content: Form( // Wrap content with a Form widget
         key: _formKey, // Associate the key with the form
       child: Column(
           children: [
-             const SizedBox(height: 32),
+             const SizedBox(height: 50),
             if (_verificationId == null) ...[
-              const SizedBox(height: 80),
-              Padding(padding: const EdgeInsets.symmetric(horizontal: 24),
+              const SizedBox(height: 80,
+              child: Text('Verification',
+               textAlign: TextAlign.center,
+              style: TextStyle(
+        fontSize: 40,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
+      ),
+    ),),
+              SizedBox(height: 60,
+                child: Text(
+                'Please enter a 9 digit phone number',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+              color: Colors.black54,
+              ),
+               ),),
+
+              Padding(padding: const EdgeInsets.symmetric(horizontal: 24,),
              child: TextFormField(
                 cursorColor: const Color(0xFF9a85a4),
                 controller: _phoneNumberController,
@@ -163,9 +183,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                ],
                 decoration: InputDecoration(
                     labelText: 'Phone Number',
-                    hintText: 'Phone Number',
                     labelStyle: TextStyle(color:Color(0xFF9a85a4)),
-                    hintStyle: const TextStyle(color: Colors.grey), // Hint text style
                     filled: true, // Needed for fillColor to take effect
                    fillColor: Color.fromARGB(255, 0, 0, 0).withOpacity(0.1), // Background color of the field
                     enabledBorder: OutlineInputBorder(
@@ -251,7 +269,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                Column(
                 children: [
                   const Text(
-               'Verify Your ID',
+               'Verification',
                textAlign: TextAlign.center,
               style: TextStyle(
         fontSize: 40,
@@ -260,9 +278,9 @@ class _GuestSignInPageState extends State<GuestLogIn> {
       ),
     ),
     const SizedBox(height: 8,width: 8),
-    const Padding(padding: EdgeInsets.symmetric(horizontal: 8),
+    const Padding(padding: EdgeInsets.symmetric(horizontal: 6),
     child: Text(
-      'Please enter the 6-digit code sent by SMS to your phone number',
+      'Please enter the 6-digit OTP code sent by SMS to your phone number',
       textAlign: TextAlign.center,
       style: TextStyle(
         color: Colors.black54,
@@ -348,6 +366,32 @@ class _GuestSignInPageState extends State<GuestLogIn> {
           ],
         ),
       ),
-      );
+      ),
+        Positioned(
+          bottom: 25.0,
+          left: 15, // Distance from the bottom
+          child: ElevatedButton(
+            onPressed: () {
+              // The action you want to perform when the button is pressed
+              // For example, navigate to the welcome screen:
+              Navigator.of(context).pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color.fromARGB(255, 154, 133, 164), // Background color
+              shape: CircleBorder(), // Circular shape
+              elevation: 0,
+              minimumSize:Size(50, 50),
+            ),
+            child: Icon(
+              Icons.arrow_back, // The icon for the button
+              color: Color.fromARGB(255, 255, 255, 255),
+              size: 30, // Icon color
+                 ),
+          ),
+        ),
+        ],
+      ),
+    );
+
   }
 }
