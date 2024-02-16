@@ -198,7 +198,6 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                     focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                         borderSide: const BorderSide(color: Colors.red),),
-                        contentPadding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0), // Adjust the content padding
 
                     prefixIcon: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
