@@ -98,7 +98,7 @@ class WelcomePage extends StatelessWidget {
             ),
             child: const Text(
               'Continue as a "Guest"',
-              style: TextStyle(fontSize: 15, color: Colors.black),
+              style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 109, 71, 110)),
             ),
           ),
           const SizedBox(height: 40),
