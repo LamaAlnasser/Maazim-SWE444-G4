@@ -6,8 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:maazim/limited_functionality_page.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:maazim/layout.dart';
-//import 'package:maazim/main.dart'; //use it to go back
-//import 'package:maazim/limited_functionality_page.dart'; // Create this file for limited functionality
+import 'package:maazim/main.dart'; //use it to go back
+import 'package:maazim/limited_functionality_page.dart'; // Create this file for limited functionality
 
 void main() async {
   WidgetsFlutterBinding
