@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:maazim/guestLogIn.dart';
@@ -10,6 +11,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:maazim/layout.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:maazim/limited_functionality_page.dart'; // Create this file for limited functionality
+*/
 
 /*
 void main() async {
@@ -281,7 +284,7 @@ Widget _signup(BuildContext context) {
 }
 */
 
-//this code with the data base . 
+/*this code with the data base . 
 class LogIn extends StatelessWidget {
   const LogIn({Key? key}) : super(key: key);
 
@@ -305,26 +308,49 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  Future<void> _login(BuildContext context) async {
-    try {
-      if (_formKey.currentState!.validate()) {
+Future<void> _login(BuildContext context) async {
+  try {
+    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+      if (email.isNotEmpty && password.isNotEmpty) {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
+          email: email,
+          password: password,
         );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LimitedFunctionalityPage()),
+
+        // Check if user is authenticated
+        if (FirebaseAuth.instance.currentUser != null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LimitedFunctionalityPage()),
+          );
+        } else {
+          // Handle case where user is not authenticated
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Authentication failed'),
+            ),
+          );
+        }
+      } else {
+        // Handle case where email or password is empty
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Please enter email and password'),
+          ),
         );
       }
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.message!),
-        ),
-      );
     }
+  } on FirebaseAuthException catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(e.message ?? 'An error occurred'),
+      ),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -488,6 +514,239 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
+*/
 
 
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:maazim/Home_Host.dart';
+import 'package:maazim/layout.dart';
+import 'package:maazim/guestLogIn.dart';
+import 'package:maazim/signUp.dart';
+import 'package:maazim/limited_functionality_page.dart';
 
+class LogIn extends StatelessWidget {
+  const LogIn({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: LoginScreen(),
+    );
+  }
+}
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key? key}) : super(key: key);
+
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  Future<void> _login(BuildContext context) async {
+    try {
+      if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+        final email = _emailController.text.trim();
+        final password = _passwordController.text.trim();
+        if (email.isNotEmpty && password.isNotEmpty) {
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
+
+          // Check if user is authenticated
+          if (FirebaseAuth.instance.currentUser != null) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => homePage()),
+            );
+          } else {
+            // Handle case where user is not authenticated
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Authentication failed'),
+              ),
+            );
+          }
+        } else {
+          // Handle case where email or password is empty
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Please enter email and password'),
+            ),
+          );
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message ?? 'An error occurred'),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPage(
+      pageTitle: '',
+      content: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Heading
+              const SizedBox(height: 20),
+              Text(
+                "Welcome Back",
+                style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "Please enter your information to login",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                textAlign: TextAlign.center,
+              ),
+
+              // Email
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  hintText: "Email",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide.none,
+                  ),
+                  fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
+              enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1))),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide:  BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6))),
+                    errorBorder: OutlineInputBorder(
+                         borderRadius: BorderRadius.circular(18),
+                         borderSide: const BorderSide(color: Colors.red),),
+                    focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: const BorderSide(color: Colors.red),),
+              filled: true,
+              prefixIcon: const Icon(Icons.email),
+                ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  return null;
+                },
+              ),
+
+              // Password
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  hintText: "Password",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide.none,
+                  ),
+                  fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
+              enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1))),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide:  BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6))),
+                    errorBorder: OutlineInputBorder(
+                         borderRadius: BorderRadius.circular(18),
+                         borderSide: const BorderSide(color: Colors.red),),
+                    focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: const BorderSide(color: Colors.red),),
+              filled: true,
+              prefixIcon: const Icon(Icons.email),
+                ),
+                obscureText: true,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  return null;
+                },
+              ),
+
+              // Login Button
+              const SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: () => _login(context),
+                style: ElevatedButton.styleFrom(
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              backgroundColor: const Color(0xFF9a85a4).withOpacity(0.9),
+            ),
+                child: const Text(
+                  "Login",
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+             //Forgit password
+          const SizedBox(height: 10),
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const GuestLogIn()),
+              );
+            },
+            child: const Text(
+              "Forgot password?",
+              style: TextStyle(
+                color: Color(0xFF9a85a4),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          //Sign up
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("Don't have an account? "),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SignUp()),
+                  );
+                },
+                child: const Text(
+                  "Sign Up",
+                  style: TextStyle(
+                    color: Color(0xFF9a85a4),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
