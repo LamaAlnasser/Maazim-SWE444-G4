@@ -35,13 +35,13 @@ class WelcomePage extends StatelessWidget {
         children: [
           Image.asset(
             'assets/Logo.PNG',
-            width: 160.0,
-            height: 160.0,
+            width: 180.0,
+            height: 180.0,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 15),
           const Text(
-            'Welcome to Maazim',
-            style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
+            'Get Started with Maazim',
+            style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
@@ -97,7 +97,7 @@ class WelcomePage extends StatelessWidget {
             ),
             child: const Text(
               'Continue as a "Guest"',
-              style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 109, 71, 110)),
+              style: TextStyle(fontSize: 15, color: Color(0xFF6D476E)),
             ),
           ),
           const SizedBox(height: 40),
