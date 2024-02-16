@@ -20,7 +20,7 @@ class LimitedFunctionalityPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Limited Functionality'),
+        title: const Text('Guest Home'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -36,7 +36,13 @@ class LimitedFunctionalityPage extends StatelessWidget {
       body: const Center(
         child: Text(
           'Welcome, Guest!',
-          style: TextStyle(fontSize: 24),
+          textAlign: TextAlign.center,
+              style: TextStyle(
+        fontSize: 40,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
+      ),
+          
         ),
       ),
     );
