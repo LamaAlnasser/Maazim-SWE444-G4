@@ -4,7 +4,7 @@ import 'package:maazim/logIn.dart';
 import 'package:maazim/signUp.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:maazim/layoutpage.dart';
+import 'package:maazim/layout.dart';
 
 Future<void> main() async {
    WidgetsFlutterBinding
@@ -14,6 +14,8 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
