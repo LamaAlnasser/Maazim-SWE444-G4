@@ -13,6 +13,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+        runApp(LogIn());
 }
 
 class LogIn extends StatelessWidget {
