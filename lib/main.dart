@@ -81,8 +81,8 @@ class WelcomePage extends StatelessWidget {
                 ),
                 // Rounded corners
                 ),
-                 backgroundColor: const Color(0xFF9a85a4).withOpacity(0.1), // Button background color
-                 elevation: 0, // Removes shadow
+                  backgroundColor: Color.fromARGB(255, 254, 250, 255), // Button background color
+                 elevation: 2 // Removes shadow
                         ),
                         child: const Text('Signup',
                     style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold, color: Color(0xFF9a85a4))
