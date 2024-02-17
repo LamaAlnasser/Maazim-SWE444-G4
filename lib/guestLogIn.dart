@@ -149,7 +149,8 @@ class _GuestSignInPageState extends State<GuestLogIn> {
         children: [
     CustomPage(
       pageTitle: '', // Set the page title
-      content: Form( // Wrap content with a Form widget
+      content: 
+      Form( // Wrap content with a Form widget
         key: _formKey, // Associate the key with the form
       child: Column(
           children: [
