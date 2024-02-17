@@ -39,7 +39,7 @@ class CustomPage extends StatelessWidget {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 10),
                     Text(
                       pageTitle,
                       style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
