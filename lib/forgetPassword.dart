@@ -88,22 +88,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           children: <Widget>[
             const SizedBox(height: 80),
             const SizedBox(height: 60,
-            child: Text('Forget Passwort',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-        fontSize: 40,
-        fontWeight: FontWeight.bold,
-        color: Colors.black,
-      ),
+            child: Text('Forget Password',
+                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
             ),
             ),
               const SizedBox(height: 40,
                 child: Text(
                 'Please enter your email address',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-              color: Colors.black54,
-              ),
+             style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                textAlign: TextAlign.center,
                ),),
 
             Padding(
