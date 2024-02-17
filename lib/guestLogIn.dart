@@ -83,7 +83,6 @@ class _GuestSignInPageState extends State<GuestLogIn> {
       setState(() {
         _verificationId = verificationId;
       });
-      _showSnackbar('Please check your phone for the verification code.');
     },
     codeAutoRetrievalTimeout: (String verificationId) {
       _verificationId = verificationId;
@@ -118,13 +117,11 @@ class _GuestSignInPageState extends State<GuestLogIn> {
       setState(() {
         _isOtpInvalid = true; // Set this to true if the OTP is wrong
       });
-      _showSnackbar('Invalid OTP entered, please try again.');
     }
   } else {
     setState(() {
       _isOtpInvalid = true; // This will show the error if the verification ID is null or OTP length is not 6
     });
-    _showSnackbar('Please enter the valid 6-digit code.');
   }
   }
 
@@ -150,13 +147,16 @@ class _GuestSignInPageState extends State<GuestLogIn> {
     CustomPage(
       pageTitle: '', // Set the page title
       content: 
-      Form( // Wrap content with a Form widget
+      Padding(
+        padding: const EdgeInsets.all(24.0),
+      child: Form( // Wrap content with a Form widget
         key: _formKey, // Associate the key with the form
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-             const SizedBox(height: 50),
+             const SizedBox(height: 80),
             if (_verificationId == null) ...[
-              const SizedBox(height: 80,
+              const SizedBox(height: 60,
               child: Text('Verification',
                textAlign: TextAlign.center,
               style: TextStyle(
@@ -165,16 +165,14 @@ class _GuestSignInPageState extends State<GuestLogIn> {
         color: Colors.black,
       ),
     ),),
-              SizedBox(height: 60,
+              SizedBox(height: 40,
                 child: Text(
                 'Please enter a 9 digit phone number',
               textAlign: TextAlign.center,
-              style: TextStyle(
-              color: Colors.black54,
-              ),
+               style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
                ),),
 
-              Padding(padding: const EdgeInsets.symmetric(horizontal: 24,),
+              Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
              child: TextFormField(
                 cursorColor: const Color(0xFF9a85a4),
                 controller: _phoneNumberController,
@@ -244,30 +242,30 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                 return null; // Return null to indicate the input is correct
               },
               ),),
-              const SizedBox(height: 32),
-
-                ElevatedButton(
+              const SizedBox(height: 30),
+               Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: ElevatedButton(
                  onPressed: _attemptPhoneNumberVerification,
                  style: ElevatedButton.styleFrom(
-                 padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 135),
-                 shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30), // Rounded corners
-    ),
+                 shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(vertical: 16),
     backgroundColor: const Color(0xFF9a85a4), // Button background color
-    elevation: 0, // Removes shadow
   ),
   child: const Text(
     'Send OTP',
     style: TextStyle(
-      fontSize: 16, // Font size
-      fontWeight: FontWeight.bold,
-      color: Colors.white, // Text color
-    ),
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
   ),
-              ),
+              ),),
             ] else ...[
                Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  
                   const Text(
                'Verification',
                textAlign: TextAlign.center,
@@ -281,27 +279,23 @@ class _GuestSignInPageState extends State<GuestLogIn> {
     const Padding(padding: EdgeInsets.symmetric(horizontal: 6),
     child: Text(
       'Please enter the 6-digit OTP code sent by SMS to your phone number',
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        color: Colors.black54,
-      ),
+        style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                textAlign: TextAlign.center,
     ),),
-                  
-                  const SizedBox(height: 32),
-                  Padding(padding: const EdgeInsets.symmetric(horizontal: 25), // Adjust the side padding as needed
-                  child: PinCodeTextField(
-                    
+
+                  const SizedBox(height: 30),
+                     Padding(padding: EdgeInsets.symmetric(horizontal: 16),
+                   child: PinCodeTextField(
                     appContext: context,
                     length: 6,
                     onChanged: (String value) {
                             // Reset the error state when user starts typing again
                     if (_isOtpInvalid) {
-      setState(() {
-        _isOtpInvalid = false;
+                     setState(() {
+                    _isOtpInvalid = false;
                     });
                     }
                     },
-                     mainAxisAlignment: MainAxisAlignment.spaceBetween, // Add this line
                     pinTheme: PinTheme(
                       shape: PinCodeFieldShape.box,
                      borderRadius: BorderRadius.circular(5),
@@ -313,58 +307,56 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                      inactiveColor: _isOtpInvalid ? Colors.red : Colors.grey.withOpacity(0.1),
                      activeColor: _isOtpInvalid ? Colors.red : const Color(0xFF9a85a4),
                      selectedColor: _isOtpInvalid ? Colors.red : const Color(0xFF9a85a4),
-                        fieldOuterPadding: const EdgeInsets.symmetric(horizontal: 10), // Adjust the space between fields
+                        fieldOuterPadding: const EdgeInsets.symmetric(horizontal: 8), // Adjust the space between fields
                     ),
                     keyboardType: TextInputType.number,
                     onCompleted: (value) async {
-    final credential = PhoneAuthProvider.credential(
-      verificationId: _verificationId!,
-      smsCode: value,
-    );
-    try {
-       _signInWithCredential(credential);
-    } catch (e) {
-      setState(() {
-        _isOtpInvalid = true;
-      });
-    }
-  },
-),
-
-                    
-                  ),
-
-              
+                     final credential = PhoneAuthProvider.credential(
+                      verificationId: _verificationId!,
+                       smsCode: value,
+                        );
+                        try {
+                       _signInWithCredential(credential);
+                       } catch (e) {
+                       setState(() {
+                      _isOtpInvalid = true;
+                      });
+                      }
+                      },
+                     ),  
+                  ), 
                    if (_isOtpInvalid) ...[
                   const Padding(
-                  padding: EdgeInsets.only(top: 10),
+                  padding: EdgeInsets.only(top: 10,left: 18),
+                  
                   child: Text(
                  'Invalid OTP entered, please try again.',
                   style: TextStyle(color: Colors.red, fontSize: 14),
                   ),
                    ),
                    ],
+              
 
-                  const SizedBox(height: 32), 
-                    ElevatedButton(
+                  const SizedBox(height: 30), 
+                  Padding(padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: ElevatedButton(
                     onPressed: _signInWithPhoneNumber,
                       style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 135),
-                      shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30), // Rounded corners
-                      ),
-                      backgroundColor: const Color(0xFF9a85a4), // Button background color
-                    elevation: 0, // Removes shadow
+                      shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: const Color(0xFF9a85a4).withOpacity(0.9),// Rounded corners
                     ),
                     child: const Text('Confirm',
                     style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold, color: Color.fromARGB(255, 255, 255, 255))
                     ),
+                  ),
                   ),
                 ],
                ),
             ],
           ],
         ),
+      ),
       ),
       ),
         Positioned(
