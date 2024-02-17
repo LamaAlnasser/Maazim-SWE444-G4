@@ -102,31 +102,11 @@ class WelcomePage extends StatelessWidget {
               context,
               MaterialPageRoute(builder: (context) => const GuestLogIn()),
             ),
-            child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text("Continue as",
-                                style: TextStyle(
-                    color: Color.fromARGB(255, 0, 0, 0),
-                ),
+            child: const Text("Continue as Guest",
+                              style: TextStyle(
+                  color: Color.fromARGB(255, 0, 0, 0),
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SignUp()),
-                  );
-                },
-                child: const Text(
-                  "Guest",
-                  style: TextStyle(
-                    color: Color(0xFF9a85a4),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
           ),
           const SizedBox(height: 40),
         ],
