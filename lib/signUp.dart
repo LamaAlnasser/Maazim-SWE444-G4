@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:maazim/home.dart';
 import 'package:maazim/logIn.dart';
 import 'layout.dart';
 import 'package:maazim/main.dart';
-import 'package:country_picker/country_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignUp extends StatelessWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -74,6 +73,18 @@ class _SignUpContentState extends State<SignUpContent> {
           email: email,
           password: password,
         );
+
+        // Storing additional user information in Firestore
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .set({
+          'firstName': firstName,
+          'lastName': lastName,
+          'phoneNumber': phoneNumber,
+          'email': email,
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -184,13 +195,14 @@ class _SignUpContentState extends State<SignUpContent> {
             SizedBox(height: 10.0),
 
             //Phone
-            InternationalPhoneNumberInput(
-              onInputChanged: (PhoneNumber number) {
-                setState(() {
-                  phoneNumber = number.phoneNumber!;
-                });
+            TextFormField(
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your phone number.';
+                }
+                return null;
               },
-              inputDecoration: InputDecoration(
+              decoration: InputDecoration(
                 hintText: "Phone Number",
                 prefixIcon: Icon(Icons.phone),
                 border: OutlineInputBorder(
@@ -210,14 +222,7 @@ class _SignUpContentState extends State<SignUpContent> {
                 fillColor: Color(0xFF9a85a4).withOpacity(0.1),
                 filled: true,
               ),
-              //   selectorConfig: SelectorConfig(
-              //     selectorType: PhoneInputSelectorType.DIALOG,
-              //   ),
-              //   ignoreBlank: false,
-              //   autoValidateMode: AutovalidateMode.disabled,
-              //   selectorTextStyle: TextStyle(color: Colors.black),
-              initialValue:
-                  PhoneNumber(isoCode: 'SA'), // Changed to Saudi Arabia (SA)
+              onChanged: (value) => setState(() => phoneNumber = value),
             ),
             SizedBox(height: 10.0),
 
