@@ -1,122 +1,340 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  runApp(const SignUp());
-}
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:maazim/home.dart';
+import 'package:maazim/logIn.dart';
+import 'layout.dart';
+import 'package:maazim/main.dart';
+import 'package:country_picker/country_picker.dart';
 
 class SignUp extends StatelessWidget {
-  const SignUp({super.key});
+  const SignUp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Firebase Sign Up',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return Scaffold(
+      body: Stack(
+        children: [
+          CustomPage(
+            pageTitle: 'Sign Up',
+            content: SignUpContent(),
+          ),
+          Positioned(
+            top: 45.0,
+            left: 16.0,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color.fromARGB(255, 255, 255, 255),
+                ),
+                child: Icon(
+                  Icons.arrow_back,
+                  color: Color(0xFF9a85a4),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
-      home: const SignUpScreen(),
     );
   }
 }
 
-class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+class SignUpContent extends StatefulWidget {
+  const SignUpContent({Key? key}) : super(key: key);
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  State<SignUpContent> createState() => _SignUpContentState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _SignUpContentState extends State<SignUpContent> {
+  String email = "",
+      password = "",
+      firstName = "",
+      lastName = "",
+      phoneNumber = "";
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController mailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
-  final _phoneNumberController = TextEditingController();
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _phoneNumberController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _signUp() async {
-    if (_formKey.currentState!.validate()) {
+  void registration() async {
+    if (password.isNotEmpty &&
+        firstName.isNotEmpty &&
+        lastName.isNotEmpty &&
+        mailController.text.isNotEmpty &&
+        phoneNumber.isNotEmpty) {
       try {
-        UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text,
-          password: _passwordController.text,
+        UserCredential userCredential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
         );
-        await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-          'firstName': _firstNameController.text,
-          'lastName': _lastNameController.text,
-          'phoneNumber': _phoneNumberController.text,
-        });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User registered successfully')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Registered Successfully",
+              style: TextStyle(fontSize: 20.0),
+            ),
+          ),
+        );
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => Home()));
       } on FirebaseAuthException catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to register user: ${e.message}')));
+        if (e.code == 'weak-password') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.orangeAccent,
+              content: Text(
+                "Password Provided is too Weak",
+                style: TextStyle(fontSize: 18.0),
+              ),
+            ),
+          );
+        } else if (e.code == "email-already-in-use") {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.orangeAccent,
+              content: Text(
+                "Account Already exists",
+                style: TextStyle(fontSize: 18.0),
+              ),
+            ),
+          );
+        }
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Sign Up')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator: (value) => value != null && !value.contains('@') ? 'Enter a valid email' : null,
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            //First
+            TextFormField(
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your first name.';
+                }
+                return null;
+              },
+              decoration: InputDecoration(
+                hintText: "First Name",
+                prefixIcon: Icon(Icons.person),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide:
+                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide:
+                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                ),
+                fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                filled: true,
               ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) => value != null && value.length < 6 ? 'Password must be at least 6 characters long' : null,
+              onChanged: (value) => setState(() => firstName = value),
+            ),
+            SizedBox(height: 10.0),
+
+            //Last Name
+            TextFormField(
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your last name.';
+                }
+                return null;
+              },
+              decoration: InputDecoration(
+                hintText: "Last Name",
+                prefixIcon: Icon(Icons.person),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide:
+                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide:
+                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                ),
+                fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                filled: true,
               ),
-              TextFormField(
-                controller: _firstNameController,
-                decoration: const InputDecoration(labelText: 'First Name'),
-                validator: (value) => value != null && value.isEmpty ? 'Enter your first name' : null,
+              onChanged: (value) => setState(() => lastName = value),
+            ),
+            SizedBox(height: 10.0),
+
+            //Phone
+            InternationalPhoneNumberInput(
+              onInputChanged: (PhoneNumber number) {
+                setState(() {
+                  phoneNumber = number.phoneNumber!;
+                });
+              },
+              inputDecoration: InputDecoration(
+                hintText: "Phone Number",
+                prefixIcon: Icon(Icons.phone),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide:
+                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide:
+                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                ),
+                fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                filled: true,
               ),
-              TextFormField(
-                controller: _lastNameController,
-                decoration: const InputDecoration(labelText: 'Last Name'),
-                validator: (value) => value != null && value.isEmpty ? 'Enter your last name' : null,
+              //   selectorConfig: SelectorConfig(
+              //     selectorType: PhoneInputSelectorType.DIALOG,
+              //   ),
+              //   ignoreBlank: false,
+              //   autoValidateMode: AutovalidateMode.disabled,
+              //   selectorTextStyle: TextStyle(color: Colors.black),
+              initialValue:
+                  PhoneNumber(isoCode: 'SA'), // Changed to Saudi Arabia (SA)
+            ),
+            SizedBox(height: 10.0),
+
+            //Email
+            TextFormField(
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your email.';
+                }
+                return null;
+              },
+              controller: mailController,
+              decoration: InputDecoration(
+                hintText: "Email",
+                prefixIcon: Icon(Icons.email),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide:
+                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide:
+                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                ),
+                fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                filled: true,
               ),
-              TextFormField(
-                controller: _phoneNumberController,
-                decoration: const InputDecoration(labelText: 'Phone Number'),
-                keyboardType: TextInputType.phone,
-                validator: (value) => value != null && value.isEmpty ? 'Enter your phone number' : null,
+              onChanged: (value) => setState(() => email = value),
+            ),
+            SizedBox(height: 10.0),
+
+            //Password
+            TextFormField(
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a password.';
+                }
+                return null;
+              },
+              controller: passwordController,
+              decoration: InputDecoration(
+                hintText: "Password",
+                prefixIcon: Icon(Icons.lock),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide:
+                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide:
+                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                ),
+                fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                filled: true,
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _signUp,
-                child: const Text('Sign Up'),
+              obscureText: true,
+              onChanged: (value) => setState(() => password = value),
+            ),
+            SizedBox(height: 20.0),
+            ElevatedButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  registration();
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                shape: StadiumBorder(),
+                padding: EdgeInsets.symmetric(vertical: 16),
+                primary: Color(0xFF9a85a4).withOpacity(0.9),
               ),
-            ],
-          ),
+              child: Text(
+                'Sign Up',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            SizedBox(height: 20.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Already have an account? ",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LogIn()),
+                    );
+                  },
+                  child: Text(
+                    "Log In",
+                    style: TextStyle(
+                      color: Color(0xFF9a85a4),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          ],
         ),
       ),
     );
