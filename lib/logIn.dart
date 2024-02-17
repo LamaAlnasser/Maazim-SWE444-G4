@@ -451,10 +451,9 @@ class _LoginScreenState extends State<LoginScreen> {
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:maazim/Home_Host.dart';
+import 'package:maazim/forgetPassword.dart';
 import 'package:maazim/layout.dart';
-import 'package:maazim/guestLogIn.dart';
 import 'package:maazim/signUp.dart';
-import 'package:maazim/limited_functionality_page.dart';
 
 class LogIn extends StatelessWidget {
   const LogIn({Key? key}) : super(key: key);
@@ -656,7 +655,7 @@ class _LoginScreenState extends State<LoginScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const GuestLogIn()),
+                MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
               );
             },
             child: const Text(
