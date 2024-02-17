@@ -551,15 +551,19 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
 
               // Email
-              const SizedBox(height: 10),
-              TextFormField(
+              const SizedBox(height: 20),
+             Padding(
+             padding: const EdgeInsets.symmetric(horizontal: 20),
+             child: TextFormField(
                 controller: _emailController,
-                decoration: InputDecoration(
-                  hintText: "Email",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
+                    decoration: InputDecoration(
+              labelText: "Email",
+               labelStyle: TextStyle(color:Color(0xFF9a85a4)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: BorderSide.none,
+              ),
+
                   fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
               enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
@@ -582,18 +586,22 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
-              ),
+              ),),
 
               // Password
-              const SizedBox(height: 10),
-              TextFormField(
+              const SizedBox(height: 20),
+                      Padding(
+             padding: const EdgeInsets.symmetric(horizontal: 20),
+             child: TextFormField(
                 controller: _passwordController,
-                decoration: InputDecoration(
-                  hintText: "Password",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
+                     decoration: InputDecoration(
+              labelText: "Password",
+               labelStyle: TextStyle(color:Color(0xFF9a85a4)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: BorderSide.none,
+              ),
+
                   fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
               enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
@@ -617,12 +625,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
-              ),
+              ), ),
 
 
               // Login Button
               const SizedBox(height: 30),
-              ElevatedButton(
+                   Padding(
+             padding: const EdgeInsets.symmetric(horizontal: 20),
+              child :ElevatedButton(
                 onPressed: () => _login(context),
                 style: ElevatedButton.styleFrom(
               shape: const StadiumBorder(),
@@ -638,6 +648,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
+                   ),
 
              //Forgit password
           const SizedBox(height: 10),
@@ -660,7 +671,7 @@ class _LoginScreenState extends State<LoginScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text("Don't have an account? "),
+              const Text("New to Maazim? "),
               TextButton(
                 onPressed: () {
                   Navigator.push(
