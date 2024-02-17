@@ -46,7 +46,29 @@ class _GuestSignInPageState extends State<GuestLogIn> {
 
    final _formKey = GlobalKey<FormState>(); // Add a key for the form
    bool _isOtpInvalid = false;
+   // Declare a variable to hold the regex pattern for the selected country
 
+Map<String, FormFieldValidator<String>> countryValidators = {
+  '966': (value) {
+    if (value == null || value.isEmpty || value.length != 9) {
+      return 'Please enter a 9-digit number for Saudi Arabia';
+    }
+    return null;
+  },
+  '1': (value) {
+    if (value == null || value.isEmpty || value.length != 10) {
+      return 'Please enter a 10-digit number for the USA';
+    }
+    return null;
+  },
+  '971': (value) {
+    if (value == null || value.isEmpty || value.length != 9) {
+      return 'Please enter a 9-digit number for the UAE';
+    }
+    return null;
+  },
+  // Add more validators for other countries if needed
+};
 
   Country selectedCountry = Country(
       phoneCode: "966",
@@ -59,6 +81,21 @@ class _GuestSignInPageState extends State<GuestLogIn> {
       displayName: "SaudiArabia",
       displayNameNoCountryCode: "KSA",
       e164Key: "");
+
+void showCustomCountryPicker(BuildContext context) {
+   showCountryPicker(
+    context: context,
+    countryFilter: <String>['SA', 'US', 'AE'],
+    onSelect: (Country country) {
+      setState(() {
+        selectedCountry = country;
+      });
+    },
+    countryListTheme: CountryListThemeData(
+      bottomSheetHeight: 500
+    ),
+  );
+}
 
 
   @override
@@ -137,6 +174,31 @@ class _GuestSignInPageState extends State<GuestLogIn> {
     }
   }
 
+  FormFieldValidator<String> getValidatorForCountry(String phoneCode) {
+  // Define the validation logic inside a method
+  return (value) {
+    // Check if the value is empty
+    if (value == null || value.isEmpty) {
+      return 'Please enter a phone number';
+    }
+    // Specific checks for Saudi Arabia
+    if (phoneCode == '966' && !(value.startsWith('5') && value.length == 9)) {
+      return 'Please enter a 9-digit number like 5XXXXXXXX';
+    }
+    // Specific checks for the USA
+    if (phoneCode == '1' && value.length != 10) {
+      return 'Please enter a 10-digit number';
+    }
+    // Specific checks for the UAE
+    if (phoneCode == '971' && !(value.startsWith('5') && value.length == 9)) {
+      return 'Please enter a 9-digit number like 5XXXXXXXX';
+    }
+    // If none of the conditions are met, the number is valid
+    return null;
+  };
+}
+
+
 
 
       @override
@@ -199,18 +261,8 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                       
                       child: InkWell(
                         onTap: () {
-                          showCountryPicker(
-                              context: context,
-                              countryListTheme: const CountryListThemeData(
-                                bottomSheetHeight: 500
-                              ),
-                              onSelect: (value) {
-                                setState(() {
-                                  selectedCountry = value;
-                                });
-                              });
+                          showCustomCountryPicker(context);
                         },
-
                         child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -231,12 +283,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                   ),
                  ),
                )),
-              validator: (value) {
-                if (value == null || value.isEmpty || value.length != 9) {
-                  return 'Please enter a 9-digit number'; // Error message
-                }
-                return null; // Return null to indicate the input is correct
-              },
+              validator: getValidatorForCountry(selectedCountry.phoneCode),
               ),),
               const SizedBox(height: 30),
                Padding(
