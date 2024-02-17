@@ -79,10 +79,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         children: [
     CustomPage(
       pageTitle: '',
-      content: Form(
+      content: Padding(
+        padding: const EdgeInsets.all(24.0),
+      child: Form(
         key: _formKey,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             const SizedBox(height: 80),
             const SizedBox(height: 60,
@@ -105,22 +107,22 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                ),),
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextFormField(
                 cursorColor: const Color(0xFF9a85a4),
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 onChanged: (value) {
-  if (_userNotFound) {
-    setState(() {
-      _userNotFound = false;
-    });
-  }
-},
-
+                if (_userNotFound) {
+                setState(() {
+               _userNotFound = false;
+                });
+                }
+                },
                 decoration: InputDecoration(
                   labelText: 'Email',
                   hintText: 'Enter your email',
+                   labelStyle: TextStyle(color:Color(0xFF9a85a4)),
                    filled: true, // Needed for fillColor to take effect
                    fillColor: Color(0xFF9a85a4).withOpacity(0.1), // Background color of the field
                     enabledBorder: OutlineInputBorder(
@@ -136,24 +138,26 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         borderRadius: BorderRadius.circular(18),
                         borderSide: const BorderSide(color: Colors.red),),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+                     borderRadius: BorderRadius.circular(18),
+                borderSide: BorderSide.none,
                   ),
                    prefixIcon: const Icon(Icons.email),
                 ),
                 validator: (value) {
-  if (_userNotFound) {
-    return 'No user found for this email address';
-  }
-  if (value == null || value.isEmpty || !value.contains('@')) {
-    return 'Please enter a valid email';
-  }
-  return null;
-},
-
+                if (_userNotFound) {
+                return 'No user found for this email address';
+                }
+                if (value == null || value.isEmpty || !value.contains('@')) {
+                 return 'Please enter a valid email';
+                 }
+                 return null;
+                 },
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   _resetPassword(_emailController.text);
@@ -161,16 +165,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               },
                style: ElevatedButton.styleFrom(
                       shape: const StadiumBorder(),
-                      padding: const EdgeInsets.symmetric(vertical: 16,horizontal: 100),
-                      backgroundColor: const Color(0xFF9a85a4), // Button background color
-                    elevation: 1, // Removes shadow
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              backgroundColor: const Color(0xFF9a85a4).withOpacity(0.9),
                     ),
                     child: const Text('Reset Password',
                     style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold, color: Color.fromARGB(255, 255, 255, 255))
                     ),
                   ),
+            ),
           ],
         ),
+      ),
       ),
     ),
       Positioned(
