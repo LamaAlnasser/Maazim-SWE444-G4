@@ -158,13 +158,9 @@ class _GuestSignInPageState extends State<GuestLogIn> {
             if (_verificationId == null) ...[
               const SizedBox(height: 60,
               child: Text('Verification',
-               textAlign: TextAlign.center,
-              style: TextStyle(
-        fontSize: 40,
-        fontWeight: FontWeight.bold,
-        color: Colors.black,
-      ),
-    ),),
+              style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+      ),),
               SizedBox(height: 40,
                 child: Text(
                 'Please enter a 9 digit phone number',
