@@ -53,19 +53,23 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Password reset link has been sent to your email.'),
+        backgroundColor: Colors.green, // Optional: if you want to use color to show success
       ),
     );
+    // Consider navigating the user to the login page or show a success message
   } on FirebaseAuthException catch (e) {
     if (e.code == 'user-not-found') {
       setState(() {
-        _userNotFound = true; // Flag to trigger the UI error message
+        _userNotFound = true; // This will trigger the UI to show the error message
       });
     } else {
-         setState(() {
-      _userNotFound = false; });// Resets the error state when any other error occurs.
+      setState(() {
+        _userNotFound = false; // Reset the error if there is a different FirebaseAuthException
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('An error occurred: ${e.message}'),
+          backgroundColor: Colors.red, // Optional: if you want to use color to show error
         ),
       );
     }
@@ -137,15 +141,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   ),
                    prefixIcon: const Icon(Icons.email),
                 ),
-                validator: (value) {
-                if (_userNotFound) {
-                return 'No user found for this email address';
-                }
-                if (value == null || value.isEmpty || !value.contains('@')) {
-                 return 'Please enter a valid email';
-                 }
-                 return null;
-                 },
+                 validator: (value) {
+    if (_userNotFound) {
+      return 'No user found for this email address';
+    }
+    if (value == null || value.isEmpty || !value.contains('@')) {
+      return 'Please enter a valid email';
+    }
+    return null;
+  },
               ),
             ),
             const SizedBox(height: 20),
