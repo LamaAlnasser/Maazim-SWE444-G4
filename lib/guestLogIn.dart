@@ -185,7 +185,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                     labelText: 'Phone Number',
                     labelStyle: const TextStyle(color:Color(0xFF9a85a4)),
                     filled: true, // Needed for fillColor to take effect
-                   fillColor: const Color.fromARGB(255, 0, 0, 0).withOpacity(0.1), // Background color of the field
+                   fillColor: Color(0xFF9a85a4).withOpacity(0.1), // Background color of the field
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                         borderSide: BorderSide(color: const Color(0xFF9a85a4).withOpacity(0.0))),
@@ -198,8 +198,6 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                     focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                         borderSide: const BorderSide(color: Colors.red),),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0), // Adjust the content padding
-
                     prefixIcon: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       
