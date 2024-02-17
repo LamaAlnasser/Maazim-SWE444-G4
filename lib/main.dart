@@ -10,7 +10,7 @@ Future<void> main() async {
    WidgetsFlutterBinding
       .ensureInitialized(); // Ensure the Flutter binding is initialized
   await Firebase.initializeApp(); // Initialize Firebase
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -33,15 +33,15 @@ class WelcomePage extends StatelessWidget {
       pageTitle: "",
       content: Column(
         children: [
-          Image.asset(
+          Image.asset( 
             'assets/Logo.PNG',
-            width: 160.0,
-            height: 160.0,
+            width: 180.0,
+            height: 180.0,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 15),
           const Text(
-            'Welcome to Maazim',
-            style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
+            'Get started with Maazim',
+            style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold,),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
@@ -81,7 +81,7 @@ class WelcomePage extends StatelessWidget {
                 ),
                 // Rounded corners
                 ),
-                  backgroundColor: Color.fromARGB(255, 254, 250, 255), // Button background color
+                  backgroundColor: const Color.fromARGB(255, 254, 250, 255), // Button background color
                  elevation: 2 // Removes shadow
                         ),
                         child: const Text('Signup',
@@ -96,10 +96,31 @@ class WelcomePage extends StatelessWidget {
               context,
               MaterialPageRoute(builder: (context) => const GuestLogIn()),
             ),
-            child: const Text(
-              'Continue as a "Guest"',
-              style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold, color: Color.fromARGB(255, 109, 71, 110)),
-            ),
+            child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("Continue as",
+                                style: TextStyle(
+                    color: Color.fromARGB(255, 0, 0, 0),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SignUp()),
+                  );
+                },
+                child: const Text(
+                  "Guest",
+                  style: TextStyle(
+                    color: Color(0xFF9a85a4),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
           ),
           const SizedBox(height: 40),
         ],
