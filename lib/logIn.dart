@@ -616,18 +616,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 textAlign: TextAlign.center,
               ),
 
-              // Email
-              const SizedBox(height: 10),
-              TextFormField(
+              //Email
+              const SizedBox(height: 20),
+             Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: TextFormField(
                 controller: _emailController,
                 decoration: InputDecoration(
                   hintText: "Email",
+                  labelStyle: TextStyle(color:Color(0xFF9a85a4)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
                     borderSide: BorderSide.none,
                   ),
                   fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
-              enabledBorder: OutlineInputBorder(
+                  enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                         borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1))),
                     focusedBorder: OutlineInputBorder(
@@ -648,7 +651,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
-              ),
+              ),),
+
 
               // Password
               const SizedBox(height: 10),
