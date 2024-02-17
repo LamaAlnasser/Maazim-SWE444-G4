@@ -41,14 +41,20 @@ class WelcomePage extends StatelessWidget {
         children: [
           Image.asset( 
             'assets/Logo.PNG',
-            width: 180.0,
-            height: 180.0,
+            width: 160.0,
+            height: 160.0,
           ),
           const SizedBox(height: 15),
           const Text(
-            'Get started with Maazim',
+            'Maazim',
             style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold,),
             textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 22,
+          child: Text('Crafting your perfect event journey.',
+             style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                textAlign: TextAlign.center,
+          ),
           ),
           const SizedBox(height: 20),
             Padding(padding: const EdgeInsets.symmetric(horizontal: 20),
