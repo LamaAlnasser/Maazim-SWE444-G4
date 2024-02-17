@@ -119,7 +119,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 },
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  hintText: 'Enter your email',
                    labelStyle: TextStyle(color:Color(0xFF9a85a4)),
                    filled: true, // Needed for fillColor to take effect
                    fillColor: Color(0xFF9a85a4).withOpacity(0.1), // Background color of the field
