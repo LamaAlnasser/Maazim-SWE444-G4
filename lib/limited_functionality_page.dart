@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:maazim/guestLogIn.dart';
+import 'package:maazim/main.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -27,7 +28,7 @@ class LimitedFunctionalityPage extends StatelessWidget {
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
               Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => const GuestLogIn(),
+                builder: (context) => WelcomePage(),
               ));
             },
           ),
@@ -35,7 +36,7 @@ class LimitedFunctionalityPage extends StatelessWidget {
       ),
       body: const Center(
         child: Text(
-          'Welcome, Guest!',
+          'Welcome',
           style: TextStyle(fontSize: 24),
         ),
       ),
