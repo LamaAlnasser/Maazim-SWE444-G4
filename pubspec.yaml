@@ -41,7 +41,9 @@ dependencies:
   cloud_firestore: ^4.15.4
   firebase_auth: ^4.17.4
   country_picker: ^2.0.24
-  
+  intl_phone_number_input: ^0.7.4
+
+
 
 dev_dependencies:
   flutter_test:
@@ -74,7 +76,7 @@ flutter:
     - assets/images/
     - assets/Logo.PNG
     - assets/images/boarder/white.png
-
+    - assets/name.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
