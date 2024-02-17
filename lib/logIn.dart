@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:maazim/forgetPassword.dart';
 import 'package:maazim/guestLogIn.dart';
 import 'package:maazim/layout.dart';
 import 'package:maazim/signUp.dart';
@@ -177,7 +178,7 @@ Widget _inputField(BuildContext context) {
 Widget _forgotPassword(BuildContext context) {
   return TextButton(
     onPressed: () => Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const GuestLogIn())),
+        context, MaterialPageRoute(builder: (context) => const ForgotPasswordPage())),
     child: const Text(
       "Forgot password?",
       style: TextStyle(
