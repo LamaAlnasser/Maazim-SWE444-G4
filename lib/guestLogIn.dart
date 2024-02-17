@@ -161,7 +161,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
               style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
       ),),
-              SizedBox(height: 40,
+              const SizedBox(height: 40,
                 child: Text(
                 'Please enter a 9 digit phone number',
               textAlign: TextAlign.center,
@@ -178,15 +178,15 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                ],
                 decoration: InputDecoration(
                     labelText: 'Phone Number',
-                    labelStyle: TextStyle(color:Color(0xFF9a85a4)),
+                    labelStyle: const TextStyle(color:Color(0xFF9a85a4)),
                     filled: true, // Needed for fillColor to take effect
               fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0))),
+                        borderSide: BorderSide(color: const Color(0xFF9a85a4).withOpacity(0.0))),
                     focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
-                        borderSide:  BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6))),
+                        borderSide:  BorderSide(color: const Color(0xFF9a85a4).withOpacity(0.6))),
                     errorBorder: OutlineInputBorder(
                          borderRadius: BorderRadius.circular(18),
                          borderSide: const BorderSide(color: Colors.red),),
@@ -280,7 +280,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
     ),),
 
                   const SizedBox(height: 30),
-                     Padding(padding: EdgeInsets.symmetric(horizontal: 16),
+                     Padding(padding: const EdgeInsets.symmetric(horizontal: 16),
                    child: PinCodeTextField(
                     appContext: context,
                     length: 6,
@@ -297,8 +297,8 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                      borderRadius: BorderRadius.circular(5),
                      fieldHeight: 40,
                      fieldWidth: 30,
-                     inactiveFillColor: _isOtpInvalid ? Colors.red.shade50 : Color.fromARGB(255, 76, 0, 111).withOpacity(0.1),
-                     activeFillColor: _isOtpInvalid ? Colors.red.shade50 : Color.fromARGB(255, 103, 15, 144).withOpacity(0.1),
+                     inactiveFillColor: _isOtpInvalid ? Colors.red.shade50 : const Color.fromARGB(255, 76, 0, 111).withOpacity(0.1),
+                     activeFillColor: _isOtpInvalid ? Colors.red.shade50 : const Color.fromARGB(255, 103, 15, 144).withOpacity(0.1),
                      selectedFillColor: _isOtpInvalid ? Colors.red.shade50 : const Color(0xFF9a85a4).withOpacity(0.1),
                      inactiveColor: _isOtpInvalid ? Colors.red : Colors.grey.withOpacity(0.1),
                      activeColor: _isOtpInvalid ? Colors.red : const Color(0xFF9a85a4),
@@ -365,12 +365,12 @@ class _GuestSignInPageState extends State<GuestLogIn> {
               Navigator.of(context).pop();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color.fromARGB(255, 154, 133, 164), // Background color
-              shape: CircleBorder(), // Circular shape
+              backgroundColor: const Color.fromARGB(255, 154, 133, 164), // Background color
+              shape: const CircleBorder(), // Circular shape
               elevation: 0,
-              minimumSize:Size(50, 50),
+              minimumSize:const Size(50, 50),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.arrow_back, // The icon for the button
               color: Color.fromARGB(255, 255, 255, 255),
               size: 30, // Icon color
