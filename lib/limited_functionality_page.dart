@@ -65,7 +65,7 @@ void main() async {
 }
 
 
- /*@override
+ @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Maazim Guest',
@@ -78,7 +78,7 @@ void main() async {
   }
 
 
-class LimitedFunctionalityPage extends StatelessWidget {
+/*class LimitedFunctionalityPage extends StatelessWidget {
   const LimitedFunctionalityPage({Key? key}) : super(key: key);
 
   @override
@@ -140,7 +140,7 @@ class LimitedFunctionalityPage extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          CustomPage(
+          const CustomPage(
             pageTitle: '',
             content: Padding(
               padding: EdgeInsets.all(24.0),
