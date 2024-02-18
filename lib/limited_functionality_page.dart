@@ -65,7 +65,7 @@ void main() async {
 }
 
 
- @override
+ /*@override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Maazim Guest',
@@ -84,16 +84,16 @@ class LimitedFunctionalityPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      body: const Stack(
         children: [
           CustomPage(
             pageTitle: '',
             content: Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: EdgeInsets.all(24.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                   Text(
                     "Welcome!",
                     style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
@@ -130,4 +130,60 @@ class LimitedFunctionalityPage extends StatelessWidget {
       ),
     );
   }
+}*/
+
+class LimitedFunctionalityPage extends StatelessWidget {
+  const LimitedFunctionalityPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          CustomPage(
+            pageTitle: '',
+            content: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: 20),
+                  Text(
+                    "Welcome!",
+                    style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Properly use Positioned within a Stack
+          Positioned(
+            bottom: 25.0,
+            right: 15,
+            child: ElevatedButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => WelcomePage(), // Ensure WelcomePage is defined
+                ));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 154, 133, 164),
+                shape: const CircleBorder(),
+                elevation: 0,
+                minimumSize: const Size(50, 50),
+              ),
+              child: const Icon(
+                Icons.logout,
+                color: Color.fromARGB(255, 255, 255, 255),
+                size: 30,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
