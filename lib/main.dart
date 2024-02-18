@@ -89,7 +89,7 @@ class WelcomePage extends StatelessWidget {
                 side: const BorderSide(style: BorderStyle.solid, width: 2,
                 color: Color(0xFF9a85a4),
                 ),// Rounded corners
-                 backgroundColor: Color.fromARGB(255, 255, 255, 255), // Button background color
+                 backgroundColor: Color(0xFFFFFFFF), // Button background color
                         ),
                         child: const Text('Sign up',
                     style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold, color: Color(0xFF9a85a4))
