@@ -22,7 +22,7 @@ class SignUp extends StatelessWidget {
           ),
 
           Positioned(
-            top: 60.0,
+            bottom: 25.0,
             left: 30.0,
             child: GestureDetector(
               onTap: () {
@@ -32,11 +32,11 @@ class SignUp extends StatelessWidget {
                 padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color.fromARGB(255, 255, 255, 255),
+                  color: const Color.fromARGB(255, 154, 133, 164),
                 ),
                 child: Icon(
                   Icons.arrow_back,
-                  color: Color(0xFF9a85a4),
+                  color: Color.fromARGB(255, 255, 255, 255),
                 ),
               ),
             ),
@@ -139,26 +139,29 @@ class _SignUpContentState extends State<SignUpContent> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0 , 10.0),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
               const SizedBox(height: 60,
-              child: Text('Join Maazim',
-              style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+              child: Text('Join Maazim!',
+              style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
                ),),
-              const SizedBox(height: 25,
+              const SizedBox(height: 30,
                 child: Text(
-                'Please enter your info',
+                'Create your account',
               textAlign: TextAlign.center,
-               style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+               style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                ),),
                 SizedBox(height:10),
 
-              Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
+
+          Row(
+            children:[
+             Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 5,),
             //First
             child: TextFormField(
             cursorColor:Color(0xFF9a85a4) ,
@@ -166,11 +169,17 @@ class _SignUpContentState extends State<SignUpContent> {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your first name.';
                 }
+                 if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+
+                    return 'Name can only contain letters.';
+                                                             }
                 return null;
               },
+             
               decoration: InputDecoration(
                           labelText: "First Name",
-                          labelStyle: TextStyle(color: Color(0xFF9a85a4)),
+                          labelStyle: TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                          errorStyle: TextStyle(fontSize: 10),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
                             borderSide: BorderSide.none,
@@ -196,23 +205,28 @@ class _SignUpContentState extends State<SignUpContent> {
                     prefixIcon: Icon(Icons.person),
               ),
               onChanged: (value) => setState(() => firstName = value),
-            ),),
-            SizedBox(height: 10.0),
-
-              Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
-
+            ),), ),
+           
             //Last Name
+            Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 5,),
             child: TextFormField(
              cursorColor:Color(0xFF9a85a4) ,
               validator: (value) {
                 if (value == null || value.isEmpty) {
+                  
                   return 'Please enter your last name.';
+                  
                 }
+                if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+
+                    return 'Name can only contain letters.';
+                                                             }
                 return null;
               },
               decoration: InputDecoration(
                           labelText: "Last Name",
-                          labelStyle: TextStyle(color: Color(0xFF9a85a4)),
+                          labelStyle: TextStyle(color: Color(0xFF9a85a4) ,fontSize:14 ),
+                          errorStyle: TextStyle(fontSize: 10),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
                             borderSide: BorderSide.none,
@@ -235,15 +249,13 @@ class _SignUpContentState extends State<SignUpContent> {
                             borderSide: BorderSide(color: Colors.red),
                           ),
                           filled: true,
-                                prefixIcon: Icon(Icons.person),
+                                 prefixIcon: Icon(Icons.person),
               ),
               onChanged: (value) => setState(() => lastName = value),
-            ),),
+            ),), ), ], ),
             SizedBox(height: 10),
 
            
-                 
-                  const SizedBox(width: 8),
             //Phone number
             
                      Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
@@ -311,8 +323,12 @@ class _SignUpContentState extends State<SignUpContent> {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your phone number.';
                         }
-                        if (value.length < 9) {
-                          return 'Please enter a valid phone number.';
+                        if (value.length > 9) {
+                          return 'Please enter a valid 9-digit phone number.';
+                        }
+                        if ( value.length < 9)
+                        {
+                           return 'Please enter a valid 9-digit phone number.';
                         }
                         // Check if country is United Arab Emirates and phone number starts with '5'
                         if (selectedCountry.countryCode == 'AE' &&
@@ -320,9 +336,9 @@ class _SignUpContentState extends State<SignUpContent> {
                           return "Please enter a valid phone number.";
                         }
                         // Check if country is Saudi Arabia and phone number starts with '5'
-                        if (selectedCountry.countryCode == 'U' &&
+                        if (selectedCountry.countryCode == 'SA' &&
                             !value.startsWith('5')) {
-                          return "Please enter a valid phone number.";
+                          return "Please enter a valid phone number, eg. 5xxxxxxxx";
                         }
 
                         return null;
@@ -412,6 +428,7 @@ class _SignUpContentState extends State<SignUpContent> {
               decoration: InputDecoration(
                           labelText: "Password",
                           labelStyle: TextStyle(color: Color(0xFF9a85a4)),
+                           errorStyle: TextStyle(fontSize: 10),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
                             borderSide: BorderSide.none,
