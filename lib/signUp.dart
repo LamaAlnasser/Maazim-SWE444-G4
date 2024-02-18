@@ -7,9 +7,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:maazim/Home_Host.dart';
 import 'package:country_picker/country_picker.dart';
 
-
-
-
 class SignUp extends StatelessWidget {
   const SignUp({Key? key}) : super(key: key);
 
@@ -18,29 +15,26 @@ class SignUp extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          
           CustomPage(
             pageTitle: '',
-          
             content: SignUpContent(),
           ),
-           
-             // Centered Heading
+
+          // Centered Heading
           Positioned(
-            top: 135.0, // Adjust this value to position vertically
-            left: MediaQuery.of(context).size.width / 2 - 160.0, // Adjust this value to center horizontally
+            top: 220.0, // Adjust this value to position vertically
+            left: MediaQuery.of(context).size.width / 2 -
+                100.0, // Adjust this value to center horizontally
             child: Text(
-              "Join Maazim",
-              style: TextStyle(fontSize: 55, fontWeight: FontWeight.bold),
+              "Join Maazim!",
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
           ),
-        
+
           Positioned(
             top: 60.0,
-            left: 60.0,
-            
-          
+            left: 30.0,
             child: GestureDetector(
               onTap: () {
                 Navigator.of(context).pop();
@@ -51,12 +45,10 @@ class SignUp extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: Color.fromARGB(255, 255, 255, 255),
                 ),
-                
                 child: Icon(
                   Icons.arrow_back,
                   color: Color(0xFF9a85a4),
                 ),
-                
               ),
             ),
           ),
@@ -64,7 +56,6 @@ class SignUp extends StatelessWidget {
       ),
     );
   }
-  
 }
 
 class SignUpContent extends StatefulWidget {
@@ -80,7 +71,7 @@ class _SignUpContentState extends State<SignUpContent> {
   String firstName = "";
   String lastName = "";
   String phoneNumber = "";
-   Country selectedCountry = Country(
+  Country selectedCountry = Country(
       phoneCode: "966",
       countryCode: "SA",
       e164Sc: 0,
@@ -94,7 +85,7 @@ class _SignUpContentState extends State<SignUpContent> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController mailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
+  bool showError = false; // Add a boolean to track error visibility
 
   void registration() async {
     if (password.isNotEmpty &&
@@ -123,7 +114,7 @@ class _SignUpContentState extends State<SignUpContent> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              "Registered Successfully",
+              "Registered Successfully!",
               style: TextStyle(fontSize: 20.0),
             ),
           ),
@@ -131,32 +122,17 @@ class _SignUpContentState extends State<SignUpContent> {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => homePage()));
       } on FirebaseAuthException catch (e) {
-        if (e.code == 'weak-password') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Colors.orangeAccent,
-              content: Text(
-                "Password Provided is too Weak",
-                style: TextStyle(fontSize: 18.0),
-              ),
-            ),
-          );
-        } else if (e.code == "email-already-in-use") {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Colors.orangeAccent,
-              content: Text(
-                "Account Already exists",
-                style: TextStyle(fontSize: 18.0),
-              ),
-            ),
-          );
+        if (e.code == "email-already-in-use") {
+          setState(() {
+            showError =
+                true; // Set showError to true to display the error message
+          });
         }
       }
     }
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -227,86 +203,115 @@ class _SignUpContentState extends State<SignUpContent> {
               ),
               onChanged: (value) => setState(() => lastName = value),
             ),
-            SizedBox(height: 10.0),
-            
+            SizedBox(height: 2.0),
 
-// Phone number
+            // Phone number
+            Container(
+              height: 65,
+              padding: EdgeInsets.symmetric(horizontal: 20), // Adjust padding
+              margin:
+                  EdgeInsets.symmetric(vertical: 10), // Add margin for spacing
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  // Add Border.all to set border color
+                  color: Color(0xFF9a85a4)
+                      .withOpacity(0.1), // Set the border color
+                ),
+                color: Color(0xFF9a85a4).withOpacity(0.1),
+              ),
+              child: Row(
+                children: [
+                  InkWell(
+                    onTap: () {
+                      showCountryPicker(
+                        context: context,
+                        countryListTheme: const CountryListThemeData(
+                          bottomSheetHeight: 500,
+                        ),
+                        onSelect: (value) {
+                          setState(() {
+                            selectedCountry = value;
+                          });
+                        },
+                      );
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          selectedCountry.flagEmoji,
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '+${selectedCountry.phoneCode} |',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: // Phone number
+                        TextFormField(
+                      keyboardType: TextInputType.phone,
+                      maxLength: 9, // Set maximum length to 9
+                      decoration: InputDecoration(
+                        hintText: 'Phone number',
+                        hintStyle: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        border: InputBorder.none, // Remove the underline
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your phone number.';
+                        }
+                        if (value.length < 9) {
+                          return 'Please enter a valid phone number.';
+                        }
+                        // Check if country is United Arab Emirates and phone number starts with '5'
+                        if (selectedCountry.countryCode == 'AE' &&
+                            !value.startsWith('5')) {
+                          return "Please enter a valid phone number.";
+                        }
+                        // Check if country is Saudi Arabia and phone number starts with '5'
+                        if (selectedCountry.countryCode == 'U' &&
+                            !value.startsWith('5')) {
+                          return "Please enter a valid phone number.";
+                        }
 
-
-Container(
-  height: 60,
-  padding: EdgeInsets.all(20.0),
-  decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(18),
-    color: Color(0xFF9a85a4).withOpacity(0.1),
-  ),
-  child: Row(
-    children: [
-      InkWell(
-        onTap: () {
-          showCountryPicker(
-            context: context,
-            countryListTheme: const CountryListThemeData(
-              bottomSheetHeight: 500,
-            ),
-            onSelect: (value) {
-              setState(() {
-                selectedCountry = value;
-              });
-            },
-          );
-        },
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              selectedCountry.flagEmoji,
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '+${selectedCountry.phoneCode} |',
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.black54,
-                fontWeight: FontWeight.w500,
+                        return null;
+                      },
+                      onChanged: (value) {
+                        // Handle phone number input
+                        phoneNumber = value;
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-      const SizedBox(width: 8),
-      Expanded(
-        child: TextField(
-          keyboardType: TextInputType.phone,
-          decoration: InputDecoration(
-            hintText: 'phone number',
-            hintStyle: TextStyle(
-              fontSize: 16,
-              color: Colors.black54,
-              fontWeight: FontWeight.w500,
-            ),
-            border: InputBorder.none, // Remove the underline
-          ),
-          onChanged: (value) {
-            // Handle phone number input
-            phoneNumber = value;
-          },
-        ),
-      ),
-    ],
-  ),
-),
-SizedBox(height: 10.0),
 
+            SizedBox(height: 2.0),
 
-
-
- //Email
+            //Email
             TextFormField(
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your email.';
+                }
+                // Check if the entered value is a valid email address
+                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                    .hasMatch(value)) {
+                  return 'Please enter a valid email address.';
                 }
                 return null;
               },
@@ -335,14 +340,27 @@ SizedBox(height: 10.0),
             ),
             SizedBox(height: 10.0),
 
-
-
-            //Password
+            // Password
             TextFormField(
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter a password.';
                 }
+                // Custom password strength check
+                if (value.length < 8) {
+                  return 'Password must be at least 8 characters long.';
+                }
+                if (!value.contains(RegExp(r'[A-Z]'))) {
+                  return 'Password must contain at least one uppercase letter.';
+                }
+                if (!value.contains(RegExp(r'[a-z]'))) {
+                  return 'Password must contain at least one lowercase letter.';
+                }
+                if (!value.contains(RegExp(r'[0-9]'))) {
+                  return 'Password must contain at least one digit.';
+                }
+                // Add more checks as needed, such as special characters
+
                 return null;
               },
               controller: passwordController,
@@ -369,7 +387,25 @@ SizedBox(height: 10.0),
               obscureText: true,
               onChanged: (value) => setState(() => password = value),
             ),
-            SizedBox(height: 20.0),
+
+            SizedBox(height: 10.0),
+
+            // Show error message if account already exists
+            Visibility(
+              visible: showError, // Show only if showError is true
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 9.0),
+                child: Text(
+                  "Account Already exists.",
+                  style: TextStyle(
+                    fontSize: 17.0,
+                    color: Color.fromARGB(255, 0, 0, 0),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+
             ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
@@ -422,6 +458,4 @@ SizedBox(height: 10.0),
       ),
     );
   }
-  
-
 }
