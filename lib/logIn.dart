@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
           } else {
             // Handle case where user is not authenticated
             setState(() {
-              _errorMessage = 'User account not found.';
+              _errorMessage = 'You have entered wrong email/password, please try again.';
             });
           }
         } else {
@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-credential') {
         setState(() {
-          _errorMessage = 'User account not found.';
+          _errorMessage = 'You have entered wrong email/password, please try again.';
         });
       } else {
         setState(() {
