@@ -283,7 +283,7 @@ class _SignUpContentState extends State<SignUpContent> {
                           return "Please enter a valid phone number.";
                         }
                         // Check if country is Saudi Arabia and phone number starts with '5'
-                        if (selectedCountry.countryCode == 'U' &&
+                        if (selectedCountry.countryCode == 'SA' &&
                             !value.startsWith('5')) {
                           return "Please enter a valid phone number.";
                         }
