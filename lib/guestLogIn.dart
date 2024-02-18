@@ -8,6 +8,8 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:maazim/layout.dart';
 import 'package:maazim/main.dart'; //use it to go back
 import 'package:maazim/limited_functionality_page.dart'; // Create this file for limited functionality
+import 'dart:async';
+
 
 void main() async {
   WidgetsFlutterBinding
@@ -43,6 +45,10 @@ class _GuestSignInPageState extends State<GuestLogIn> {
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
   String? _verificationId;
+   Timer? _otpTimer;
+  int _start = 30; // For example, start the countdown from 30 seconds
+   bool _showResendButton = false;
+
 
    final _formKey = GlobalKey<FormState>(); // Add a key for the form
    bool _isOtpInvalid = false;
@@ -50,7 +56,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
 
 Map<String, FormFieldValidator<String>> countryValidators = {
   '966': (value) {
-    if (value == null || value.isEmpty || value.length != 9) {
+    if (value == null || value.isEmpty || !value.startsWith('5') || value.length != 9) {
       return 'Please enter a 9-digit number for Saudi Arabia';
     }
     return null;
@@ -62,13 +68,33 @@ Map<String, FormFieldValidator<String>> countryValidators = {
     return null;
   },
   '971': (value) {
-    if (value == null || value.isEmpty || value.length != 9) {
+    if (value == null || value.isEmpty || !value.startsWith('5') || value.length != 9) {
       return 'Please enter a 9-digit number for the UAE';
     }
     return null;
   },
   // Add more validators for other countries if needed
 };
+
+void startTimer() {
+  const oneSec = Duration(seconds: 1);
+  _showResendButton = false; // Initially, hide the resend button
+  _start = 30; // Reset timer back to 30 seconds whenever this method is called
+  _otpTimer?.cancel(); // Cancel any existing timer
+  _otpTimer = Timer.periodic(oneSec, (timer) {
+    if (_start == 0) {
+      setState(() {
+        timer.cancel();
+        _showResendButton = true; // Show resend button when timer finishes
+      });
+    } else {
+      setState(() {
+        _start--;
+      });
+    }
+  });
+}
+
 
   Country selectedCountry = Country(
       phoneCode: "966",
@@ -100,9 +126,10 @@ void showCustomCountryPicker(BuildContext context) {
 
   @override
   void dispose() {
-    _phoneNumberController.dispose();
-    _otpController.dispose();
-    super.dispose();
+    _otpTimer?.cancel();
+  _phoneNumberController.dispose();
+  _otpController.dispose();
+  super.dispose();
   }
 
   void _verifyPhoneNumber() async {
@@ -116,11 +143,13 @@ void showCustomCountryPicker(BuildContext context) {
     verificationFailed: (FirebaseAuthException e) {
       _showSnackbar('Failed to Verify Phone Number: ${e.message}');
     },
-    codeSent: (String verificationId, int? resendToken) {
-      setState(() {
-        _verificationId = verificationId;
-      });
-    },
+   codeSent: (String verificationId, int? resendToken) {
+  setState(() {
+    _verificationId = verificationId;
+  });
+  startTimer(); // Start the timer when the code is sent
+  //_showSnackbar('Please check your phone for the verification code.');
+},
     codeAutoRetrievalTimeout: (String verificationId) {
       _verificationId = verificationId;
     },
@@ -178,12 +207,12 @@ void showCustomCountryPicker(BuildContext context) {
   // Define the validation logic inside a method
   return (value) {
     // Check if the value is empty
-    if (value == null || value.isEmpty) {
-      return 'Please enter a phone number';
+    if (value == null || value.isEmpty || value.length > 9 || value.length < 9) {
+      return 'Please enter a 9-digit phone number';
     }
     // Specific checks for Saudi Arabia
     if (phoneCode == '966' && !(value.startsWith('5') && value.length == 9)) {
-      return 'Please enter a 9-digit number like 5XXXXXXXX';
+      return 'Please enter a 9-digit number e.g. 5XXXXXXXX';
     }
     // Specific checks for the USA
     if (phoneCode == '1' && value.length != 10) {
@@ -191,7 +220,7 @@ void showCustomCountryPicker(BuildContext context) {
     }
     // Specific checks for the UAE
     if (phoneCode == '971' && !(value.startsWith('5') && value.length == 9)) {
-      return 'Please enter a 9-digit number like 5XXXXXXXX';
+      return 'Please enter a 9-digit number e.g. 5XXXXXXXX';
     }
     // If none of the conditions are met, the number is valid
     return null;
@@ -225,7 +254,7 @@ void showCustomCountryPicker(BuildContext context) {
       ),),
               const SizedBox(height: 40,
                 child: Text(
-                'Please enter a 9 digit phone number',
+                'Please enter your phone number',
               textAlign: TextAlign.center,
                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
                ),),
@@ -234,6 +263,7 @@ void showCustomCountryPicker(BuildContext context) {
              child: TextFormField(
                 cursorColor: const Color(0xFF9a85a4),
                 controller: _phoneNumberController,
+                 // maxLength: selectedCountry.phoneCode == '1' ? 10 : 9, // Set maxLength based on country code
                 keyboardType: TextInputType.number, // Set keyboard type to number
               inputFormatters: <TextInputFormatter>[
                 FilteringTextInputFormatter.digitsOnly,
@@ -306,26 +336,24 @@ void showCustomCountryPicker(BuildContext context) {
               ),),
             ] else ...[
                Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [ 
                   const Text(
                'Verification',
                textAlign: TextAlign.center,
-              style: TextStyle(
-        fontSize: 40,
-        fontWeight: FontWeight.bold,
-        color: Colors.black,
-      ),
-    ),
-    const SizedBox(height: 8,width: 8),
-    const Padding(padding: EdgeInsets.symmetric(horizontal: 6),
-    child: Text(
-      'Please enter the 6-digit OTP code sent by SMS to your phone number',
-        style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                style: TextStyle(
+                fontSize: 40,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+               ),
+             ),
+              const SizedBox(height: 8,width: 8),
+              const Padding(padding: EdgeInsets.symmetric(horizontal: 6),
+                child: Text(
+                'Please enter the 6-digit OTP code sent by SMS to your phone number',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
                 textAlign: TextAlign.center,
-    ),),
-
+                ),),
                   const SizedBox(height: 30),
                      Padding(padding: const EdgeInsets.symmetric(horizontal: 16),
                    child: PinCodeTextField(
@@ -378,9 +406,24 @@ void showCustomCountryPicker(BuildContext context) {
                   ),
                    ),
                    ],
-              
-
-                  const SizedBox(height: 30), 
+                  if (!_showResendButton) ...[
+                              SizedBox(height: 5),
+                          Text(
+                'Resend code in $_start seconds',
+              textAlign: TextAlign.center,
+               style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+               ),
+              ] else ...[
+              TextButton(
+               onPressed: () {
+               // Call your method to resend OTP here
+                _verifyPhoneNumber();
+                },
+               child: const Text('Resend OTP', textAlign: TextAlign.center,
+               style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal, color: Color(0xFF9a85a4)),),
+               ),
+                ],
+                  const SizedBox(height: 25), 
                   Padding(padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: ElevatedButton(
                     onPressed: _signInWithPhoneNumber,
