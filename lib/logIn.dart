@@ -182,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderSide: BorderSide(color: Colors.red),
                           ),
                           filled: true,
-                          prefixIcon: Icon(Icons.password),
+                          prefixIcon:  Icon(Icons.lock),
                         ),
                         obscureText: true,
                         validator: (value) {
@@ -276,22 +276,22 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
 
           // Back Button
-          Positioned(
+         Positioned(
             bottom: 25.0,
-            left: 15, // Distance from the bottom
+            left: 15,
             child: ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                shape: CircleBorder(),
+                backgroundColor: const Color.fromARGB(255, 154, 133, 164),
+                shape: const CircleBorder(),
                 elevation: 0,
-                minimumSize: Size(50, 50),
+                minimumSize: const Size(50, 50),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.arrow_back,
-                color: Color.fromARGB(255, 0, 0, 0),
+                color: Color.fromARGB(255, 255, 255, 255),
                 size: 30,
               ),
             ),

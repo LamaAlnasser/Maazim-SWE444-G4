@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:maazim/logIn.dart';
 import 'layout.dart';
 import 'package:maazim/main.dart';
@@ -18,18 +19,6 @@ class SignUp extends StatelessWidget {
           CustomPage(
             pageTitle: '',
             content: SignUpContent(),
-          ),
-
-          // Centered Heading
-          Positioned(
-            top: 220.0, // Adjust this value to position vertically
-            left: MediaQuery.of(context).size.width / 2 -
-                100.0, // Adjust this value to center horizontally
-            child: Text(
-              "Join Maazim!",
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
           ),
 
           Positioned(
@@ -87,6 +76,21 @@ class _SignUpContentState extends State<SignUpContent> {
   final _formKey = GlobalKey<FormState>();
   bool showError = false; // Add a boolean to track error visibility
 
+  void showCustomCountryPicker(BuildContext context) {
+   showCountryPicker(
+    context: context,
+    countryFilter: <String>['SA', 'US', 'AE'],
+    onSelect: (Country country) {
+      setState(() {
+        selectedCountry = country;
+      });
+    },
+    countryListTheme: CountryListThemeData(
+      bottomSheetHeight: 500
+    ),
+  );
+}
+
   void registration() async {
     if (password.isNotEmpty &&
         firstName.isNotEmpty &&
@@ -135,14 +139,29 @@ class _SignUpContentState extends State<SignUpContent> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(24.0),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+              const SizedBox(height: 60,
+              child: Text('Join Maazim',
+              style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+               ),),
+              const SizedBox(height: 25,
+                child: Text(
+                'Please enter your info',
+              textAlign: TextAlign.center,
+               style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+               ),),
+
+
+              Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
             //First
-            TextFormField(
+            child: TextFormField(
+            cursorColor:Color(0xFF9a85a4) ,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your first name.';
@@ -150,31 +169,41 @@ class _SignUpContentState extends State<SignUpContent> {
                 return null;
               },
               decoration: InputDecoration(
-                hintText: "First Name",
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide:
-                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide:
-                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
-                ),
-                fillColor: Color(0xFF9a85a4).withOpacity(0.1),
-                filled: true,
+                          labelText: "First Name",
+                          labelStyle: TextStyle(color: Color(0xFF9a85a4)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                          filled: true,
+                    prefixIcon: Icon(Icons.person),
               ),
               onChanged: (value) => setState(() => firstName = value),
-            ),
+            ),),
             SizedBox(height: 10.0),
 
+              Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
+
             //Last Name
-            TextFormField(
+            child: TextFormField(
+             cursorColor:Color(0xFF9a85a4) ,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your last name.';
@@ -182,93 +211,100 @@ class _SignUpContentState extends State<SignUpContent> {
                 return null;
               },
               decoration: InputDecoration(
-                hintText: "Last Name",
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide:
-                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide:
-                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
-                ),
-                fillColor: Color(0xFF9a85a4).withOpacity(0.1),
-                filled: true,
+                          labelText: "Last Name",
+                          labelStyle: TextStyle(color: Color(0xFF9a85a4)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                          filled: true,
+                                prefixIcon: Icon(Icons.person),
               ),
               onChanged: (value) => setState(() => lastName = value),
-            ),
-            SizedBox(height: 2.0),
+            ),),
+            SizedBox(height: 10),
 
-            // Phone number
-            Container(
-              height: 65,
-              padding: EdgeInsets.symmetric(horizontal: 20), // Adjust padding
-              margin:
-                  EdgeInsets.symmetric(vertical: 10), // Add margin for spacing
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  // Add Border.all to set border color
-                  color: Color(0xFF9a85a4)
-                      .withOpacity(0.1), // Set the border color
-                ),
-                color: Color(0xFF9a85a4).withOpacity(0.1),
-              ),
-              child: Row(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      showCountryPicker(
-                        context: context,
-                        countryListTheme: const CountryListThemeData(
-                          bottomSheetHeight: 500,
-                        ),
-                        onSelect: (value) {
-                          setState(() {
-                            selectedCountry = value;
-                          });
+           
+                 
+                  const SizedBox(width: 8),
+
+                     Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
+
+                    child: TextFormField(
+                      cursorColor:Color(0xFF9a85a4) ,
+                      keyboardType: TextInputType.phone,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly,
+               ],
+                     decoration: InputDecoration(
+                          labelText: "Phone Number",
+                          labelStyle: TextStyle(color: Color(0xFF9a85a4)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                          filled: true,
+                        prefixIcon: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      
+                      child: InkWell(
+                        onTap: () {
+                          showCustomCountryPicker(context);
                         },
-                      );
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
+                        child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
                         Text(
-                          selectedCountry.flagEmoji,
-                          style: const TextStyle(fontSize: 18),
+                        selectedCountry.flagEmoji,
+                        style: const TextStyle(fontSize: 18),
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '+${selectedCountry.phoneCode} |',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.black54,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
+                        '+${selectedCountry.phoneCode}',
+                        style: const TextStyle(
+                        fontSize: 16,
+                        color: Color.fromARGB(255, 113, 113, 113),
+                        fontWeight: FontWeight.bold,
+                      ),
+                     ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: // Phone number
-                        TextFormField(
-                      keyboardType: TextInputType.phone,
-                      maxLength: 9, // Set maximum length to 9
-                      decoration: InputDecoration(
-                        hintText: 'Phone number',
-                        hintStyle: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black54,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        border: InputBorder.none, // Remove the underline
+                 ),
+               )
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -294,16 +330,15 @@ class _SignUpContentState extends State<SignUpContent> {
                         // Handle phone number input
                         phoneNumber = value;
                       },
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                    ),),
+        
+            SizedBox(height: 10.0),
 
-            SizedBox(height: 2.0),
+              Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
 
             //Email
-            TextFormField(
+            child: TextFormField(
+         cursorColor:Color(0xFF9a85a4) ,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your email.';
@@ -317,31 +352,40 @@ class _SignUpContentState extends State<SignUpContent> {
               },
               controller: mailController,
               decoration: InputDecoration(
-                hintText: "Email",
-                prefixIcon: Icon(Icons.email),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide:
-                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide:
-                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
-                ),
-                fillColor: Color(0xFF9a85a4).withOpacity(0.1),
-                filled: true,
+                          labelText: "Email",
+                          labelStyle: TextStyle(color: Color(0xFF9a85a4)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                          filled: true,
+                 prefixIcon: Icon(Icons.email),
               ),
               onChanged: (value) => setState(() => email = value),
-            ),
+            ),),
             SizedBox(height: 10.0),
 
+              Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
             // Password
-            TextFormField(
+            child: TextFormField(
+                   cursorColor:Color(0xFF9a85a4) ,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter a password.';
@@ -365,30 +409,38 @@ class _SignUpContentState extends State<SignUpContent> {
               },
               controller: passwordController,
               decoration: InputDecoration(
-                hintText: "Password",
-                prefixIcon: Icon(Icons.lock),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide:
-                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.1)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide:
-                      BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
-                ),
-                fillColor: Color(0xFF9a85a4).withOpacity(0.1),
-                filled: true,
+                          labelText: "Password",
+                          labelStyle: TextStyle(color: Color(0xFF9a85a4)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                          filled: true,
+               prefixIcon: Icon(Icons.lock),
               ),
               obscureText: true,
               onChanged: (value) => setState(() => password = value),
-            ),
+            ),),
 
             SizedBox(height: 10.0),
+
 
             // Show error message if account already exists
             Visibility(
@@ -406,7 +458,10 @@ class _SignUpContentState extends State<SignUpContent> {
               ),
             ),
 
-            ElevatedButton(
+            SizedBox(height: 10.0),
+              Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
+
+            child: ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   registration();
@@ -425,8 +480,9 @@ class _SignUpContentState extends State<SignUpContent> {
                   color: Colors.white,
                 ),
               ),
-            ),
-            SizedBox(height: 20.0),
+            ),),
+
+            SizedBox(height: 15.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
