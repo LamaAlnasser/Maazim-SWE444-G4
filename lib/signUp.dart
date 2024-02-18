@@ -476,7 +476,7 @@ class _SignUpContentState extends State<SignUpContent> {
               ),
             ),
 
-            SizedBox(height: 10.0),
+            SizedBox(height: 10),
               Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
 
             child: ElevatedButton(
@@ -491,7 +491,7 @@ class _SignUpContentState extends State<SignUpContent> {
                 primary: Color(0xFF9a85a4).withOpacity(0.9),
               ),
               child: Text(
-                'Sign Up',
+                'Sign up',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -500,7 +500,7 @@ class _SignUpContentState extends State<SignUpContent> {
               ),
             ),),
 
-            SizedBox(height: 15.0),
+            SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -518,7 +518,7 @@ class _SignUpContentState extends State<SignUpContent> {
                     );
                   },
                   child: Text(
-                    "Log In",
+                    "Login",
                     style: TextStyle(
                       color: Color(0xFF9a85a4),
                       fontWeight: FontWeight.bold,
