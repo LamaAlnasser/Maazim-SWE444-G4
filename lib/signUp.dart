@@ -156,7 +156,7 @@ class _SignUpContentState extends State<SignUpContent> {
               textAlign: TextAlign.center,
                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
                ),),
-
+                SizedBox(height:10),
 
               Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
             //First
@@ -244,7 +244,8 @@ class _SignUpContentState extends State<SignUpContent> {
            
                  
                   const SizedBox(width: 8),
-
+            //Phone number
+            
                      Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
 
                     child: TextFormField(
@@ -254,7 +255,7 @@ class _SignUpContentState extends State<SignUpContent> {
                 FilteringTextInputFormatter.digitsOnly,
                ],
                      decoration: InputDecoration(
-                          labelText: "Phone Number",
+                          labelText: " Phone Number",
                           labelStyle: TextStyle(color: Color(0xFF9a85a4)),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
