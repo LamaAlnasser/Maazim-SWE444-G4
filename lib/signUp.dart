@@ -195,10 +195,10 @@ class _SignUpContentState extends State<SignUpContent> {
                       cursorColor: Color(0xFF9a85a4),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your first name.';
+                          return 'Required First Name.';
                         }
                         if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-                          return 'Name can only contain letters.';
+                          return 'Note: only letters.';
                         }
                         return null;
                       },
@@ -248,10 +248,10 @@ class _SignUpContentState extends State<SignUpContent> {
                       cursorColor: Color(0xFF9a85a4),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your last name.';
+                          return 'Required Last Name.';
                         }
                         if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-                          return 'Name can only contain letters.';
+                          return 'Note: only letters.';
                         }
                         return null;
                       },
@@ -362,23 +362,23 @@ class _SignUpContentState extends State<SignUpContent> {
                 validator: (value) {
                   // Check if the value is empty
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your phone number.';
+                    return 'Required phone number.';
                   }
 
                   // Specific checks for the UAE
                   if (selectedCountry.countryCode == 'AE' &&
                       !(value.startsWith('5') && value.length == 9)) {
-                    return 'Please enter 9-digit number e.g. 5XXXXXXXX.';
+                    return 'Required 9-digit number e.g. 5XXXXXXXX.';
                   }
                   // Specific checks for Saudi Arabia
                   if (selectedCountry.countryCode == 'SA' &&
                       !(value.startsWith('5') && value.length == 9)) {
-                    return 'Please enter 9-digit number e.g. 5XXXXXXXX.';
+                    return 'Required 9-digit number e.g. 5XXXXXXXX.';
                   }
                   // Specific checks for the USA
                   if (selectedCountry.countryCode == 'US' &&
                       value.length != 10) {
-                    return 'Please enter 10-digit number.';
+                    return 'Required 10-digit number.';
                   }
                   return null;
                 },
@@ -401,7 +401,7 @@ class _SignUpContentState extends State<SignUpContent> {
                 cursorColor: Color(0xFF9a85a4),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your email.';
+                    return 'Required email.';
                   }
                   // Check if the entered value is a valid email address
                   if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
@@ -454,7 +454,7 @@ class _SignUpContentState extends State<SignUpContent> {
                 cursorColor: Color(0xFF9a85a4),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a password.';
+                    return 'Required password.';
                   }
                   // Custom password strength check
                   if (value.length < 8) {
