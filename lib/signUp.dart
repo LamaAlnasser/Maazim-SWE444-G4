@@ -197,7 +197,7 @@ class _SignUpContentState extends State<SignUpContent> {
                         if (value == null || value.isEmpty) {
                           return 'Required First Name.';
                         }
-                        if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                         if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$').hasMatch(value)) {
                           return 'Note: only letters.';
                         }
                         return null;
@@ -250,7 +250,7 @@ class _SignUpContentState extends State<SignUpContent> {
                         if (value == null || value.isEmpty) {
                           return 'Required Last Name.';
                         }
-                        if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                         if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$').hasMatch(value)) {
                           return 'Note: only letters.';
                         }
                         return null;
