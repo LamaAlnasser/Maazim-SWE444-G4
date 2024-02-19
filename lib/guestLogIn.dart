@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -47,6 +48,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
   Timer? _otpTimer;
   int _start = 30; // For example, start the countdown from 30 seconds
   bool _showResendButton = false;
+  String? _phoneNumberError;
 
   final _formKey = GlobalKey<FormState>(); // Add a key for the form
   bool _isOtpInvalid = false;
@@ -133,12 +135,9 @@ class _GuestSignInPageState extends State<GuestLogIn> {
     super.dispose();
   }
 
-  void _verifyPhoneNumber() async {
-    String completePhoneNumber =
-        '+${selectedCountry.phoneCode} ${_phoneNumberController.text.trim()}';
-
+  void _verifyPhoneNumber(String completePhoneNumber) async {
     await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: completePhoneNumber, // Use the complete phone number here
+      phoneNumber: completePhoneNumber,
       verificationCompleted: (PhoneAuthCredential credential) async {
         _signInWithCredential(credential);
       },
@@ -199,11 +198,32 @@ class _GuestSignInPageState extends State<GuestLogIn> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void _attemptPhoneNumberVerification() {
-    if (_formKey.currentState!.validate()) {
-      // If the form is valid, verify the phone number
-      _verifyPhoneNumber();
+  void _attemptPhoneNumberVerification() async {
+    final phoneNumber = _phoneNumberController.text.trim();
+  if (_formKey.currentState!.validate()) {
+    // Clear any existing error message
+    setState(() {
+      _phoneNumberError = null;
+    });
+
+    // Check Firestore for the phone number
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('users') // Assuming 'users' is your collection
+        .where('phoneNumber', isEqualTo: phoneNumber)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      // Phone number exists in Firestore, set error message and rebuild the widget
+      setState(() {
+        _phoneNumberError = 'This phone number already exists.';
+      });
+    } else {
+      // Phone number does not exist in Firestore, proceed with verification
+      String completePhoneNumber = '+${selectedCountry.phoneCode}$phoneNumber';
+      _verifyPhoneNumber(completePhoneNumber);
     }
+  }
   }
 
   FormFieldValidator<String> getValidatorForCountry(String phoneCode) {
@@ -287,6 +307,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                                   true, // Needed for fillColor to take effect
                               fillColor:
                                   const Color(0xFF9a85a4).withOpacity(0.1),
+                                  errorText: _phoneNumberError, // Display the error message here
                               enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(18),
                                   borderSide: BorderSide(
@@ -462,7 +483,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                             TextButton(
                               onPressed: () {
                                 // Call your method to resend OTP here
-                                _verifyPhoneNumber();
+                                _attemptPhoneNumberVerification();
                               },
                               child: const Text(
                                 'Resend OTP',
@@ -509,7 +530,8 @@ class _GuestSignInPageState extends State<GuestLogIn> {
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => WelcomePage(), // Ensure WelcomePage is defined
+                  builder: (context) =>
+                      WelcomePage(), // Ensure WelcomePage is defined
                 ));
               },
               style: ElevatedButton.styleFrom(
