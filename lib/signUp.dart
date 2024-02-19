@@ -20,7 +20,6 @@ class SignUp extends StatelessWidget {
             pageTitle: '',
             content: SignUpContent(),
           ),
-
           Positioned(
             bottom: 25.0,
             left: 30.0,
@@ -75,21 +74,20 @@ class _SignUpContentState extends State<SignUpContent> {
   TextEditingController mailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool showError = false; // Add a boolean to track error visibility
+  String errorMessage = ''; // Add a string to store the error message
 
   void showCustomCountryPicker(BuildContext context) {
-   showCountryPicker(
-    context: context,
-    countryFilter: <String>['SA', 'US', 'AE'],
-    onSelect: (Country country) {
-      setState(() {
-        selectedCountry = country;
-      });
-    },
-    countryListTheme: CountryListThemeData(
-      bottomSheetHeight: 500
-    ),
-  );
-}
+    showCountryPicker(
+      context: context,
+      countryFilter: <String>['SA', 'US', 'AE'],
+      onSelect: (Country country) {
+        setState(() {
+          selectedCountry = country;
+        });
+      },
+      countryListTheme: CountryListThemeData(bottomSheetHeight: 500),
+    );
+  }
 
   void registration() async {
     if (password.isNotEmpty &&
@@ -98,38 +96,57 @@ class _SignUpContentState extends State<SignUpContent> {
         mailController.text.isNotEmpty &&
         phoneNumber.isNotEmpty) {
       try {
-        UserCredential userCredential =
-            await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-
-        // Storing additional user information in Firestore
-        await FirebaseFirestore.instance
+        // Check if the phone number already exists in Firestore
+        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
             .collection('users')
-            .doc(userCredential.user!.uid)
-            .set({
-          'firstName': firstName,
-          'lastName': lastName,
-          'phoneNumber': phoneNumber,
-          'email': email,
-        });
+            .where('phoneNumber', isEqualTo: phoneNumber)
+            .get();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "Registered Successfully!",
-              style: TextStyle(fontSize: 20.0),
+        if (querySnapshot.docs.isNotEmpty) {
+          // Phone number already exists, set error message
+          setState(() {
+            showError = true;
+            errorMessage =
+                'The phone number already in use.\nPlease try another one.';
+          });
+        } else {
+          showError = false;
+          errorMessage = '';
+          // Phone number doesn't exist, proceed with registration
+          UserCredential userCredential =
+              await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
+
+          // Storing additional user information in Firestore
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .set({
+            'firstName': firstName,
+            'lastName': lastName,
+            'phoneNumber': phoneNumber,
+            'email': email,
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Registered Successfully!",
+                style: TextStyle(fontSize: 20.0),
+              ),
             ),
-          ),
-        );
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => homePage()));
+          );
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => homePage()));
+        }
       } on FirebaseAuthException catch (e) {
         if (e.code == "email-already-in-use") {
+          // Email already exists, set error message
           setState(() {
-            showError =
-                true; // Set showError to true to display the error message
+            showError = true;
+            errorMessage = 'The email already in use.\nPlease try another one.';
           });
         }
       }
@@ -139,326 +156,357 @@ class _SignUpContentState extends State<SignUpContent> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0 , 10.0),
+      padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-              const SizedBox(height: 60,
-              child: Text('Join Maazim!',
-              style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold),
+            const SizedBox(
+              height: 60,
+              child: Text(
+                'Join Maazim!',
+                style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
-               ),),
-              const SizedBox(height: 30,
-                child: Text(
+              ),
+            ),
+            const SizedBox(
+              height: 30,
+              child: Text(
                 'Create your account',
-              textAlign: TextAlign.center,
-               style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
-               ),),
-                SizedBox(height:10),
-
-
-          Row(
-            children:[
-             Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 5,),
-            //First
-            child: TextFormField(
-            cursorColor:Color(0xFF9a85a4) ,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your first name.';
-                }
-                 if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-
-                    return 'Name can only contain letters.';
-                                                             }
-                return null;
-              },
-             
-              decoration: InputDecoration(
-                          labelText: "First Name",
-                          labelStyle: TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
-                          errorStyle: TextStyle(fontSize: 10),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide.none,
-                          ),
-                          fillColor: Color(0xFF9a85a4).withOpacity(0.1),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Colors.red),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Colors.red),
-                          ),
-                          filled: true,
-                    prefixIcon: Icon(Icons.person),
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
               ),
-              onChanged: (value) => setState(() => firstName = value),
-            ),), ),
-           
-            //Last Name
-            Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 5,),
-            child: TextFormField(
-             cursorColor:Color(0xFF9a85a4) ,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  
-                  return 'Please enter your last name.';
-                  
-                }
-                if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-
-                    return 'Name can only contain letters.';
-                                                             }
-                return null;
-              },
-              decoration: InputDecoration(
-                          labelText: "Last Name",
-                          labelStyle: TextStyle(color: Color(0xFF9a85a4) ,fontSize:14 ),
-                          errorStyle: TextStyle(fontSize: 10),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide.none,
-                          ),
-                          fillColor: Color(0xFF9a85a4).withOpacity(0.1),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Colors.red),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Colors.red),
-                          ),
-                          filled: true,
-                                 prefixIcon: Icon(Icons.person),
-              ),
-              onChanged: (value) => setState(() => lastName = value),
-            ),), ), ], ),
+            ),
             SizedBox(height: 10),
 
-           
-            //Phone number
-            
-                     Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
-
+            Row(
+              children: [
+                Flexible(
+                  flex: 3, // Adjust the flex value to control the width
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        16, 0, 5, 0), // 16 pixels left padding
+                    //First
                     child: TextFormField(
-                      cursorColor:Color(0xFF9a85a4) ,
-                      keyboardType: TextInputType.phone,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly,
-               ],
-                     decoration: InputDecoration(
-                          labelText: " Phone Number",
-                          labelStyle: TextStyle(color: Color(0xFF9a85a4)),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide.none,
-                          ),
-                          fillColor: Color(0xFF9a85a4).withOpacity(0.1),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Colors.red),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Colors.red),
-                          ),
-                          filled: true,
-                        prefixIcon: Container(
+                      cursorColor: Color(0xFF9a85a4),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your first name.';
+                        }
+                        if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                          return 'Name can only contain letters.';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: "First Name",
+                        labelStyle:
+                            TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                        errorStyle: TextStyle(fontSize: 10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                        fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(
+                              color: Color(0xFF9a85a4).withOpacity(0.0)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(
+                              color: Color(0xFF9a85a4).withOpacity(0.6)),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(color: Colors.red),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(color: Colors.red),
+                        ),
+                        filled: true,
+                        prefixIcon: Icon(Icons.person),
+                      ),
+                      onChanged: (value) => setState(() => firstName = value),
+                    ),
+                  ),
+                ),
+
+                //Last Name
+                SizedBox(width: 1), // Reduced space between the fields
+                Flexible(
+                  flex: 3, // Adjust the flex value to control the width
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(5, 0, 16, 0),
+                    child: TextFormField(
+                      cursorColor: Color(0xFF9a85a4),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your last name.';
+                        }
+                        if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                          return 'Name can only contain letters.';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: "Last Name",
+                        labelStyle:
+                            TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                        errorStyle: TextStyle(fontSize: 10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                        fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(
+                              color: Color(0xFF9a85a4).withOpacity(0.0)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(
+                              color: Color(0xFF9a85a4).withOpacity(0.6)),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(color: Colors.red),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(color: Colors.red),
+                        ),
+                        filled: true,
+                        prefixIcon: Icon(Icons.person),
+                      ),
+                      onChanged: (value) => setState(() => lastName = value),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+
+            //Phone number
+
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+              ),
+              child: TextFormField(
+                cursorColor: Color(0xFF9a85a4),
+                keyboardType: TextInputType.phone,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+                decoration: InputDecoration(
+                    labelText: " Phone Number",
+                    labelStyle: TextStyle(color: Color(0xFF9a85a4)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                    fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide:
+                          BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide:
+                          BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                    filled: true,
+                    prefixIcon: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      
                       child: InkWell(
                         onTap: () {
                           showCustomCountryPicker(context);
                         },
                         child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                        Text(
-                        selectedCountry.flagEmoji,
-                        style: const TextStyle(fontSize: 18),
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              selectedCountry.flagEmoji,
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '+${selectedCountry.phoneCode}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Color.fromARGB(255, 113, 113, 113),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                        '+${selectedCountry.phoneCode}',
-                        style: const TextStyle(
-                        fontSize: 16,
-                        color: Color.fromARGB(255, 113, 113, 113),
-                        fontWeight: FontWeight.bold,
                       ),
-                     ),
-                    ],
+                    )),
+                validator: (value) {
+                  // Check if the value is empty
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your phone number.';
+                  }
+
+                  // Specific checks for the UAE
+                  if (selectedCountry.countryCode == 'AE' &&
+                      !(value.startsWith('5') && value.length == 9)) {
+                    return 'Please enter 9-digit number e.g. 5XXXXXXXX.';
+                  }
+                  // Specific checks for Saudi Arabia
+                  if (selectedCountry.countryCode == 'SA' &&
+                      !(value.startsWith('5') && value.length == 9)) {
+                    return 'Please enter 9-digit number e.g. 5XXXXXXXX.';
+                  }
+                  // Specific checks for the USA
+                  if (selectedCountry.countryCode == 'US' &&
+                      value.length != 10) {
+                    return 'Please enter 10-digit number.';
+                  }
+                  return null;
+                },
+                onChanged: (value) {
+                  // Handle phone number input
+                  phoneNumber = value;
+                },
+              ),
+            ),
+
+            SizedBox(height: 10.0),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+              ),
+
+              //Email
+              child: TextFormField(
+                cursorColor: Color(0xFF9a85a4),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email.';
+                  }
+                  // Check if the entered value is a valid email address
+                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                      .hasMatch(value)) {
+                    return 'Please enter a valid email address.';
+                  }
+                  return null;
+                },
+                controller: mailController,
+                decoration: InputDecoration(
+                  labelText: "Email",
+                  labelStyle: TextStyle(color: Color(0xFF9a85a4)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide.none,
                   ),
-                 ),
-               )
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your phone number.';
-                        }
-                        if (value.length > 9) {
-                          return 'Please enter a valid 9-digit phone number.';
-                        }
-                        if ( value.length < 9)
-                        {
-                           return 'Please enter a valid 9-digit phone number.';
-                        }
-                        // Check if country is United Arab Emirates and phone number starts with '5'
-                        if (selectedCountry.countryCode == 'AE' &&
-                            !value.startsWith('5')) {
-                          return "Please enter a valid phone number.";
-                        }
-                        // Check if country is Saudi Arabia and phone number starts with '5'
-                        if (selectedCountry.countryCode == 'SA' &&
-                            !value.startsWith('5')) {
-                          return "Please enter a valid phone number, eg. 5xxxxxxxx";
-                        }
-
-                        return null;
-                      },
-                      onChanged: (value) {
-                        // Handle phone number input
-                        phoneNumber = value;
-                      },
-                    ),),
-        
-            SizedBox(height: 10.0),
-
-              Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
-
-            //Email
-            child: TextFormField(
-         cursorColor:Color(0xFF9a85a4) ,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your email.';
-                }
-                // Check if the entered value is a valid email address
-                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                    .hasMatch(value)) {
-                  return 'Please enter a valid email address.';
-                }
-                return null;
-              },
-              controller: mailController,
-              decoration: InputDecoration(
-                          labelText: "Email",
-                          labelStyle: TextStyle(color: Color(0xFF9a85a4)),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide.none,
-                          ),
-                          fillColor: Color(0xFF9a85a4).withOpacity(0.1),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Colors.red),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Colors.red),
-                          ),
-                          filled: true,
-                 prefixIcon: Icon(Icons.email),
+                  fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide:
+                        BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide:
+                        BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(color: Colors.red),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(color: Colors.red),
+                  ),
+                  filled: true,
+                  prefixIcon: Icon(Icons.email),
+                ),
+                onChanged: (value) => setState(() => email = value),
               ),
-              onChanged: (value) => setState(() => email = value),
-            ),),
+            ),
             SizedBox(height: 10.0),
 
-              Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
-            // Password
-            child: TextFormField(
-                   cursorColor:Color(0xFF9a85a4) ,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a password.';
-                }
-                // Custom password strength check
-                if (value.length < 8) {
-                  return 'Password must be at least 8 characters long.';
-                }
-                if (!value.contains(RegExp(r'[A-Z]'))) {
-                  return 'Password must contain at least one uppercase letter.';
-                }
-                if (!value.contains(RegExp(r'[a-z]'))) {
-                  return 'Password must contain at least one lowercase letter.';
-                }
-                if (!value.contains(RegExp(r'[0-9]'))) {
-                  return 'Password must contain at least one digit.';
-                }
-                // Add more checks as needed, such as special characters
-
-                return null;
-              },
-              controller: passwordController,
-              decoration: InputDecoration(
-                          labelText: "Password",
-                          labelStyle: TextStyle(color: Color(0xFF9a85a4)),
-                           errorStyle: TextStyle(fontSize: 10),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide.none,
-                          ),
-                          fillColor: Color(0xFF9a85a4).withOpacity(0.1),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Colors.red),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Colors.red),
-                          ),
-                          filled: true,
-               prefixIcon: Icon(Icons.lock),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
               ),
-              obscureText: true,
-              onChanged: (value) => setState(() => password = value),
-            ),),
+              // Password
+              child: TextFormField(
+                cursorColor: Color(0xFF9a85a4),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a password.';
+                  }
+                  // Custom password strength check
+                  if (value.length < 8) {
+                    return 'Password must be at least 8 characters long.';
+                  }
+                  if (!value.contains(RegExp(r'[A-Z]'))) {
+                    return 'Password must contain at least one uppercase letter.';
+                  }
+                  if (!value.contains(RegExp(r'[a-z]'))) {
+                    return 'Password must contain at least one lowercase letter.';
+                  }
+                  if (!value.contains(RegExp(r'[0-9]'))) {
+                    return 'Password must contain at least one digit.';
+                  }
+                  // Add more checks as needed, such as special characters
+
+                  return null;
+                },
+                controller: passwordController,
+                decoration: InputDecoration(
+                  labelText: "Password",
+                  labelStyle: TextStyle(color: Color(0xFF9a85a4)),
+                  // errorStyle: TextStyle(fontSize: 10),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide.none,
+                  ),
+                  fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide:
+                        BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide:
+                        BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(color: Colors.red),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(color: Colors.red),
+                  ),
+                  filled: true,
+                  prefixIcon: Icon(Icons.lock),
+                ),
+                obscureText: true,
+                onChanged: (value) => setState(() => password = value),
+              ),
+            ),
 
             SizedBox(height: 10.0),
-
 
             // Show error message if account already exists
             Visibility(
@@ -466,39 +514,42 @@ class _SignUpContentState extends State<SignUpContent> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 9.0),
                 child: Text(
-                  "Account Already exists.",
+                  errorMessage, // Display the error message
                   style: TextStyle(
-                    fontSize: 17.0,
-                    color: Color.fromARGB(255, 0, 0, 0),
-                  ),
+                      fontSize: 15.0,
+                      color: Color(0xFFAD331E),
+                      fontWeight: FontWeight.normal),
                   textAlign: TextAlign.center,
                 ),
               ),
             ),
 
             SizedBox(height: 10),
-              Padding(padding: const EdgeInsets.symmetric(horizontal: 16,),
-
-            child: ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  registration();
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                shape: StadiumBorder(),
-                padding: EdgeInsets.symmetric(vertical: 16),
-                primary: Color(0xFF9a85a4).withOpacity(0.9),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
               ),
-              child: Text(
-                'Sign up',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    registration();
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: StadiumBorder(),
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  primary: Color(0xFF9a85a4).withOpacity(0.9),
+                ),
+                child: Text(
+                  'Sign up',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-            ),),
+            ),
 
             SizedBox(height: 10),
             Row(
