@@ -506,10 +506,11 @@ class _GuestSignInPageState extends State<GuestLogIn> {
             bottom: 25.0,
             left: 15, // Distance from the bottom
             child: ElevatedButton(
-              onPressed: () {
-                // The action you want to perform when the button is pressed
-                // For example, navigate to the welcome screen:
-                Navigator.of(context).pop();
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => WelcomePage(), // Ensure WelcomePage is defined
+                ));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(
