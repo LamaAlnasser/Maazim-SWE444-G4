@@ -216,7 +216,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
     if (querySnapshot.docs.isNotEmpty) {
       // Phone number exists in Firestore, set error message and rebuild the widget
       setState(() {
-        _phoneNumberError = 'This phone number already exists.';
+        _phoneNumberError = 'This phone number is registerd';
       });
     } else {
       // Phone number does not exist in Firestore, proceed with verification
