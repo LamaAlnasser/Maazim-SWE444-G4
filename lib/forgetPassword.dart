@@ -169,10 +169,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           if (_userNotFound) {
                             return 'No user found for this email address';
                           }
-                          if (value == null ||
-                              value.isEmpty ||
-                              !value.contains('@')) {
-                            return 'Please enter a valid email';
+                            if (value!.isEmpty) {
+                            return 'Required email.';
+                          }
+                           if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                      .hasMatch(value)) {
+                    return 'Please enter a valid email address.';
                           }
                           return null;
                         },
