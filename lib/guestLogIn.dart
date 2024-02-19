@@ -211,7 +211,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
     return (value) {
       // Check if the value is empty
       if (value == null || value.isEmpty) {
-        return 'Please enter your phone number.';
+        return 'Required phone number.';
       }
 
       // Specific checks for Saudi Arabia
