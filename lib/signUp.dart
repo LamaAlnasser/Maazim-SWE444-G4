@@ -20,23 +20,26 @@ class SignUp extends StatelessWidget {
             pageTitle: '',
             content: SignUpContent(),
           ),
-          Positioned(
+         Positioned(
             bottom: 25.0,
-            left: 30.0,
-            child: GestureDetector(
-              onTap: () {
-                Navigator.of(context).pop();
+            left: 15,
+            child: ElevatedButton(
+               onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => WelcomePage(), // Ensure WelcomePage is defined
+                ));
               },
-              child: Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color.fromARGB(255, 154, 133, 164),
-                ),
-                child: Icon(
-                  Icons.arrow_back,
-                  color: Color.fromARGB(255, 255, 255, 255),
-                ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 154, 133, 164),
+                shape: const CircleBorder(),
+                elevation: 0,
+                minimumSize: const Size(50, 50),
+              ),
+              child: const Icon(
+                Icons.arrow_back,
+                color: Color.fromARGB(255, 255, 255, 255),
+                size: 30,
               ),
             ),
           ),
