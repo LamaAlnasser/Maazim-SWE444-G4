@@ -144,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         validator: (value) {
                           if (value!.isEmpty) {
-                            return 'Please enter your email';
+                            return 'Required email.';
                           }
                           return null;
                         },
@@ -188,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         obscureText: true,
                         validator: (value) {
                           if (value!.isEmpty) {
-                            return 'Please enter your password';
+                            return 'Required password.';
                           }
                           return null;
                         },
