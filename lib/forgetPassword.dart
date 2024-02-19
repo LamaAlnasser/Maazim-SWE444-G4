@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -40,7 +41,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   bool _userNotFound = false;
   String _errorMessage = '';
   bool _isButtonEnabled = true;
-  int _timerSeconds = 60;
+  int _timerSeconds = 30;
 
   void _startTimer() {
     Timer.periodic(Duration(seconds: 1), (timer) {
@@ -59,26 +60,31 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   Future<void> _resetPassword(String email) async {
-    try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-      // Show the success message
-      setState(() {
-        _errorMessage =
-            'A reset password link has been sent to the specified email address. Follow the link to select a new password.';
-      });
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        setState(() {
-          _userNotFound = true;
-          _errorMessage = 'No user found for this email address';
-        });
-      } else {
-        setState(() {
-          _userNotFound = false;
-          _errorMessage = 'An error occurred: ${e.message}';
-        });
-      }
-    }
+    // Check if email exists in Firestore
+  final usersCollection = FirebaseFirestore.instance.collection('users');
+  final querySnapshot = await usersCollection.where('email', isEqualTo: email).get();
+
+  if (querySnapshot.docs.isEmpty) {
+    // Email not found in Firestore, showing error message
+    setState(() {
+      _errorMessage = 'Email not found. Please sign up first.';
+    });
+    return; // Stop execution if email not found
+  }
+
+  // If email exists in Firestore, proceed to send password reset email
+  try {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    // Show the success message
+    setState(() {
+      _errorMessage = 'A reset password link has been sent to your email address. Please check your inbox.';
+    });
+  } on FirebaseAuthException catch (e) {
+    // Handle other FirebaseAuth errors if necessary
+    setState(() {
+      _errorMessage = 'An error occurred: ${e.message}';
+    });
+  }
   }
 
   @override
@@ -190,7 +196,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   _resetPassword(_emailController.text);
                                   setState(() {
                                     _isButtonEnabled = false;
-                                    _timerSeconds = 60;
+                                    _timerSeconds = 30;
                                   });
                                   _startTimer();
                                 }
