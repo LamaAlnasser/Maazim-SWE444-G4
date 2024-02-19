@@ -60,12 +60,12 @@ class _LoginScreenState extends State<LoginScreen> {
               _errorMessage = 'You have entered wrong email/password, please try again.';
             });
           }
-        } else {
+        } /*else {
           // Handle case where email or password is empty
           setState(() {
             _errorMessage = 'Please enter email and password.';
           });
-        }
+        }*/
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-credential') {
@@ -146,6 +146,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (value!.isEmpty) {
                             return 'Required email.';
                           }
+                           if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                      .hasMatch(value)) {
+                    return 'Please enter a valid email address.';
+                          }
                           return null;
                         },
                       ),
@@ -189,7 +193,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         validator: (value) {
                           if (value!.isEmpty) {
                             return 'Required password.';
-                          }
+                          }    // Check if the entered value is a valid email address
+
                           return null;
                         },
                       ),
