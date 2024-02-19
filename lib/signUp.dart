@@ -368,17 +368,17 @@ class _SignUpContentState extends State<SignUpContent> {
                   // Specific checks for the UAE
                   if (selectedCountry.countryCode == 'AE' &&
                       !(value.startsWith('5') && value.length == 9)) {
-                    return 'Required 9-digit number e.g. 5XXXXXXXX.';
+                    return 'Please enter 9-digit number e.g. 5XXXXXXXX.';
                   }
                   // Specific checks for Saudi Arabia
                   if (selectedCountry.countryCode == 'SA' &&
                       !(value.startsWith('5') && value.length == 9)) {
-                    return 'Required 9-digit number e.g. 5XXXXXXXX.';
+                    return 'Please enter 9-digit number e.g. 5XXXXXXXX.';
                   }
                   // Specific checks for the USA
                   if (selectedCountry.countryCode == 'US' &&
                       value.length != 10) {
-                    return 'Required 10-digit number.';
+                    return 'Please enter 10-digit number.';
                   }
                   return null;
                 },
