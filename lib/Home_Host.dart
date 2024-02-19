@@ -109,7 +109,7 @@ class homePage extends StatelessWidget {
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => const LogIn(), // Ensure WelcomePage is defined
+                  builder: (context) => const LogIn(),
                 ));
               },
               style: ElevatedButton.styleFrom(
