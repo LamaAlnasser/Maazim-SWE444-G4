@@ -4,6 +4,7 @@ import 'package:maazim/Home_Host.dart';
 import 'package:maazim/forgetPassword.dart';
 import 'package:maazim/layout.dart';
 import 'package:maazim/guestLogIn.dart';
+import 'package:maazim/main.dart';
 import 'package:maazim/signUp.dart';
 
 class LogIn extends StatelessWidget {
@@ -280,8 +281,11 @@ class _LoginScreenState extends State<LoginScreen> {
             bottom: 25.0,
             left: 15,
             child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
+               onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => WelcomePage(), // Ensure WelcomePage is defined
+                ));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 154, 133, 164),
