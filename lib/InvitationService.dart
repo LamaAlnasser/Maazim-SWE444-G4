@@ -61,6 +61,8 @@ class CombinedInvitationServiceAndUI extends StatelessWidget {
         'eventLocation': eventLocation,
         'address': address,
         'guestUserIds': guestUserIds,
+        'acceptedUserIds': [], // Initialize as empty list
+        'rejectedUserIds': [], // Initialize as empty list
       });
       print("Invitation created successfully for $eventName.");
     } catch (e) {
@@ -81,17 +83,19 @@ class CombinedInvitationServiceAndUI extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () => createInvitation(
-            eventName: "Spring Garden Party",
-            eventType: "Social Gathering",
-            nameOfInviter: "Reema",
-            date: DateTime(2024, 9, 21),
-            time: "7:00 PM",
-            eventLocation: "Greenwood Botanical Gardens",
-            address: "789 Floral Ave, Blossom City",
+            eventName: "Winter Wonderland Gala",
+            eventType: "Charity Ball",
+            nameOfInviter: "Jasmine",
+            date: DateTime(2024, 12, 20), // December 20, 2024
+            time: "7:30 PM",
+            eventLocation: "The Grand Ballroom",
+            address: "860 Frost Avenue, Snowtown",
             guestEmails: [
-              "lama567@gmail.com",
-              "sosy-9-10@hotmail.com",
-              "lina2@gmail.com"
+              "gege0@gmail.com",
+              "lulu0@gmail.com",
+              "ranoom0@gmail.com",
+              "lama0@gmail.com",
+              "nony0@gmail.com",
             ],
           ),
           child: Text('Send Invitation!'),
