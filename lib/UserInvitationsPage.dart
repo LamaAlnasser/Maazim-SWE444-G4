@@ -54,47 +54,122 @@ class _UserInvitationsPageState extends State<UserInvitationsPage> {
             return Center(child: Text("Error: ${snapshot.error}"));
           } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             List<Map<String, dynamic>> invitations = snapshot.data!;
-            //Crads
             return ListView.builder(
               itemCount: invitations.length,
               itemBuilder: (context, index) {
                 Map<String, dynamic> invitation = invitations[index];
-                bool accepted = invitation['acceptedUserIds'].contains(userId);
-                bool rejected = invitation['rejectedUserIds'].contains(userId);
-
-                return Card(
-                  margin: EdgeInsets.all(8.0),
-                  child: ListTile(
-                    title: Text(invitation['eventName']),
-                    subtitle: Text("Hosted by: ${invitation['nameOfInviter']}"),
-                    trailing: accepted
-                        ? Icon(Icons.check, color: Colors.green)
-                        : (rejected
-                            ? Icon(Icons.close, color: Colors.red)
-                            : null),
-                    onTap: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => InvitationDetailPage(
-                            invitation: invitation,
+                return InkWell(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          InvitationDetailPage(invitation: invitation),
+                    ),
+                  ),
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+                    height: 160,
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: <Widget>[
+                        Container(
+                          height: 136,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(22),
+                            color: index.isEven
+                                ? Color.fromARGB(255, 154, 133, 164)
+                                : Color.fromARGB(255, 84, 73, 89),
+                            boxShadow: [
+                              BoxShadow(
+                                offset: Offset(0, 15),
+                                blurRadius: 27,
+                                color: Colors.black12,
+                              ),
+                            ],
+                          ),
+                          child: Container(
+                            margin: EdgeInsets.only(right: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(22),
+                            ),
                           ),
                         ),
-                      );
-                      if (result != null) {
-                        setState(() {
-                          // Update the list of invitations based on the result
-                        });
-                      }
-                    },
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          child: SizedBox(
+                            height: 136,
+                            width: MediaQuery.of(context).size.width -
+                                100, // Reduced from 200 to 100
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Spacer(),
+                                Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20),
+                                    child: Text(
+                                      invitation['eventName'],
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+
+                                      maxLines:
+                                          1, // Ensure the text does not wrap over more than one line
+                                    )),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal:
+                                          20), // Consistent padding for nameOfInviter
+                                  child: Text(
+                                    "Hosted by: ${invitation['nameOfInviter']}",
+                                    style: TextStyle(
+                                        color: Colors.grey, fontSize: 14),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                                Spacer(),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: invitation['acceptedUserIds']
+                                            .contains(userId)
+                                        ? Colors.green
+                                        : invitation['rejectedUserIds']
+                                                .contains(userId)
+                                            ? Colors.red // Color for Rejected
+                                            : Colors
+                                                .grey, // Default color for Pending
+                                    borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(22),
+                                        topRight: Radius.circular(22)),
+                                  ),
+                                  child: Text(
+                                    invitation['acceptedUserIds']
+                                            .contains(userId)
+                                        ? "Accepted"
+                                        : invitation['rejectedUserIds']
+                                                .contains(userId)
+                                            ? "Rejected" // Text for Rejected
+                                            : "Pending", // Default text for Pending
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
             );
           } else {
-            return Center(
-                child: Text(
-                    "Oops, no invitations at the moment \u{1F614}\n Keep an eye out for surprises soon!"));
+            return Center(child: Text("Oops, no invitations at the moment."));
           }
         },
       ),
