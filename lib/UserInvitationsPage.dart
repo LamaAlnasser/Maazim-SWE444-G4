@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 class UserInvitationsPage extends StatefulWidget {
   const UserInvitationsPage({Key? key}) : super(key: key);
@@ -58,6 +59,11 @@ class _UserInvitationsPageState extends State<UserInvitationsPage> {
               itemCount: invitations.length,
               itemBuilder: (context, index) {
                 Map<String, dynamic> invitation = invitations[index];
+                // Format the date and time
+                DateTime eventDate = (invitation['date'] as Timestamp).toDate();
+                String formattedDate =
+                    DateFormat('EEEE, MMMM d, yyyy').format(eventDate);
+                String formattedTime = DateFormat('h:mm a').format(eventDate);
                 return InkWell(
                   onTap: () => Navigator.push(
                     context,
@@ -106,6 +112,18 @@ class _UserInvitationsPageState extends State<UserInvitationsPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Spacer(),
+                                Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20),
+                                    child: Text(
+                                      "$formattedDate, $formattedTime", // Replace with actual date and time
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 14,
+                                      ),
+                                      maxLines:
+                                          1, // Ensure the text does not wrap over more than one line
+                                    )),
                                 Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 20),
@@ -220,7 +238,6 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
             Text("Date: ${widget.invitation['date'].toDate().toString()}"),
             Text("Time: ${widget.invitation['time']}"),
             Text("Location: ${widget.invitation['eventLocation']}"),
-            Text("Address: ${widget.invitation['address']}"),
             SizedBox(height: 20),
             if (!hasAccepted && !hasRejected)
               Row(
