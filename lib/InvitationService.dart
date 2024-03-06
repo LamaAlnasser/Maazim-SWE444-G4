@@ -83,13 +83,13 @@ class CombinedInvitationServiceAndUI extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () => createInvitation(
-            eventName: "Winter Wonderland Gala",
+            eventName: "Hello World.",
             eventType: "Charity Ball",
-            nameOfInviter: "Jasmine",
+            nameOfInviter: "Mrs. Java laplap",
             date: DateTime(2024, 12, 20), // December 20, 2024
             time: "7:30 PM",
             eventLocation: "The Grand Ballroom",
-            address: "860 Frost Avenue, Snowtown",
+            address: "860 Frost Avenue, CCIS",
             guestEmails: [
               "gege0@gmail.com",
               "lulu0@gmail.com",
