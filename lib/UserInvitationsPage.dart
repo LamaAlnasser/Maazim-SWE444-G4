@@ -237,7 +237,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
             Text("Host: ${widget.invitation['nameOfInviter']}"),
             Text("Date: ${widget.invitation['date'].toDate().toString()}"),
             Text("Time: ${widget.invitation['time']}"),
-            Text("Location: ${widget.invitation['eventLocation']}"),
+            Text("Location: ${widget.invitation['eventLocationAddress']}"),
             SizedBox(height: 20),
             if (!hasAccepted && !hasRejected)
               Row(
