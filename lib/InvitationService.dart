@@ -31,8 +31,7 @@ class CombinedInvitationServiceAndUI extends StatelessWidget {
     required String nameOfInviter,
     required DateTime date,
     required String time,
-    required String eventLocation,
-    required String address,
+    required String eventLocationAddress,
     required List<String> guestEmails,
   }) async {
     List<String> guestUserIds = [];
@@ -58,8 +57,7 @@ class CombinedInvitationServiceAndUI extends StatelessWidget {
         'nameOfInviter': nameOfInviter,
         'date': Timestamp.fromDate(date),
         'time': time,
-        'eventLocation': eventLocation,
-        'address': address,
+        'eventLocationAddress': eventLocationAddress,
         'guestUserIds': guestUserIds,
         'acceptedUserIds': [], // Initialize as empty list
         'rejectedUserIds': [], // Initialize as empty list
@@ -88,8 +86,7 @@ class CombinedInvitationServiceAndUI extends StatelessWidget {
             nameOfInviter: "Mrs. Java laplap",
             date: DateTime(2024, 12, 20), // December 20, 2024
             time: "7:30 PM",
-            eventLocation: "The Grand Ballroom",
-            address: "860 Frost Avenue, CCIS",
+            eventLocationAddress: "The Grand Ballroom",
             guestEmails: [
               "gege0@gmail.com",
               "lulu0@gmail.com",
