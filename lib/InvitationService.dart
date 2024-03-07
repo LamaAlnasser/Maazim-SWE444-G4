@@ -81,12 +81,12 @@ class CombinedInvitationServiceAndUI extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () => createInvitation(
-            eventName: "Hello World.",
-            eventType: "Charity Ball",
-            nameOfInviter: "Mrs. Java laplap",
+            eventName: "Fall Harvest Festival",
+            eventType: "Farmers Market",
+            nameOfInviter: "Mrs. Sarah Anderson",
             date: DateTime(2024, 12, 20), // December 20, 2024
-            time: "7:30 PM",
-            eventLocationAddress: "The Grand Ballroom",
+            time: "9:00 AM",
+            eventLocationAddress: "101 Market Street, Smalltown, USA",
             guestEmails: [
               "gege0@gmail.com",
               "lulu0@gmail.com",
