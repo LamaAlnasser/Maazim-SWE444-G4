@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/cupertino.dart';
 
 class UserInvitationsPage extends StatefulWidget {
   const UserInvitationsPage({Key? key}) : super(key: key);
@@ -24,7 +25,7 @@ class _UserInvitationsPageState extends State<UserInvitationsPage> {
       String userId) async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     List<Map<String, dynamic>> invitations = [];
-
+//to make the pending invitations appear first in the list
     try {
       QuerySnapshot querySnapshot = await firestore
           .collection('Invitations')
@@ -35,6 +36,23 @@ class _UserInvitationsPageState extends State<UserInvitationsPage> {
         invitation['id'] = doc.id;
         invitations.add(invitation);
       }
+
+      // Sort invitations: pending first, then accepted, and rejected last
+      invitations.sort((a, b) {
+        bool aAccepted = a['acceptedUserIds'].contains(userId);
+        bool aRejected = a['rejectedUserIds'].contains(userId);
+        bool bAccepted = b['acceptedUserIds'].contains(userId);
+        bool bRejected = b['rejectedUserIds'].contains(userId);
+
+        if (!aAccepted && !aRejected && (bAccepted || bRejected)) {
+          return -1; // a is pending, should come before b
+        } else if ((aAccepted || aRejected) && !bAccepted && !bRejected) {
+          return 1; // b is pending, should come before a
+        } else {
+          return 0; // Keep original order if both are the same type
+        }
+      });
+
       return invitations;
     } catch (e) {
       print("Error getting invitations: $e");
@@ -63,7 +81,7 @@ class _UserInvitationsPageState extends State<UserInvitationsPage> {
                 DateTime eventDate = (invitation['date'] as Timestamp).toDate();
                 String formattedDate =
                     DateFormat('EEEE, MMMM d, yyyy').format(eventDate);
-                String formattedTime = DateFormat('h:mm a').format(eventDate);
+                String formattedTime = invitation['time'];
                 return InkWell(
                   onTap: () => Navigator.push(
                     context,
@@ -196,6 +214,7 @@ class _UserInvitationsPageState extends State<UserInvitationsPage> {
 }
 
 // After tap on the invitation card [Event details+ accept or reject an invitation]
+
 class InvitationDetailPage extends StatefulWidget {
   final Map<String, dynamic> invitation;
 
@@ -220,77 +239,264 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    String userId = FirebaseAuth.instance.currentUser!.uid;
+    DateTime eventDate = (widget.invitation['date'] as Timestamp).toDate();
+    String formattedDate = DateFormat('EEEE, MMMM d, yyyy').format(eventDate);
+    String formattedTime =
+        widget.invitation['time']; // Use the time directly as a string
 
+    double fem = MediaQuery.of(context).size.width / 400;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.invitation['eventName']),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Event: ${widget.invitation['eventName']}",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            Text("Type: ${widget.invitation['eventType']}"),
-            Text("Host: ${widget.invitation['nameOfInviter']}"),
-            Text("Date: ${widget.invitation['date'].toDate().toString()}"),
-            Text("Time: ${widget.invitation['time']}"),
-            Text("Location: ${widget.invitation['eventLocationAddress']}"),
-            SizedBox(height: 20),
-            if (!hasAccepted && !hasRejected)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => respondToInvitation(true),
-                    child: Text('Accept'),
-                    style: ElevatedButton.styleFrom(primary: Colors.green),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(vertical: 30 * fem),
+                  decoration: BoxDecoration(
+                    color: Color(0xff9a85a4),
+                    borderRadius: BorderRadius.only(
+                      bottomRight: Radius.circular(30 * fem),
+                      bottomLeft: Radius.circular(30 * fem),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0x33656cee),
+                        offset: Offset(0, 2),
+                        blurRadius: 15,
+                      ),
+                    ],
                   ),
-                  ElevatedButton(
-                    onPressed: () => respondToInvitation(false),
-                    child: Text('Reject'),
-                    style: ElevatedButton.styleFrom(primary: Colors.red),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(height: 28 * fem),
+                      Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image:
+                                AssetImage('assets/images/boarder/white.png'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        child: SizedBox(
+                          height: MediaQuery.of(context).padding.top + 12 * fem,
+                        ),
+                      ),
+                      SizedBox(height: 10 * fem),
+                      Text(
+                        widget.invitation['eventName'],
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 30 * fem,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white),
+                      ),
+                      SizedBox(height: 4 * fem),
+                      Text(
+                        widget.invitation['eventType'],
+                        style: TextStyle(
+                            fontSize: 22 * fem,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white),
+                      ),
+                      SizedBox(height: 0 * fem),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 35 * fem),
+                  child: Text(
+                    "${widget.invitation['nameOfInviter']} \nInvites you to ${widget.invitation['eventName']}!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 20 * fem,
+                        color: Color(0xff9a85a4),
+                        fontWeight: FontWeight.w700),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 30 * fem),
+                  child: _buildDateInformationRow(eventDate),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 30 * fem),
+                  child: Text(
+                    "At $formattedTime",
+                    style: TextStyle(
+                        fontSize: 18 * fem,
+                        color: Color(0xff9a85a4),
+                        fontWeight: FontWeight.w700),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 1 * fem),
+                  child: Text(
+                    "${widget.invitation['eventLocationAddress']}",
+                    style: TextStyle(
+                        fontSize: 16 * fem,
+                        color: Color(0xff9a85a4),
+                        fontWeight: FontWeight.w700),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 20 * fem),
+                  child: Text(
+                    "Looking Forward!",
+                    style: TextStyle(
+                        fontSize: 20 * fem,
+                        color: Color(0xff9a85a4),
+                        fontWeight: FontWeight.w700),
+                  ),
+                ),
+                if (!hasAccepted && !hasRejected) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _responseButton(true, fem),
+                      _responseButton(false, fem),
+                    ],
+                  ),
+                ] else ...[
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: _responseStatus(),
                   ),
                 ],
-              ),
-            if (hasAccepted)
-              Text("You have accepted this invitation.",
-                  style: TextStyle(color: Colors.green, fontSize: 16)),
-            if (hasRejected)
-              Text("You have rejected this invitation.",
-                  style: TextStyle(color: Colors.red, fontSize: 16)),
-          ],
+              ],
+            ),
+          ),
+          Positioned(
+            top: 50 *
+                fem, // Adjust as needed to place it at the desired position from the bottom
+            left: 20 *
+                fem, // Adjust as needed to place it at the desired position from the left
+            child: IconButton(
+              icon: Icon(Icons.arrow_back,
+                  color: Colors.black), // Customize as needed
+              onPressed: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                      builder: (context) => UserInvitationsPage()),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _responseButton(bool isAccepted, double fem) {
+    return Padding(
+      padding: EdgeInsets.only(
+          top: 21.0 * fem,
+          right: isAccepted ? 0 * fem : 0,
+          left: isAccepted ? 0 : 0 * fem),
+      child: OutlinedButton(
+        onPressed: () => respondToInvitation(isAccepted),
+        style: OutlinedButton.styleFrom(
+          shape: CircleBorder(),
+          side: BorderSide(
+            width: 2.0,
+            color: isAccepted
+                ? Color.fromRGBO(29, 197, 139, 1)
+                : Color.fromRGBO(233, 51, 75, 1),
+          ),
+          minimumSize: Size(50 * fem, 50 * fem),
         ),
+        child: Icon(
+          isAccepted ? Icons.check : Icons.close,
+          color: isAccepted ? Color(0xff009606) : Color(0xffff2828),
+          size: 24.0 * fem,
+        ),
+      ),
+    );
+  }
+
+  Widget _responseStatus() {
+    if (hasAccepted) {
+      return Text(
+        "You have accepted this invitation.",
+        style: TextStyle(
+            color: Colors.green, fontSize: 16, fontWeight: FontWeight.w700),
+      );
+    } else if (hasRejected) {
+      return Text(
+        "You have rejected this invitation.",
+        style: TextStyle(
+            color: Colors.red, fontSize: 16, fontWeight: FontWeight.w700),
+      );
+    }
+    return SizedBox
+        .shrink(); // Returns an empty widget for better conditional rendering
+  }
+
+  Widget _buildDateInformationRow(DateTime eventDate) {
+    final dayOfWeek = DateFormat('EEEE').format(eventDate);
+    final day = DateFormat('d').format(eventDate);
+    final monthYear = DateFormat('MMM yyyy').format(eventDate);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          dayOfWeek,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        _verticalDivider(),
+        Text(day,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            )),
+        _verticalDivider(),
+        Text(monthYear,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            )),
+      ],
+    );
+  }
+
+  Widget _verticalDivider() {
+    return Container(
+      height: 24,
+      child: VerticalDivider(
+        color: Colors.black,
+        thickness: 2,
       ),
     );
   }
 
   Future<void> respondToInvitation(bool isAccepted) async {
     // Confirmation dialog
-    bool confirm = await showDialog(
+    bool confirm = await showCupertinoDialog<bool>(
           context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text(
-                  isAccepted ? 'Accept Invitation?' : 'Reject Invitation?'),
-              content: Text(
-                  'Are you sure you want to ${isAccepted ? 'accept' : 'reject'} this invitation?'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: Text(isAccepted ? 'Accept' : 'Reject'),
-                ),
-              ],
-            );
-          },
+          builder: (BuildContext context) => CupertinoAlertDialog(
+            title: Text('Confirm Your Response'),
+            content: Text(
+                'Are you sure you want to ${isAccepted ? 'accept' : 'reject'} this invitation?'),
+            actions: <Widget>[
+              CupertinoDialogAction(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              CupertinoDialogAction(
+                isDefaultAction: true,
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(isAccepted ? 'Accept' : 'Reject'),
+              ),
+            ],
+          ),
         ) ??
-        false; // Handling null (tap outside the dialog)
+        false; // Handling null (tap outside the dialog or pressing cancel returns false)
 
     if (!confirm) return; // Exit if not confirmed
 
