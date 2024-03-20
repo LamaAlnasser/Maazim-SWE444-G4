@@ -43,6 +43,8 @@ dependencies:
   country_picker: ^2.0.24
   pin_code_fields: ^8.0.1
   url_launcher: ^6.0.12
+  motion_tab_bar: ^2.0.4
+
   
 
 dev_dependencies:
