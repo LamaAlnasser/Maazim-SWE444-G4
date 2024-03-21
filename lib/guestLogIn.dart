@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:maazim/limited_functionality_page.dart';
+import 'package:maazim/guestHomePage.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:maazim/layout.dart';
 import 'package:maazim/main.dart'; //use it to go back
@@ -163,7 +163,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
           await FirebaseAuth.instance.signInWithCredential(credential);
       if (userCredential.user != null) {
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => const LimitedFunctionalityPage(),
+          builder: (context) => const guestHomePage(),
         ));
       }
     } on FirebaseAuthException catch (e) {
