@@ -28,21 +28,27 @@ class _guestEventsPageState extends State<guestEventsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center, // Center the children vertically
           children: [
-            Image.asset(
+            Opacity(opacity: 0.4,
+            child: Image.asset(
               'assets/teapot.png', // Replace with your asset image path
-              width: 200, // Set your width accordingly
-              height: 200, // Set your height accordingly
+              width: 300, // Set your width accordingly
+              height: 250, // Set your height accordingly
+            ),),
+            SizedBox(height: 20), // Add some space between the image and the text
+            Text(
+              "No Available Events",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 24), // Add some space between the image and the text
+            SizedBox(height: 10), // Add some space between the image and the text
             Text(
               "To have access to full features please",
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12),
+              style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 24), 
-             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),// Add some space between the text and the button
-            child: ElevatedButton(
+            // Add some space between the text and the button
+            ElevatedButton(
               onPressed: (){
                 Navigator.push(
                   context,
@@ -52,13 +58,13 @@ class _guestEventsPageState extends State<guestEventsPage> {
               style: ElevatedButton.styleFrom(
                 primary: Color(0xFF9a85a4), // Button background color
                 onPrimary: Colors.white, // Text color
+                padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15), // Add padding to make the button bigger
               ),
               child: Text(
                 "Sign up",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
-             ),
           ],
         ),
       ),
