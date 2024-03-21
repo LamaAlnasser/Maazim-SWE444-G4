@@ -11,7 +11,7 @@ class guestProfilePage extends StatelessWidget {
           children: [
             SizedBox(width: 8), // Add space between the icon and the title
             Text(
-              'Profile',
+              'My Profile',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
             ),
           ],
