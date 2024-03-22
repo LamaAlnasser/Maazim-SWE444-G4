@@ -148,41 +148,44 @@ void _createEventAndSendInvitations() {
           .where((number) => number.isNotEmpty)
           .toList();
 
-      // Create an Event object
-      Event event = Event(
-        eventName: _eventNameController.text,
-        eventLocation: _eventLocationController.text,
-        eventType: _eventTypeController.text,
-        eventDate: _selectedDate,
-        eventTime: _selectedTime,
-        inviterName: _inviterNameController.text,
-        numberOfInvitees: int.parse(_numberOfInviteesController.text),
-        inviteesPhoneNumbers: phoneNumbers,
-      );
+      // Get the current user
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        String userId = user.uid;
 
-      // Save the event data to Firestore
-      FirebaseFirestore.instance.collection('events').add({
-        'eventName': event.eventName,
-        'eventLocation': event.eventLocation,
-        'eventType': event.eventType,
-        'eventDateTime': Timestamp.fromDate(
-            DateTime(event.eventDate.year, event.eventDate.month, event.eventDate.day, event.eventTime.hour, event.eventTime.minute)),
-        'inviterName': event.inviterName,
-        'numberOfInvitees': event.numberOfInvitees,
-        'inviteesPhoneNumbers': event.inviteesPhoneNumbers,
-      }).then((value) {
-        _sendSMSInvitations(phoneNumbers);
-        //ScaffoldMessenger.of(context).showSnackBar(
-          //const SnackBar(content: Text('Event created and invitations sent successfully!')),
-        //);
-        Navigator.pop(context);
-      }).catchError((error) {
-       // ScaffoldMessenger.of(context).showSnackBar(
-         // const SnackBar(content: Text('Failed to create event. Please try again.')),
-       // );
-      });
+        // Create an Event object
+        Event event = Event(
+          eventName: _eventNameController.text,
+          eventLocation: _eventLocationController.text,
+          eventType: _eventTypeController.text,
+          eventDate: _selectedDate,
+          eventTime: _selectedTime,
+          inviterName: _inviterNameController.text,
+          numberOfInvitees: int.parse(_numberOfInviteesController.text),
+          inviteesPhoneNumbers: phoneNumbers,
+        );
+
+        // Save the event data to Firestore
+        FirebaseFirestore.instance.collection('events').add({
+          'userId': userId,
+          'eventName': event.eventName,
+          'eventLocation': event.eventLocation,
+          'eventType': event.eventType,
+          'eventDateTime': Timestamp.fromDate(
+              DateTime(event.eventDate.year, event.eventDate.month, event.eventDate.day, event.eventTime.hour, event.eventTime.minute)),
+          'inviterName': event.inviterName,
+          'numberOfInvitees': event.numberOfInvitees,
+          'inviteesPhoneNumbers': event.inviteesPhoneNumbers,
+        }).then((value) {
+          _sendSMSInvitations(phoneNumbers);
+          Navigator.pop(context);
+        }).catchError((error) {
+          // Handle error
+        });
+      }
     }
   }
+
 
     void _sendSMSInvitations(List<String> phoneNumbers) {
     String message = "You're invited to ${_eventNameController.text} on "
