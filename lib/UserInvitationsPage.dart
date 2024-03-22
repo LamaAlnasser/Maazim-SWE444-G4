@@ -25,7 +25,7 @@ class _UserInvitationsPageState extends State<UserInvitationsPage> {
       String userId) async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     List<Map<String, dynamic>> invitations = [];
-//to make the pending invitations appear first in the list
+    //to make the pending invitations appear first in the list
     try {
       QuerySnapshot querySnapshot = await firestore
           .collection('Invitations')
