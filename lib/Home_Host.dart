@@ -68,12 +68,14 @@ class _homePageState extends State<homePage> {
             _selectedIndex = index;
           });
         },
+        physics: NeverScrollableScrollPhysics(), // Disable page swiping
         children: <Widget>[
           ProfilePage(), // Your profile page widget
-          MyEventsPage(), // Your my events page widget
+          MyEventsPage(),// Your my events page widget
           MyInvitationsPage(), // Your my invitations page widget
         ],
       ),
+
       bottomNavigationBar: MotionTabBar(
         labels: const ["Profile", "Events", "Invitations"],
         initialSelectedTab: "Events",
@@ -91,6 +93,7 @@ class _homePageState extends State<homePage> {
         },
         icons: const [Icons.person, Icons.event, Icons.mail],
         textStyle: const TextStyle(color: const Color(0xFF9a85a4)),
+        
       ),
     );
   }
