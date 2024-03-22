@@ -30,7 +30,7 @@ class _guestEventsPageState extends State<guestEventsPage> {
           children: [
             Opacity(opacity: 0.4,
             child: Image.asset(
-              'assets/teapot.png', // Replace with your asset image path
+              'assets/lavender.png', // Replace with your asset image path
               width: 300, // Set your width accordingly
               height: 250, // Set your height accordingly
             ),),
