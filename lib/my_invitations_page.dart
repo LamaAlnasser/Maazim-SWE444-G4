@@ -84,22 +84,14 @@ class _MyInvitationsPageState extends State<MyInvitationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false, // Remove the back button
-        title: Row(
-          children: [
-            SizedBox(width: 8), // Add space between the icon and the title
-            Text(
-              'My Invitations',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-            ),
-          ],
-        ),
-      ),
-
      body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Padding(padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+            child:Text(
+            'My Invitations',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30 ),
+            ),),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
