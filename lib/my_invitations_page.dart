@@ -90,41 +90,90 @@ class _MyInvitationsPageState extends State<MyInvitationsPage> {
   }
 }
 
+//Here
 class UpcomingInvitations extends StatefulWidget {
   @override
   _UpcomingInvitationsState createState() => _UpcomingInvitationsState();
 }
 
 class _UpcomingInvitationsState extends State<UpcomingInvitations> {
-  late Future<List<Map<String, dynamic>>> invitationsFuture;
-  final String userId = FirebaseAuth.instance.currentUser!.uid;
+  Future<List<Map<String, dynamic>>> invitationsFuture = Future.value([]);
+
+  String? phoneNumber; // Declare phoneNumber here
 
   @override
   void initState() {
     super.initState();
-    invitationsFuture = getInvitationsForUser(userId);
+    getCurrentUserPhoneNumber().then((phone) {
+      // Make sure to check if the widget is still mounted before calling setState
+      if (phone != null && mounted) {
+        setState(() {
+          // Assign the retrieved phone number to the state variable
+          phoneNumber = phone;
+          invitationsFuture = getInvitationsForUser(phoneNumber!);
+        });
+      }
+    });
+  }
+
+//Get current phone number
+  Future<String?> getCurrentUserPhoneNumber() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      // Try to get the phone number from the users collection first
+      DocumentSnapshot userDoc =
+          await firestore.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+        String? phoneNumber = userData['phoneNumber'];
+        return phoneNumber; // Assuming it's stored without the country code
+      } else {
+        // If phone number is not available in the users collection, use the one from Authentication
+        String? authPhoneNumber = user.phoneNumber;
+        if (authPhoneNumber != null && authPhoneNumber.isNotEmpty) {
+          // Remove the country code if present
+          return authPhoneNumber.replaceFirst(RegExp(r'^\+966'), '');
+        }
+      }
+    }
+    return null; // Return null if user is not signed in or phone number is not found
   }
 
   Future<List<Map<String, dynamic>>> getInvitationsForUser(
-      String userId) async {
+      String phoneNumber) async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     List<Map<String, dynamic>> invitations = [];
+
+    print('Getting invitations for phone number: $phoneNumber'); // Debug log
+
     try {
       QuerySnapshot querySnapshot = await firestore
-          .collection('Invitations')
-          .where('guestUserIds', arrayContains: userId)
+          .collection('events')
+          .where('inviteesPhoneNumbers', arrayContains: phoneNumber)
           .get();
+
+      print(
+          'Number of invitations found: ${querySnapshot.docs.length}'); // Debug log
+
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> invitation = doc.data() as Map<String, dynamic>;
         invitation['id'] = doc.id;
+
+        invitation['acceptedInvitees'] ??= [];
+        invitation['rejectedInvitees'] ??= [];
+
+        print('Invitation details: $invitation'); // Debug log
+
         invitations.add(invitation);
       }
+
       // Sort invitations: pending first, then accepted, and rejected last
       invitations.sort((a, b) {
-        bool aAccepted = a['acceptedUserIds'].contains(userId);
-        bool aRejected = a['rejectedUserIds'].contains(userId);
-        bool bAccepted = b['acceptedUserIds'].contains(userId);
-        bool bRejected = b['rejectedUserIds'].contains(userId);
+        bool aAccepted = a['acceptedInvitees'].contains(phoneNumber);
+        bool aRejected = a['rejectedInvitees'].contains(phoneNumber);
+        bool bAccepted = b['acceptedInvitees'].contains(phoneNumber);
+        bool bRejected = b['rejectedInvitees'].contains(phoneNumber);
 
         if (!aAccepted && !aRejected && (bAccepted || bRejected)) {
           return -1; // a is pending, should come before b
@@ -143,6 +192,7 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
 
   @override
   Widget build(BuildContext context) {
+    // You no longer rely on 'invitationsFuture' being late-initialized.
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: invitationsFuture,
       builder: (context, snapshot) {
@@ -156,11 +206,18 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
             itemCount: invitations.length,
             itemBuilder: (context, index) {
               Map<String, dynamic> invitation = invitations[index];
+
               // Format the date and time
-              DateTime eventDate = (invitation['date'] as Timestamp).toDate();
+              Timestamp timestamp = invitation['eventDateTime'] as Timestamp;
+              DateTime eventDate = timestamp.toDate();
+              // Use DateFormat to format the DateTime object
               String formattedDate =
-                  DateFormat('EEEE, MMMM d, yyyy').format(eventDate);
-              String formattedTime = invitation['time'];
+                  DateFormat('EEEE, MMMM d, yyyy, h:mm a').format(eventDate);
+
+              String eventName = invitation['eventName'];
+              String inviterName = invitation[
+                  'inviterName']; // The name of the person who created the event
+
               return InkWell(
                 onTap: () => Navigator.push(
                   context,
@@ -213,7 +270,7 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 20),
                                   child: Text(
-                                    "$formattedDate, $formattedTime", // Replace with actual date and time
+                                    "$formattedDate",
                                     style: TextStyle(
                                       color: Colors.grey,
                                       fontSize: 14,
@@ -225,7 +282,7 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 20),
                                   child: Text(
-                                    invitation['eventName'],
+                                    "$eventName",
                                     style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold),
@@ -238,7 +295,7 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
                                     horizontal:
                                         20), // Consistent padding for nameOfInviter
                                 child: Text(
-                                  "Hosted by: ${invitation['nameOfInviter']}",
+                                  "Hosted by: $inviterName",
                                   style: TextStyle(
                                       color: Colors.grey, fontSize: 14),
                                   overflow: TextOverflow.ellipsis,
@@ -250,11 +307,11 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 20, vertical: 10),
                                 decoration: BoxDecoration(
-                                  color: invitation['acceptedUserIds']
-                                          .contains(userId)
+                                  color: invitation['acceptedInvitees']
+                                          .contains(phoneNumber)
                                       ? Colors.green
-                                      : invitation['rejectedUserIds']
-                                              .contains(userId)
+                                      : invitation['rejectedInvitees']
+                                              .contains(phoneNumber)
                                           ? Colors.red // Color for Rejected
                                           : Colors
                                               .grey, // Default color for Pending
@@ -263,10 +320,11 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
                                       topRight: Radius.circular(22)),
                                 ),
                                 child: Text(
-                                  invitation['acceptedUserIds'].contains(userId)
+                                  invitation['acceptedInvitees']
+                                          .contains(phoneNumber)
                                       ? "Accepted"
-                                      : invitation['rejectedUserIds']
-                                              .contains(userId)
+                                      : invitation['rejectedInvitees']
+                                              .contains(phoneNumber)
                                           ? "Rejected" // Text for Rejected
                                           : "Pending", // Default text for Pending
                                   style: TextStyle(color: Colors.white),
@@ -318,12 +376,15 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
   void initState() {
     super.initState();
     String userId = FirebaseAuth.instance.currentUser!.uid;
-    hasAccepted = widget.invitation['acceptedUserIds'].contains(userId);
-    hasRejected = widget.invitation['rejectedUserIds'].contains(userId);
+    //userId >> phonenumber
+    hasAccepted = widget.invitation['acceptedInvitees'].contains(userId);
+    hasRejected = widget.invitation['rejectedInvitees'].contains(userId);
   }
 
   @override
   Widget build(BuildContext context) {
+    //Edit here
+
     DateTime eventDate = (widget.invitation['date'] as Timestamp).toDate();
     String formattedDate = DateFormat('EEEE, MMMM d, yyyy').format(eventDate);
     String formattedTime =
