@@ -90,7 +90,7 @@ class _MyInvitationsPageState extends State<MyInvitationsPage> {
   }
 }
 
-//Here
+//Here start Upcoming Invitations
 class UpcomingInvitations extends StatefulWidget {
   @override
   _UpcomingInvitationsState createState() => _UpcomingInvitationsState();
@@ -145,26 +145,27 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     List<Map<String, dynamic>> invitations = [];
 
+    // Current timestamp
+    var now = Timestamp.fromDate(DateTime.now());
+
     print('Getting invitations for phone number: $phoneNumber'); // Debug log
 
     try {
       QuerySnapshot querySnapshot = await firestore
           .collection('events')
           .where('inviteesPhoneNumbers', arrayContains: phoneNumber)
+          .where('eventDateTime', isGreaterThan: now) // Only future events
           .get();
 
       print(
-          'Number of invitations found: ${querySnapshot.docs.length}'); // Debug log
+          'Number of upcoming invitations found: ${querySnapshot.docs.length}'); // Debug log
 
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> invitation = doc.data() as Map<String, dynamic>;
         invitation['id'] = doc.id;
-
-        invitation['acceptedInvitees'] ??= [];
-        invitation['rejectedInvitees'] ??= [];
-
-        print('Invitation details: $invitation'); // Debug log
-
+        // invitation['acceptedInvitees'] ??= [];
+        // invitation['rejectedInvitees'] ??= [];
+        // print('Invitation details: $invitation'); // Debug log
         invitations.add(invitation);
       }
 
@@ -347,15 +348,263 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
     );
   }
 }
+//Until here upcoming invitations
 
-class PastInvitations extends StatelessWidget {
+//Here start Past Invitations
+class PastInvitations extends StatefulWidget {
+  @override
+  _PastInvitationsState createState() => _PastInvitationsState();
+}
+
+class _PastInvitationsState extends State<PastInvitations> {
+  Future<List<Map<String, dynamic>>> invitationsFuture = Future.value([]);
+
+  String? phoneNumber; // Declare phoneNumber here
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUserPhoneNumber().then((phone) {
+      // Make sure to check if the widget is still mounted before calling setState
+      if (phone != null && mounted) {
+        setState(() {
+          // Assign the retrieved phone number to the state variable
+          phoneNumber = phone;
+          invitationsFuture = getInvitationsForUser(phoneNumber!);
+        });
+      }
+    });
+  }
+
+//Get current phone number
+  Future<String?> getCurrentUserPhoneNumber() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      // Try to get the phone number from the users collection first
+      DocumentSnapshot userDoc =
+          await firestore.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+        String? phoneNumber = userData['phoneNumber'];
+        return phoneNumber; // Assuming it's stored without the country code
+      } else {
+        // If phone number is not available in the users collection, use the one from Authentication
+        String? authPhoneNumber = user.phoneNumber;
+        if (authPhoneNumber != null && authPhoneNumber.isNotEmpty) {
+          // Remove the country code if present
+          return authPhoneNumber.replaceFirst(RegExp(r'^\+966'), '');
+        }
+      }
+    }
+    return null; // Return null if user is not signed in or phone number is not found
+  }
+
+  Future<List<Map<String, dynamic>>> getInvitationsForUser(
+      String phoneNumber) async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    List<Map<String, dynamic>> invitations = [];
+
+    // Current timestamp
+    var now = Timestamp.fromDate(DateTime.now());
+
+    print('Getting invitations for phone number: $phoneNumber'); // Debug log
+
+    try {
+      QuerySnapshot querySnapshot = await firestore
+          .collection('events')
+          .where('inviteesPhoneNumbers', arrayContains: phoneNumber)
+          .where('eventDateTime', isLessThan: now) // Only past events
+          .get();
+
+      print(
+          'Number of past invitations found: ${querySnapshot.docs.length}'); // Debug log
+
+      for (var doc in querySnapshot.docs) {
+        Map<String, dynamic> invitation = doc.data() as Map<String, dynamic>;
+        invitation['id'] = doc.id;
+        invitations.add(invitation);
+      }
+
+      // Sort invitations: pending first, then accepted, and rejected last
+      invitations.sort((a, b) {
+        bool aAccepted = a['acceptedInvitees'].contains(phoneNumber);
+        bool aRejected = a['rejectedInvitees'].contains(phoneNumber);
+        bool bAccepted = b['acceptedInvitees'].contains(phoneNumber);
+        bool bRejected = b['rejectedInvitees'].contains(phoneNumber);
+
+        if (!aAccepted && !aRejected && (bAccepted || bRejected)) {
+          return -1; // a is pending, should come before b
+        } else if ((aAccepted || aRejected) && !bAccepted && !bRejected) {
+          return 1; // b is pending, should come before a
+        } else {
+          return 0; // Keep original order if both are the same type
+        }
+      });
+      return invitations;
+    } catch (e) {
+      print("Error getting invitations: $e");
+      return [];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text('Past Invitations'),
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: invitationsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Error: ${snapshot.error}"));
+        } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+          List<Map<String, dynamic>> invitations = snapshot.data!;
+          return ListView.builder(
+            itemCount: invitations.length,
+            itemBuilder: (context, index) {
+              Map<String, dynamic> invitation = invitations[index];
+
+              // Format the date and time
+              Timestamp timestamp = invitation['eventDateTime'] as Timestamp;
+              DateTime eventDate = timestamp.toDate();
+              // Use DateFormat to format the DateTime object
+              String formattedDate =
+                  DateFormat('EEEE, MMMM d, yyyy, h:mm a').format(eventDate);
+
+              String eventName = invitation['eventName'];
+              String inviterName = invitation[
+                  'inviterName']; // The name of the person who created the event
+
+              return InkWell(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        InvitationDetailPage(invitation: invitation),
+                  ),
+                ),
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+                  height: 160,
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: <Widget>[
+                      Container(
+                        height: 136,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(22),
+                          color: index.isEven
+                              ? Color.fromARGB(255, 154, 133, 164)
+                              : Color.fromARGB(255, 84, 73, 89),
+                          boxShadow: [
+                            BoxShadow(
+                              offset: Offset(0, 15),
+                              blurRadius: 27,
+                              color: Colors.black12,
+                            ),
+                          ],
+                        ),
+                        child: Container(
+                          margin: EdgeInsets.only(right: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(22),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        child: SizedBox(
+                          height: 136,
+                          width: MediaQuery.of(context).size.width -
+                              100, // Reduced from 200 to 100
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Spacer(),
+                              Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20),
+                                  child: Text(
+                                    "$formattedDate",
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 14,
+                                    ),
+                                    maxLines:
+                                        1, // Ensure the text does not wrap over more than one line
+                                  )),
+                              Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20),
+                                  child: Text(
+                                    "$eventName",
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+
+                                    maxLines:
+                                        1, // Ensure the text does not wrap over more than one line
+                                  )),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal:
+                                        20), // Consistent padding for nameOfInviter
+                                child: Text(
+                                  "Hosted by: $inviterName",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 14),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ),
+                              Spacer(),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: invitation['acceptedInvitees']
+                                          .contains(phoneNumber)
+                                      ? Colors.green
+                                      : invitation['rejectedInvitees']
+                                              .contains(phoneNumber)
+                                          ? Colors.red // Color for Rejected
+                                          : Colors
+                                              .grey, // Default color for Pending
+                                  borderRadius: BorderRadius.only(
+                                      bottomLeft: Radius.circular(22),
+                                      topRight: Radius.circular(22)),
+                                ),
+                                child: Text(
+                                  invitation['acceptedInvitees']
+                                          .contains(phoneNumber)
+                                      ? "Accepted"
+                                      : invitation['rejectedInvitees']
+                                              .contains(phoneNumber)
+                                          ? "Rejected" // Text for Rejected
+                                          : "Pending", // Default text for Pending
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        } else {
+          return Center(child: Text("No past invitations at the moment."));
+        }
+      },
     );
   }
 }
+//Until here  past invitations
 
 // After tap on the invitation card [Event details+ accept or reject an invitation]
 class InvitationDetailPage extends StatefulWidget {
@@ -384,7 +633,6 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
   @override
   Widget build(BuildContext context) {
     //Edit here
-
     DateTime eventDate = (widget.invitation['date'] as Timestamp).toDate();
     String formattedDate = DateFormat('EEEE, MMMM d, yyyy').format(eventDate);
     String formattedTime =
