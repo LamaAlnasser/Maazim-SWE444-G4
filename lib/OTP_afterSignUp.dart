@@ -167,6 +167,7 @@ class _OTP_afterSignUpState extends State<OTP_afterSignUp> {
     );
   }
 
+  //Start
   void _signInWithCredential(PhoneAuthCredential credential) async {
     try {
       final UserCredential userCredential =
@@ -174,29 +175,30 @@ class _OTP_afterSignUpState extends State<OTP_afterSignUp> {
       if (userCredential.user != null) {
         String uid = userCredential.user!.uid; // Get the user's unique ID
 
-        // Create or update the user's document in Firestore with the passed parameters
+        // Assuming email and password are passed correctly to this widget
+        final AuthCredential emailCredential = EmailAuthProvider.credential(
+            email: widget.email!, password: widget.password!);
+
+        // Here just store the additional user info in Firestore, no need to store the password
         await FirebaseFirestore.instance.collection('users').doc(uid).set({
           'email': widget.email,
-          'password': widget
-              .password, // Consider securely hashing the password before storing it
           'firstName': widget.firstName,
           'lastName': widget.lastName,
-          // You might also want to save the phone number
-          'phoneNumber': userCredential.user!.phoneNumber,
+          'phoneNumber':
+              userCredential.user!.phoneNumber, // Storing the phone number
         }, SetOptions(merge: true));
 
         // Navigate to the Home_Host page
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) =>
-                const homePage(), // Make sure you have a Home_Host class defined
+            builder: (context) => const homePage(),
           ),
         );
       }
     } on FirebaseAuthException catch (e) {
       _showSnackbar('Failed to sign in: ${e.message}');
     }
-  }
+  } //End
 
   void _signInWithPhoneNumber() async {
     if (_verificationId != null && _otpController.text.length == 6) {
