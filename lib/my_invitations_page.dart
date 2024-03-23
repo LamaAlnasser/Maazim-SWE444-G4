@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class MyInvitationsPage extends StatefulWidget {
   @override
@@ -739,7 +740,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                   child: Text(
                     "${widget.invitation['eventLocation']}",
                     style: TextStyle(
-                        fontSize: 16 * fem,
+                        fontSize: 18 * fem,
                         color: Color(0xff9a85a4),
                         fontWeight: FontWeight.w700),
                   ),
@@ -821,11 +822,49 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
   }
 
   Widget _responseStatus() {
-    if (hasAccepted) {
-      return Text(
-        "You have accepted this invitation.",
-        style: TextStyle(
-            color: Colors.green, fontSize: 16, fontWeight: FontWeight.w700),
+    String eventID = widget.invitation['id'];
+    String guestIdentifier = widget.phoneNumber;
+    String qrData = '$eventID|$guestIdentifier';
+    DateTime eventDate =
+        (widget.invitation['eventDateTime'] as Timestamp).toDate();
+    DateTime now = DateTime.now();
+
+    if (hasAccepted && eventDate.isAfter(now)) {
+      // Event date is in the future, display QR code
+      return Column(
+        children: [
+          Text(
+            "You have accepted this invitation.",
+            style: TextStyle(
+                color: Colors.green, fontSize: 16, fontWeight: FontWeight.w700),
+          ),
+          SizedBox(height: 10), // Space between text and QR code
+          Text(
+            "Scan this QR code at the event entrance.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                color: Colors.black, fontSize: 14, fontWeight: FontWeight.w700),
+          ),
+          SizedBox(height: 10), // Space between instruction text and QR code
+          QrImageView(
+            data: qrData,
+            version: QrVersions.auto,
+            size: 150.0,
+            eyeStyle: const QrEyeStyle(
+              eyeShape: QrEyeShape.square, // Set the eye shape to square
+              color: Color.fromARGB(
+                  255, 255, 255, 255), // Set the color of the QR code eyes
+            ),
+            dataModuleStyle: const QrDataModuleStyle(
+              dataModuleShape: QrDataModuleShape
+                  .square, // Set the data module shape to square
+              color: Color.fromARGB(255, 255, 255,
+                  255), // Set the color of the QR code data modules
+            ),
+            backgroundColor: Color(0xff9a85a4), // Set the background color
+          ),
+          // Other UI elements as needed
+        ],
       );
     } else if (hasRejected) {
       return Text(
@@ -833,7 +872,15 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
         style: TextStyle(
             color: Colors.red, fontSize: 16, fontWeight: FontWeight.w700),
       );
+    } else if (hasAccepted && eventDate.isBefore(now)) {
+      // Event date is in the past, do not display QR code
+      return Text(
+        "You have accepted this invitation.",
+        style: TextStyle(
+            color: Colors.grey, fontSize: 16, fontWeight: FontWeight.w700),
+      );
     }
+
     return SizedBox
         .shrink(); // Returns an empty widget for better conditional rendering
   }
@@ -947,223 +994,3 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
     });
   }
 }
-
-/*
-// After tap on the past invitation card 
-class InvitationDetailPagePast extends StatefulWidget {
-  final Map<String, dynamic> invitation;
-
-  const InvitationDetailPagePast({Key? key, required this.invitation})
-      : super(key: key);
-
-  @override
-  _InvitationDetailPageStatePast createState() => _InvitationDetailPageStatePast();
-}
-
-class _InvitationDetailPageStatePast extends State<InvitationDetailPagePast> {
-  @override
-  Widget build(BuildContext context) {
-    DateTime eventDate = (widget.invitation['date'] as Timestamp).toDate();
-    String formattedDate = DateFormat('EEEE, MMMM d, yyyy').format(eventDate);
-    String formattedTime =
-        widget.invitation['time']; // Use the time directly as a string
-
-    double fem = MediaQuery.of(context).size.width / 400;
-    return Scaffold(
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 30 * fem),
-                  decoration: BoxDecoration(
-                    color: Color(0xff9a85a4),
-                    borderRadius: BorderRadius.only(
-                      bottomRight: Radius.circular(30 * fem),
-                      bottomLeft: Radius.circular(30 * fem),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0x33656cee),
-                        offset: Offset(0, 2),
-                        blurRadius: 15,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(height: 28 * fem),
-                      Container(
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image:
-                                AssetImage('assets/images/boarder/white.png'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        child: SizedBox(
-                          height: MediaQuery.of(context).padding.top + 12 * fem,
-                        ),
-                      ),
-                      SizedBox(height: 10 * fem),
-                      Text(
-                        widget.invitation['eventName'],
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 30 * fem,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white),
-                      ),
-                      SizedBox(height: 4 * fem),
-                      Text(
-                        widget.invitation['eventType'],
-                        style: TextStyle(
-                            fontSize: 22 * fem,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white),
-                      ),
-                      SizedBox(height: 0 * fem),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 35 * fem),
-                  child: Text(
-                    "${widget.invitation['nameOfInviter']} \nInvites you to ${widget.invitation['eventName']}!",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 20 * fem,
-                        color: Color(0xff9a85a4),
-                        fontWeight: FontWeight.w700),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 30 * fem),
-                  child: _buildDateInformationRow(eventDate),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 30 * fem),
-                  child: Text(
-                    "At $formattedTime",
-                    style: TextStyle(
-                        fontSize: 18 * fem,
-                        color: Color(0xff9a85a4),
-                        fontWeight: FontWeight.w700),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 1 * fem),
-                  child: Text(
-                    "${widget.invitation['eventLocationAddress']}",
-                    style: TextStyle(
-                        fontSize: 16 * fem,
-                        color: Color(0xff9a85a4),
-                        fontWeight: FontWeight.w700),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 20 * fem),
-                  child: Text(
-                    "Looking Forward!",
-                    style: TextStyle(
-                        fontSize: 20 * fem,
-                        color: Color(0xff9a85a4),
-                        fontWeight: FontWeight.w700),
-                  ),
-                ),
-                //Check if he rejected it or nor.
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: _responseStatus(),
-                  ),
-              ],
-            ),
-          ),
-          Positioned(
-            top: 50 *
-                fem, // Adjust as needed to place it at the desired position from the bottom
-            left: 20 *
-                fem, // Adjust as needed to place it at the desired position from the left
-            child: IconButton(
-              icon: Icon(Icons.arrow_back,
-                  color: Colors.black), // Customize as needed
-              onPressed: () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => MyInvitationsPage()),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  
-  Widget _responseStatus() {
-    //check if user was acepted this 
-    if (hasAccepted) {
-      return Text(
-        "You have accepted this invitation.",
-        style: TextStyle(
-            color: Colors.green, fontSize: 16, fontWeight: FontWeight.w700),
-      );
-  //check if user was rejec this 
-    } else if (hasRejected) {
-      return Text(
-        "You have rejected this invitation.",
-        style: TextStyle(
-            color: Colors.red, fontSize: 16, fontWeight: FontWeight.w700),
-      );
-    }
-    return SizedBox
-        .shrink(); // Returns an empty widget for better conditional rendering
-  }
-
-  Widget _buildDateInformationRow(DateTime eventDate) {
-    final dayOfWeek = DateFormat('EEEE').format(eventDate);
-    final day = DateFormat('d').format(eventDate);
-    final monthYear = DateFormat('MMM yyyy').format(eventDate);
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          dayOfWeek,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        _verticalDivider(),
-        Text(day,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-            )),
-        _verticalDivider(),
-        Text(monthYear,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-            )),
-      ],
-    );
-  }
-
-  Widget _verticalDivider() {
-    return Container(
-      height: 24,
-      child: VerticalDivider(
-        color: Colors.black,
-        thickness: 2,
-      ),
-    );
-  }
-
-}
-*/
