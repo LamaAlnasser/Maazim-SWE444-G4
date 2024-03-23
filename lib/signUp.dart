@@ -6,7 +6,7 @@ import 'layout.dart';
 import 'package:maazim/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:maazim/Home_Host.dart';
-import 'package:country_picker/country_picker.dart';
+import 'package:maazim/OTP_afterSignUp.dart';
 
 class SignUp extends StatelessWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -20,14 +20,14 @@ class SignUp extends StatelessWidget {
             pageTitle: '',
             content: SignUpContent(),
           ),
-         Positioned(
+          Positioned(
             bottom: 25.0,
             left: 15,
             child: ElevatedButton(
-               onPressed: () async {
+              onPressed: () async {
                 await FirebaseAuth.instance.signOut();
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => WelcomePage(), // Ensure WelcomePage is defined
+                  builder: (context) => WelcomePage(),
                 ));
               },
               style: ElevatedButton.styleFrom(
@@ -61,95 +61,66 @@ class _SignUpContentState extends State<SignUpContent> {
   String password = "";
   String firstName = "";
   String lastName = "";
-  String phoneNumber = "";
-  Country selectedCountry = Country(
-      phoneCode: "966",
-      countryCode: "SA",
-      e164Sc: 0,
-      geographic: true,
-      level: 1,
-      name: "SaudiArabia",
-      example: "SaudiArabia",
-      displayName: "SaudiArabia",
-      displayNameNoCountryCode: "KSA",
-      e164Key: "");
   TextEditingController passwordController = TextEditingController();
   TextEditingController mailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool showError = false; // Add a boolean to track error visibility
   String errorMessage = ''; // Add a string to store the error message
 
-  void showCustomCountryPicker(BuildContext context) {
-    showCountryPicker(
-      context: context,
-      countryFilter: <String>['SA', 'US', 'AE'],
-      onSelect: (Country country) {
-        setState(() {
-          selectedCountry = country;
-        });
-      },
-      countryListTheme: CountryListThemeData(bottomSheetHeight: 500),
-    );
-  }
-
   void registration() async {
-    if (password.isNotEmpty &&
-        firstName.isNotEmpty &&
-        lastName.isNotEmpty &&
-        mailController.text.isNotEmpty &&
-        phoneNumber.isNotEmpty) {
-      try {
-        // Check if the phone number already exists in Firestore
-        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .where('phoneNumber', isEqualTo: phoneNumber)
-            .get();
+    if (_formKey.currentState!.validate()) {
+      // Show a loading indicator or disable the button to prevent multiple submissions
+      // For example:
+      // setState(() => _isLoading = true);
 
-        if (querySnapshot.docs.isNotEmpty) {
-          // Phone number already exists, set error message
-          setState(() {
-            showError = true;
-            errorMessage =
-                'The phone number already in use.\nPlease try another one.';
-          });
-        } else {
-          showError = false;
-          errorMessage = '';
-          // Phone number doesn't exist, proceed with registration
-          UserCredential userCredential =
-              await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: email,
-            password: password,
-          );
-
-          // Storing additional user information in Firestore
-          await FirebaseFirestore.instance
+      final email = mailController.text;
+      if (password.isNotEmpty &&
+          firstName.isNotEmpty &&
+          lastName.isNotEmpty &&
+          email.isNotEmpty) {
+        try {
+          // Check if the email is already in the users collection
+          final querySnapshot = await FirebaseFirestore.instance
               .collection('users')
-              .doc(userCredential.user!.uid)
-              .set({
-            'firstName': firstName,
-            'lastName': lastName,
-            'phoneNumber': phoneNumber,
-            'email': email,
-          });
+              .where('email', isEqualTo: email)
+              .limit(1)
+              .get();
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                "Registered Successfully!",
-                style: TextStyle(fontSize: 20.0),
-              ),
+          // If the query returns any documents, the email is already in use
+          if (querySnapshot.docs.isNotEmpty) {
+            setState(() {
+              showError = true;
+              errorMessage =
+                  'The email is already in use. Please try another one.';
+              // _isLoading = false; // Re-enable the button or hide loading indicator
+            });
+            return; // Stop further execution
+          }
+
+          // If email is not in use, proceed to navigate to OTP_afterSignUp
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => OTP_afterSignUp(
+              email: email,
+              password: password,
+              firstName: firstName,
+              lastName: lastName,
             ),
-          );
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => homePage()));
-        }
-      } on FirebaseAuthException catch (e) {
-        if (e.code == "email-already-in-use") {
-          // Email already exists, set error message
+          ));
+        } on FirebaseAuthException catch (e) {
+          if (e.code == "email-already-in-use") {
+            setState(() {
+              showError = true;
+              errorMessage =
+                  'The email already in use.\n Please try another one.';
+              // _isLoading = false; // Re-enable the button or hide loading indicator
+            });
+          }
+        } catch (e) {
+          // Handle any other errors that might occur
           setState(() {
             showError = true;
-            errorMessage = 'The email already in use.\nPlease try another one.';
+            errorMessage = 'An error occurred. Please try again later.';
+            // _isLoading = false; // Re-enable the button or hide loading indicator
           });
         }
       }
@@ -197,7 +168,8 @@ class _SignUpContentState extends State<SignUpContent> {
                         if (value == null || value.isEmpty) {
                           return 'Required First Name.';
                         }
-                         if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$').hasMatch(value)) {
+                        if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$')
+                            .hasMatch(value)) {
                           return 'Note: only letters.';
                         }
                         return null;
@@ -250,7 +222,8 @@ class _SignUpContentState extends State<SignUpContent> {
                         if (value == null || value.isEmpty) {
                           return 'Required Last Name.';
                         }
-                         if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$').hasMatch(value)) {
+                        if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$')
+                            .hasMatch(value)) {
                           return 'Note: only letters.';
                         }
                         return null;
@@ -293,101 +266,6 @@ class _SignUpContentState extends State<SignUpContent> {
               ],
             ),
             SizedBox(height: 10),
-
-            //Phone number
-
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-              ),
-              child: TextFormField(
-                cursorColor: Color(0xFF9a85a4),
-                keyboardType: TextInputType.phone,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
-                decoration: InputDecoration(
-                    labelText: " Phone Number",
-                    labelStyle: TextStyle(color: Color(0xFF9a85a4)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: Color(0xFF9a85a4).withOpacity(0.1),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide:
-                          BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide:
-                          BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: Colors.red),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: Colors.red),
-                    ),
-                    filled: true,
-                    prefixIcon: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: InkWell(
-                        onTap: () {
-                          showCustomCountryPicker(context);
-                        },
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              selectedCountry.flagEmoji,
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '+${selectedCountry.phoneCode}',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Color.fromARGB(255, 113, 113, 113),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )),
-                validator: (value) {
-                  // Check if the value is empty
-                  if (value == null || value.isEmpty) {
-                    return 'Required phone number.';
-                  }
-
-                  // Specific checks for the UAE
-                  if (selectedCountry.countryCode == 'AE' &&
-                      !(value.startsWith('5') && value.length == 9)) {
-                    return 'Please enter 9-digit number e.g. 5XXXXXXXX.';
-                  }
-                  // Specific checks for Saudi Arabia
-                  if (selectedCountry.countryCode == 'SA' &&
-                      !(value.startsWith('5') && value.length == 9)) {
-                    return 'Please enter 9-digit number e.g. 5XXXXXXXX.';
-                  }
-                  // Specific checks for the USA
-                  if (selectedCountry.countryCode == 'US' &&
-                      value.length != 10) {
-                    return 'Please enter 10-digit number.';
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  // Handle phone number input
-                  phoneNumber = value;
-                },
-              ),
-            ),
 
             SizedBox(height: 10.0),
 
