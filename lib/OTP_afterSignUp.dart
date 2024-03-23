@@ -178,14 +178,21 @@ class _OTP_afterSignUpState extends State<OTP_afterSignUp> {
         // Assuming email and password are passed correctly to this widget
         final AuthCredential emailCredential = EmailAuthProvider.credential(
             email: widget.email!, password: widget.password!);
+        // Link the email credential with the user
+        await userCredential.user!.linkWithCredential(emailCredential);
 
-        // Here just store the additional user info in Firestore, no need to store the password
+        // Remove the country code from the phone number
+        String? rawPhoneNumber = userCredential.user!.phoneNumber;
+        String? phoneNumberWithoutCode =
+            rawPhoneNumber?.replaceFirst(RegExp(r'^\+\d+'), '');
+
+        // Here you just store the additional user info in Firestore, no need to store the password
         await FirebaseFirestore.instance.collection('users').doc(uid).set({
           'email': widget.email,
           'firstName': widget.firstName,
           'lastName': widget.lastName,
           'phoneNumber':
-              userCredential.user!.phoneNumber, // Storing the phone number
+              phoneNumberWithoutCode, // Storing the phone number without the country code
         }, SetOptions(merge: true));
 
         // Navigate to the Home_Host page
