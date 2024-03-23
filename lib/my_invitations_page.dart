@@ -163,9 +163,6 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> invitation = doc.data() as Map<String, dynamic>;
         invitation['id'] = doc.id;
-        // invitation['acceptedInvitees'] ??= [];
-        // invitation['rejectedInvitees'] ??= [];
-        // print('Invitation details: $invitation'); // Debug log
         invitations.add(invitation);
       }
 
@@ -223,8 +220,8 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        InvitationDetailPage(invitation: invitation),
+                    builder: (context) => InvitationDetailPage(
+                        invitation: invitation, phoneNumber: phoneNumber!),
                   ),
                 ),
                 child: Container(
@@ -479,8 +476,11 @@ class _PastInvitationsState extends State<PastInvitations> {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        InvitationDetailPage(invitation: invitation),
+                    builder: (context) => InvitationDetailPage(
+                      invitation: invitation,
+                      phoneNumber:
+                          phoneNumber!, // Assuming phoneNumber is not null here
+                    ),
                   ),
                 ),
                 child: Container(
@@ -609,9 +609,13 @@ class _PastInvitationsState extends State<PastInvitations> {
 // After tap on the invitation card [Event details+ accept or reject an invitation]
 class InvitationDetailPage extends StatefulWidget {
   final Map<String, dynamic> invitation;
+  final String phoneNumber; // Add this line
 
-  const InvitationDetailPage({Key? key, required this.invitation})
-      : super(key: key);
+  const InvitationDetailPage({
+    Key? key,
+    required this.invitation,
+    required this.phoneNumber, // Modify the constructor to require a phoneNumber
+  }) : super(key: key);
 
   @override
   _InvitationDetailPageState createState() => _InvitationDetailPageState();
@@ -624,19 +628,23 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
   @override
   void initState() {
     super.initState();
-    String userId = FirebaseAuth.instance.currentUser!.uid;
-    //userId >> phonenumber
-    hasAccepted = widget.invitation['acceptedInvitees'].contains(userId);
-    hasRejected = widget.invitation['rejectedInvitees'].contains(userId);
+    // No need to fetch the phone number here since it's passed directly
+    hasAccepted =
+        widget.invitation['acceptedInvitees'].contains(widget.phoneNumber);
+    hasRejected =
+        widget.invitation['rejectedInvitees'].contains(widget.phoneNumber);
   }
 
   @override
   Widget build(BuildContext context) {
-    //Edit here
-    DateTime eventDate = (widget.invitation['date'] as Timestamp).toDate();
+    // Convert the Timestamp to a DateTime object
+    DateTime eventDate =
+        (widget.invitation['eventDateTime'] as Timestamp).toDate();
+
+    // Format the date and time using DateFormat
     String formattedDate = DateFormat('EEEE, MMMM d, yyyy').format(eventDate);
-    String formattedTime =
-        widget.invitation['time']; // Use the time directly as a string
+    String formattedTime = DateFormat('h:mm a')
+        .format(eventDate); // Formats to a 12-hour format with AM/PM
 
     double fem = MediaQuery.of(context).size.width / 400;
     return Scaffold(
@@ -652,8 +660,8 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                   decoration: BoxDecoration(
                     color: Color(0xff9a85a4),
                     borderRadius: BorderRadius.only(
-                      bottomRight: Radius.circular(30 * fem),
-                      bottomLeft: Radius.circular(30 * fem),
+                      bottomRight: Radius.circular(50 * fem),
+                      bottomLeft: Radius.circular(50 * fem),
                     ),
                     boxShadow: [
                       BoxShadow(
@@ -703,7 +711,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                 Padding(
                   padding: EdgeInsets.only(top: 35 * fem),
                   child: Text(
-                    "${widget.invitation['nameOfInviter']} \nInvites you to ${widget.invitation['eventName']}!",
+                    "${widget.invitation['inviterName']} \nInvites you to\n ${widget.invitation['eventName']}!",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 20 * fem,
@@ -725,16 +733,18 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                         fontWeight: FontWeight.w700),
                   ),
                 ),
+                //Location:
                 Padding(
                   padding: EdgeInsets.only(top: 1 * fem),
                   child: Text(
-                    "${widget.invitation['eventLocationAddress']}",
+                    "${widget.invitation['eventLocation']}",
                     style: TextStyle(
                         fontSize: 16 * fem,
                         color: Color(0xff9a85a4),
                         fontWeight: FontWeight.w700),
                   ),
                 ),
+                //end location
                 Padding(
                   padding: EdgeInsets.only(top: 20 * fem),
                   child: Text(
@@ -771,6 +781,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
               icon: Icon(Icons.arrow_back,
                   color: Colors.black), // Customize as needed
               onPressed: () {
+                //back to?
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => MyInvitationsPage()),
                 );
@@ -893,38 +904,40 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
 
     if (!confirm) return; // Exit if not confirmed
 
-    String userId = FirebaseAuth.instance.currentUser!.uid;
-    DocumentReference invitationRef = FirebaseFirestore.instance
-        .collection('Invitations')
-        .doc(widget.invitation['id']);
+    String phoneNumber =
+        widget.phoneNumber; // This is the phoneNumber passed to the widget
+    String documentId = widget.invitation['id'];
+
+    DocumentReference eventRef =
+        FirebaseFirestore.instance.collection('events').doc(documentId);
 
     // Transaction to update the invitation response
     FirebaseFirestore.instance.runTransaction((transaction) async {
-      DocumentSnapshot snapshot = await transaction.get(invitationRef);
+      DocumentSnapshot snapshot = await transaction.get(eventRef);
 
       if (!snapshot.exists) {
         throw Exception("Document does not exist!");
       }
-      List<dynamic> acceptedUserIds =
-          List.from(snapshot['acceptedUserIds'] ?? []);
-      List<dynamic> rejectedUserIds =
-          List.from(snapshot['rejectedUserIds'] ?? []);
+      List<dynamic> acceptedInvitees =
+          List.from(snapshot['acceptedInvitees'] ?? []);
+      List<dynamic> rejectedInvitees =
+          List.from(snapshot['rejectedInvitees'] ?? []);
 
       if (isAccepted) {
-        if (!acceptedUserIds.contains(userId)) {
-          acceptedUserIds.add(userId);
+        if (!acceptedInvitees.contains(phoneNumber)) {
+          acceptedInvitees.add(phoneNumber);
         }
-        rejectedUserIds.remove(userId);
+        rejectedInvitees.remove(phoneNumber);
       } else {
-        if (!rejectedUserIds.contains(userId)) {
-          rejectedUserIds.add(userId);
+        if (!rejectedInvitees.contains(phoneNumber)) {
+          rejectedInvitees.add(phoneNumber);
         }
-        acceptedUserIds.remove(userId);
+        acceptedInvitees.remove(phoneNumber);
       }
 
-      transaction.update(invitationRef, {
-        'acceptedUserIds': acceptedUserIds,
-        'rejectedUserIds': rejectedUserIds,
+      transaction.update(eventRef, {
+        'acceptedInvitees': acceptedInvitees,
+        'rejectedInvitees': rejectedInvitees,
       });
     }).then((value) {
       setState(() {
