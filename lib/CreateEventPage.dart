@@ -781,7 +781,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   controller: _eventAddressController,
                   decoration: InputDecoration(
                     labelText: 'Event Address',
-                    hintText: 'name of address,city',
+                    hintText: 'street, district, city',
                     hintStyle: TextStyle(
                         color: Color.fromARGB(255, 199, 184, 207),
                         fontSize: 14),
