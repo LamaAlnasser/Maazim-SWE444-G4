@@ -1052,5 +1052,15 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
     } catch (e) {
       print('Error responding to invitation: $e');
     }
+    Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => EventAttendanceUtils.buildAttendanceInfo(
+      'acceptedInvitees': acceptedInvitees,
+      'rejectedInvitees': rejectedInvitees,
+      allInviteesPhoneNumbers: allInviteesPhoneNumbers,
+    ),
+  ),
+);
   }
 }
