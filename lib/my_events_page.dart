@@ -193,18 +193,30 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
     List<String> inviteesPhoneNumbers = List<String>.from(eventSnapshot['inviteesPhoneNumbers']);
 
     // Navigate to EventAttendancePage with event details
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EventAttendancePage(
-          eventId: eventId,
-          eventName: eventName,
-          numberOfInvitees: numberOfInvitees,
-          inviteesPhoneNumbers: inviteesPhoneNumbers,
-        ),
-      ),
-    );
-  },
+    // ignore: use_build_context_synchronously
+  Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => EventAttendanceUtils.buildAttendanceInfo(
+      acceptedInvitees: $[event.acceptedInvitees],
+      rejectedInvitees: rejectedInvitees,
+      allInviteesPhoneNumbers: allInviteesPhoneNumbers,
+    ),
+  ),
+);
+
+  }, //Navigator.push(
+     // context,
+      //MaterialPageRoute(
+      //  builder: (context) => EventAttendancePage(
+       //   eventId: eventId,
+       //   eventName: eventName,
+       //   numberOfInvitees: numberOfInvitees,
+        //  inviteesPhoneNumbers: inviteesPhoneNumbers,
+        //),
+     // ),
+  //  );
+ // },
            //     onTap: () => Navigator.push(
               //   context,
               //   MaterialPageRoute(
