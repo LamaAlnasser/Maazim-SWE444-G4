@@ -309,7 +309,8 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 24), ],),); 
+            SizedBox(height: 24), ],
+            ),); 
         }
       },
     );
