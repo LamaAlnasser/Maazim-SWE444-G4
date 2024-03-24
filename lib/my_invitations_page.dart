@@ -107,15 +107,32 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
   void initState() {
     super.initState();
     getCurrentUserPhoneNumber().then((phone) {
-      // Make sure to check if the widget is still mounted before calling setState
       if (phone != null && mounted) {
         setState(() {
           // Assign the retrieved phone number to the state variable
           phoneNumber = phone;
-          invitationsFuture = getInvitationsForUser(phoneNumber!);
         });
+        // Now refresh invitations to load the initial data
+        refreshInvitations();
       }
     });
+  }
+
+  void refreshInvitations() async {
+    // Check if phoneNumber is not null
+    if (phoneNumber != null) {
+      try {
+        // Fetch updated invitations from the database
+        List<Map<String, dynamic>> updatedInvitations =
+            await getInvitationsForUser(phoneNumber!);
+        // Update the state to reflect the new data
+        setState(() {
+          invitationsFuture = Future.value(updatedInvitations);
+        });
+      } catch (e) {
+        print("Error refreshing invitations: $e");
+      }
+    }
   }
 
 //Get current phone number
@@ -219,13 +236,19 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
                   'inviterName']; // The name of the person who created the event
 
               return InkWell(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => InvitationDetailPage(
-                        invitation: invitation, phoneNumber: phoneNumber!),
-                  ),
-                ),
+                onTap: () async {
+                  // Navigate to InvitationDetailPage and wait for it to pop off the navigation stack
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => InvitationDetailPage(
+                          invitation: invitation, phoneNumber: phoneNumber!),
+                    ),
+                  );
+
+                  // After returning from InvitationDetailPage, refresh the invitations list
+                  refreshInvitations();
+                },
                 child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
                   height: 160,
@@ -826,9 +849,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                   color: Colors.black), // Customize as needed
               onPressed: () {
                 //back to?
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => MyInvitationsPage()),
-                );
+                Navigator.of(context).pop();
               },
             ),
           ),
