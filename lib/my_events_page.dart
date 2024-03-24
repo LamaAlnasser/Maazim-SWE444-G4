@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:maazim/Home_Host.dart';
+import 'package:maazim/EventAttendancePage.dart';
 
 class MyEventsPage extends StatefulWidget {
   @override
@@ -178,6 +179,15 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
               int numberOfInvitees = event['numberOfInvitees'];
 
               return InkWell(
+                onTap: () => Navigator.push(
+                 context,
+                 MaterialPageRoute(
+                  builder: (context) => EventAttendancePage(
+                     eventId: event['id'], // Pass the event ID here
+                    eventName: event['eventName'], // Pass the event name here
+                     ),
+                  ),
+                ),
                 //Clicking on the card
                 //  onTap: () => Navigator.push(
                 //      context,
