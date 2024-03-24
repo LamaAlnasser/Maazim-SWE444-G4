@@ -72,7 +72,7 @@ class _guestHomePageState extends State<guestHomePage> {
           });
         },
         children: <Widget>[
-          guestProfilePage(), // Your profile page widget
+          guestProfile(), // Your profile page widget
           guestEventsPage(), // Your my events page widget
           guestInvitationsPage(), // Your my invitations page widget
         ],
