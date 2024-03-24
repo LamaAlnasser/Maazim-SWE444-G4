@@ -14,6 +14,61 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+
+class EventAttendanceUtils {
+  static Widget buildAttendanceInfo({
+    required List<String> acceptedInvitees,
+    required List<String> rejectedInvitees,
+    required List<String> allInviteesPhoneNumbers,
+  }) {
+    // Calculate the number of pending invitees
+    List<String> pendingInvitees = allInviteesPhoneNumbers
+        .where((phoneNumber) =>
+            !acceptedInvitees.contains(phoneNumber) &&
+            !rejectedInvitees.contains(phoneNumber))
+        .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Accepted Attendees (${acceptedInvitees.length})',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        // Display accepted invitees
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: acceptedInvitees
+              .map((phoneNumber) => ListTile(
+                    title: Text(phoneNumber),
+                    leading: Icon(Icons.check_circle, color: Colors.green),
+                  ))
+              .toList(),
+        ),
+        SizedBox(height: 16),
+        Text(
+          'Pending Attendees (${pendingInvitees.length})',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        // Display pending invitees
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: pendingInvitees
+              .map((phoneNumber) => ListTile(
+                    title: Text(phoneNumber),
+                    leading: Icon(Icons.access_time, color: Colors.orange),
+                  ))
+              .toList(),
+        ),
+      ],
+    );
+  }
+}
+
+
+
+
 /*
 class EventAttendancePage extends StatefulWidget {
   final String eventId;
@@ -497,20 +552,7 @@ class EventAttendancePage extends StatelessWidget {
       ),
     );
   }
-}*/
-
-class EventAttendancePage extends StatelessWidget {
-  final String eventId;
-  final String eventName;
-  final int numberOfInvitees;
-  final List<String> inviteesPhoneNumbers;
-
-  const EventAttendancePage({
-    Key? key,
-    required this.eventId,
-    required this.eventName, required this.numberOfInvitees, required this.inviteesPhoneNumbers,
-  }) : super(key: key);
-/*
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -540,7 +582,19 @@ class EventAttendancePage extends StatelessWidget {
        )
   )
   )
-  }*/
+  }
+
+class EventAttendancePage extends StatelessWidget {
+  final String eventId;
+  final String eventName;
+  final int numberOfInvitees;
+  final List<String> inviteesPhoneNumbers;
+
+  const EventAttendancePage({
+    Key? key,
+    required this.eventId,
+    required this.eventName, required this.numberOfInvitees, required this.inviteesPhoneNumbers,
+  }) : super(key: key);
   @override
 Widget build(BuildContext context) {
   return Scaffold(
@@ -548,18 +602,18 @@ Widget build(BuildContext context) {
       title: Text('Event Attendance: $eventName'),
     ),
     body: SingleChildScrollView(
-      padding: EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+         const Text(
             'Event Information:',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 22),
+         const SizedBox(height: 22),
           Text('Event Name: $eventName', style: TextStyle(color: Color(0xFF9a85a4), fontSize: 14)),
           Text('Event Type: $KeyEventType', style: const TextStyle(color: Color(0xFF9a85a4), fontSize: 14)),
           Text('Event Location: $KeyLocation', style: TextStyle(color: Color(0xFF9a85a4), fontSize: 14)),
@@ -568,7 +622,7 @@ Widget build(BuildContext context) {
     ),
   );
 }
-@override
+
 Widget buildEventAttendance(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
@@ -581,7 +635,7 @@ Widget buildEventAttendance(BuildContext context) {
       ),
       builder: (BuildContext context, AsyncSnapshot<Map<String, Map<String, dynamic>>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (snapshot.hasData) {
@@ -751,11 +805,15 @@ class EventAttendanceAnalysis {
         QueryDocumentSnapshot? response = querySnapshot.docs.firstWhere(
           (doc) => doc['phoneNumber'] == phoneNumber,
         );
-        if (response != null) {
+          if (response != null) {
           // If response exists, categorize the attendee based on the response
           String status = response['status'];
-          attendance[status]!['count']++;
-        } else {
+          if (status == 'accepted') {
+            attendance['accepted']!['count']++;
+          } else if (status == 'rejected') {
+            attendance['rejected']!['count']++;
+          }}
+         else {
           // If no response, consider the attendee as pending
           attendance['pending']!['count']++;
         }
@@ -911,4 +969,4 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
       ),
     );
   }
-}*/
+}
