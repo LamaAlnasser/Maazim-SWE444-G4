@@ -328,7 +328,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
           validator: (value) {
             // Check if the value is empty
             if (value == null || value.isEmpty) {
-              return 'Required phone number.';
+              return 'Please enter phone number.';
             }
 
             // Specific checks for the UAE
@@ -350,7 +350,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
             .where((controller) => controller.text.trim() == value.trim())
             .length;
         if (duplicates > 1) {
-          return 'Duplicate phone number detected.';
+          return '';
         }
         return null; // If no duplicates are found, return null.
           },
@@ -703,8 +703,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 0, 0),
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(12, 0, 0, 0),
                       child: Text(
                         'Event Duration (1 to 10 hours)',
                         style: TextStyle(
