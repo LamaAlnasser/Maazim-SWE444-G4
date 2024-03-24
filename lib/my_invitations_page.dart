@@ -1,28 +1,28 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:maazim/CreateEventPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:maazim/Home_Host.dart';
-import 'package:maazim/my_events_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter/cupertino.dart';
+//import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class MyInvitationsPage extends StatelessWidget {
-  get automaticallyImplyLeadi => null;
+class MyInvitationsPage extends StatefulWidget {
+  @override
+  _MyInvitationsPageState createState() => _MyInvitationsPageState();
+}
+
+class _MyInvitationsPageState extends State<MyInvitationsPage> {
+  bool _showUpcomingInvitations = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeadi // Add space between the icon and the title // Add space between the icon and the titleng: false,
+        automaticallyImplyLeading: false,
         title: Row(
           children: [
-            SizedBox(width: 8), // Add space between the icon and the title
+            SizedBox(width: 8),
             Text(
               'My Invitations',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
@@ -98,9 +98,12 @@ class UpcomingInvitations extends StatefulWidget {
   @override
   _UpcomingInvitationsState createState() => _UpcomingInvitationsState();
 }
+
 class _UpcomingInvitationsState extends State<UpcomingInvitations> {
   Future<List<Map<String, dynamic>>> invitationsFuture = Future.value([]);
+
   String? phoneNumber; // Declare phoneNumber here
+
   @override
   void initState() {
     super.initState();
@@ -115,6 +118,7 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
       }
     });
   }
+
   void refreshInvitations() async {
     // Check if phoneNumber is not null
     if (phoneNumber != null) {
@@ -131,6 +135,7 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
       }
     }
   }
+
 //Get current phone number
   Future<String?> getCurrentUserPhoneNumber() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -169,16 +174,26 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
       QuerySnapshot querySnapshot = await firestore
           .collection('events')
           .where('inviteesPhoneNumbers', arrayContains: phoneNumber)
-          .where('eventDateTime', isGreaterThan: now) // Only future events
+          // Use the `.where` clause to compare the endTime with the current time
           .get();
-
-      print(
-          'Number of upcoming invitations found: ${querySnapshot.docs.length}'); // Debug log
 
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> invitation = doc.data() as Map<String, dynamic>;
         invitation['id'] = doc.id;
-        invitations.add(invitation);
+
+        // Calculate the endTime
+        DateTime eventDateTime =
+            (invitation['eventDateTime'] as Timestamp).toDate();
+        DateTime endTime =
+            eventDateTime.add(Duration(hours: invitation['duration']));
+
+        // Print the event name and endTime for debugging
+        print('Event "${invitation['eventName']}" endTime: $endTime');
+
+        // Compare endTime with the current time
+        if (endTime.isAfter(DateTime.now())) {
+          invitations.add(invitation);
+        }
       }
 
       // Sort invitations: pending first, then accepted, and rejected last
@@ -195,7 +210,7 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
         } else {
           return 0; // Keep original order if both are the same type
         }
- });
+      });
       return invitations;
     } catch (e) {
       print("Error getting invitations: $e");
@@ -434,16 +449,27 @@ class _PastInvitationsState extends State<PastInvitations> {
       QuerySnapshot querySnapshot = await firestore
           .collection('events')
           .where('inviteesPhoneNumbers', arrayContains: phoneNumber)
-          .where('eventDateTime', isLessThan: now) // Only past events
           .get();
-
-      print(
-          'Number of past invitations found: ${querySnapshot.docs.length}'); // Debug log
 
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> invitation = doc.data() as Map<String, dynamic>;
         invitation['id'] = doc.id;
-        invitations.add(invitation);
+
+        // Calculate the endTime
+        DateTime eventDateTime =
+            (invitation['eventDateTime'] as Timestamp).toDate();
+        DateTime endTime =
+            eventDateTime.add(Duration(hours: invitation['duration']));
+
+        // Print the event name and endTime for debugging
+        print('Event "${invitation['eventName']}" endTime: $endTime');
+        print(now.toDate());
+
+        // Check if the endTime is in the past
+        if (endTime.isBefore(now.toDate()) ||
+            endTime.isAtSameMomentAs(now.toDate())) {
+          invitations.add(invitation);
+        }
       }
 
       // Sort invitations: pending first, then accepted, and rejected last
@@ -649,40 +675,57 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
   late bool hasRejected;
   late bool changed = false;
 
-  Widget _buildLocationWidget(String location, double fem) {
-    Uri? uri = Uri.tryParse(location);
-    bool isUrl = uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
+  Widget _buildLocationWidget(String address,
+      {String? eventLocation, double fem = 1.0}) {
+    List<Widget> locationWidgets = [];
 
-    if (isUrl && uri != null) {
-      // It's a URL, let's make it tappable
-      return CircleAvatar(
-        radius: 25 * fem, // Adjust the size to fit your design
-        backgroundColor: Color(0xFF9a85a4), // Background color
-        child: IconButton(
-          icon:
-              Icon(Icons.location_on, size: 24 * fem), // Icon inside the button
-          color: Colors.white, // Icon color
-          onPressed: () async {
-            if (await canLaunch(uri.toString())) {
-              await launch(uri.toString());
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Could not launch $location')),
-              );
-            }
-          },
-        ),
-      );
-    } else {
-      // It's not a URL, just display it as text
-      return Text(
-        location,
+    // Always add the address.
+    locationWidgets.add(
+      Text(
+        address,
         style: TextStyle(
             fontSize: 18 * fem,
             color: Color(0xff9a85a4),
             fontWeight: FontWeight.w700),
-      );
+      ),
+    );
+
+    // If there is an eventLocation link, try to parse it and add a clickable icon.
+    if (eventLocation?.isNotEmpty == true) {
+      Uri? uri = Uri.tryParse(eventLocation!);
+      bool isUrl =
+          uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
+
+      if (isUrl && uri != null) {
+        locationWidgets.add(
+          GestureDetector(
+            onTap: () async {
+              if (await canLaunch(uri.toString())) {
+                await launch(uri.toString());
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Could not launch location link')),
+                );
+              }
+            },
+            child: Padding(
+              padding: EdgeInsets.only(top: 8.0),
+              child: CircleAvatar(
+                radius: 25 * fem,
+                backgroundColor: Color(0xFF9a85a4),
+                child: Icon(Icons.location_on,
+                    size: 24 * fem, color: Colors.white),
+              ),
+            ),
+          ),
+        );
+      }
     }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: locationWidgets,
+    );
   }
 
   @override
@@ -808,9 +851,12 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                 Padding(
                   padding: EdgeInsets.only(top: 6 * fem),
                   child: _buildLocationWidget(
-                      widget.invitation['eventLocation'], fem),
+                    widget.invitation['address'],
+                    eventLocation: widget.invitation['eventLocation']
+                        as String?, // Make sure to safely cast this as it is optional
+                    fem: fem,
+                  ),
                 ),
-
                 //end location
                 Padding(
                   padding: EdgeInsets.only(top: 20 * fem),
@@ -882,17 +928,22 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
           size: 24.0 * fem,
         ),
       ),
-    ); 
-    }
+    );
+  }
+
   Widget _responseStatus() {
     String eventID = widget.invitation['id'];
     String guestIdentifier = widget.phoneNumber;
     String qrData = '$eventID|$guestIdentifier';
-    DateTime eventDate =
+
+    //Display QR code when End Time for events didn;t come yet
+    DateTime eventDateTime =
         (widget.invitation['eventDateTime'] as Timestamp).toDate();
+    int duration = widget.invitation['duration']; //'duration' is in hours
+    DateTime endTime = eventDateTime.add(Duration(hours: duration));
     DateTime now = DateTime.now();
 
-    if (hasAccepted && eventDate.isAfter(now)) {
+    if (hasAccepted && now.isBefore(endTime)) {
       // Event date is in the future, display QR code
       return Column(
         children: [
@@ -908,7 +959,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
             style: TextStyle(
                 color: Colors.black, fontSize: 14, fontWeight: FontWeight.w700),
           ),
-       /*   SizedBox(height: 11), // Space between instruction text and QR code
+         /* SizedBox(height: 11), // Space between instruction text and QR code
           QrImageView(
             data: qrData,
             version: QrVersions.auto,
@@ -926,24 +977,28 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
             ),
             backgroundColor: Color(0xff9a85a4), // Set the background color
           ),
-          // Other UI elements as needed
-        ],*/
-      );  } else if (hasRejected) {
+          // Other UI elements as needed*/
+        ],
+      );
+    } else if (hasRejected) {
       return Text(
         "You have rejected this invitation.",
         style: TextStyle(
-            color: Colors.red, fontSize: 16, fontWeight: FontWeight.w700),    );
-    } else if (hasAccepted && eventDate.isBefore(now)) {
+            color: Colors.red, fontSize: 16, fontWeight: FontWeight.w700),
+      );
+    } else if (hasAccepted &&
+        (now.isAfter(endTime) || now.isAtSameMomentAs(endTime))) {
       // Event date is in the past, do not display QR code
       return Text(
         "You have accepted this invitation.",
         style: TextStyle(
             color: Colors.green, fontSize: 16, fontWeight: FontWeight.w700),
-      );   }
+      );
+    }
 
     return SizedBox
         .shrink(); // Returns an empty widget for better conditional rendering
-        }
+  }
 
   Widget _buildDateInformationRow(DateTime eventDate) {
     final dayOfWeek = DateFormat('EEEE').format(eventDate);
@@ -973,7 +1028,8 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
               fontWeight: FontWeight.w700,
             )),
       ],
-    ); }
+    );
+  }
 
   Widget _verticalDivider() {
     return Container(
@@ -982,7 +1038,8 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
         color: Colors.black,
         thickness: 2,
       ),
-    ); }
+    );
+  }
 
   Future<void> respondToInvitation(bool isAccepted) async {
     // Confirmation dialog
@@ -1017,50 +1074,40 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
         FirebaseFirestore.instance.collection('events').doc(documentId);
 
     // Transaction to update the invitation response
-    try {
-      await FirebaseFirestore.instance.runTransaction((transaction) async {
-        DocumentSnapshot snapshot = await transaction.get(eventRef);
+    FirebaseFirestore.instance.runTransaction((transaction) async {
+      DocumentSnapshot snapshot = await transaction.get(eventRef);
 
-        if (!snapshot.exists) {
-          throw Exception("Document does not exist!");
-        }
-        List<dynamic> acceptedInvitees =
-            List.from(snapshot['acceptedInvitees'] ?? []);
-        List<dynamic> rejectedInvitees =
-            List.from(snapshot['rejectedInvitees'] ?? []);
+      if (!snapshot.exists) {
+        throw Exception("Document does not exist!");
+      }
+      List<dynamic> acceptedInvitees =
+          List.from(snapshot['acceptedInvitees'] ?? []);
+      List<dynamic> rejectedInvitees =
+          List.from(snapshot['rejectedInvitees'] ?? []);
 
-        if (isAccepted) {
-          if (!acceptedInvitees.contains(phoneNumber)) {
-            acceptedInvitees.add(phoneNumber);
-          }
-          rejectedInvitees.remove(phoneNumber);
-        } else {
-          if (!rejectedInvitees.contains(phoneNumber)) {
-            rejectedInvitees.add(phoneNumber);
-          }
-          acceptedInvitees.remove(phoneNumber);
+      if (isAccepted) {
+        if (!acceptedInvitees.contains(phoneNumber)) {
+          acceptedInvitees.add(phoneNumber);
+          changed = true;
         }
-        transaction.update(eventRef, {
-          'acceptedInvitees': acceptedInvitees,
-          'rejectedInvitees': rejectedInvitees,
-        });
+        rejectedInvitees.remove(phoneNumber);
+      } else {
+        if (!rejectedInvitees.contains(phoneNumber)) {
+          rejectedInvitees.add(phoneNumber);
+          changed = true;
+        }
+        acceptedInvitees.remove(phoneNumber);
+      }
+
+      transaction.update(eventRef, {
+        'acceptedInvitees': acceptedInvitees,
+        'rejectedInvitees': rejectedInvitees,
       });
+    }).then((value) {
       setState(() {
         hasAccepted = isAccepted;
         hasRejected = !isAccepted;
       });
-    } catch (e) {
-      print('Error responding to invitation: $e');
-    }
-    Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => EventAttendanceUtils.buildAttendanceInfo(
-      'acceptedInvitees': acceptedInvitees,
-      'rejectedInvitees': rejectedInvitees,
-      allInviteesPhoneNumbers: allInviteesPhoneNumbers,
-    ),
-  ),
-);
+    });
   }
 }
