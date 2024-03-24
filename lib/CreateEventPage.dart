@@ -817,6 +817,9 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter event address';
                     }
+                     if (value.length > 50) {
+                  return 'Maximum length exceeded. Maximum characters: 50';
+                 }
                     return null; 
                   },
                 ),
