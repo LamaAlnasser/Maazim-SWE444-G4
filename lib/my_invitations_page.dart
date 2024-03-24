@@ -725,13 +725,18 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                         ),
                       ),
                       SizedBox(height: 10 * fem),
-                      Text(
-                        widget.invitation['eventName'],
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 30), // Add symmetric horizontal padding
+                        child: Text(
+                          widget.invitation['eventName'],
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
                             fontSize: 30 * fem,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white),
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                       SizedBox(height: 4 * fem),
                       Text(
@@ -746,16 +751,21 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 35 * fem),
+                  padding: EdgeInsets.only(
+                      top: 35 * fem,
+                      left: 16,
+                      right: 16), // Added horizontal padding
                   child: Text(
                     "${widget.invitation['inviterName']} \nInvites you to ${widget.invitation['eventName']}!",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: 20 * fem,
-                        color: Color(0xff9a85a4),
-                        fontWeight: FontWeight.w700),
+                      fontSize: 20 * fem,
+                      color: Color(0xff9a85a4),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
+
                 Padding(
                   padding: EdgeInsets.only(top: 30 * fem),
                   child: _buildDateInformationRow(eventDate),
@@ -765,7 +775,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                   child: Text(
                     "At $formattedTime",
                     style: TextStyle(
-                        fontSize: 18 * fem,
+                        fontSize: 20 * fem,
                         color: Color(0xff9a85a4),
                         fontWeight: FontWeight.w700),
                   ),
@@ -878,7 +888,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
             style: TextStyle(
                 color: Colors.black, fontSize: 14, fontWeight: FontWeight.w700),
           ),
-          SizedBox(height: 10), // Space between instruction text and QR code
+          SizedBox(height: 11), // Space between instruction text and QR code
           QrImageView(
             data: qrData,
             version: QrVersions.auto,
@@ -910,7 +920,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
       return Text(
         "You have accepted this invitation.",
         style: TextStyle(
-            color: Colors.grey, fontSize: 16, fontWeight: FontWeight.w700),
+            color: Colors.green, fontSize: 16, fontWeight: FontWeight.w700),
       );
     }
 
@@ -929,20 +939,20 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
         Text(
           dayOfWeek,
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 23,
             fontWeight: FontWeight.w700,
           ),
         ),
         _verticalDivider(),
         Text(day,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 23,
               fontWeight: FontWeight.w700,
             )),
         _verticalDivider(),
         Text(monthYear,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 23,
               fontWeight: FontWeight.w700,
             )),
       ],
@@ -951,7 +961,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
 
   Widget _verticalDivider() {
     return Container(
-      height: 24,
+      height: 27,
       child: VerticalDivider(
         color: Colors.black,
         thickness: 2,
