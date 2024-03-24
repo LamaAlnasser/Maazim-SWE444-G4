@@ -528,7 +528,7 @@ Future<List<Map<String, dynamic>>> getPastEvents() async {
                   child: Image.asset(
                     'assets/lavender.png', // Replace with your asset image path
                     width: 300, // Set your width accordingly
-                    height: 200, // Set your height accordingly
+                    height: 250, // Set your height accordingly
                   ),
                 ),
                 Text(
