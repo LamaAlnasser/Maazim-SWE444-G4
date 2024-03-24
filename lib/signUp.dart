@@ -339,10 +339,10 @@ class _SignUpContentState extends State<SignUpContent> {
                     return 'Password must be at least 8 characters long.';
                   }
                   if (!value.contains(RegExp(r'[A-Z]'))) {
-                    return 'Password must contain at least one uppercase letter.';
+                    return 'Password requires an uppercase letter.';
                   }
                   if (!value.contains(RegExp(r'[a-z]'))) {
-                    return 'Password must contain at least one lowercase letter.';
+                    return 'Password requires a lowercase letter.';
                   }
                   if (!value.contains(RegExp(r'[0-9]'))) {
                     return 'Password must contain at least one digit.';
