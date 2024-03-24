@@ -2,19 +2,7 @@ import 'dart:html';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:maazim/CreateEventPage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:maazim/Home_Host.dart';
-import 'package:maazim/my_events_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-
-import 'package:flutter/material.dart';
-
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
+import 'package:maazim/my_invitations_page.dart';
 
 class EventAttendanceUtils {
   static Widget buildAttendanceInfo({
