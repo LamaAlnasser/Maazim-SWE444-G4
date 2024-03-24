@@ -195,6 +195,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                   'inviterName']; // The name of the person who created the event
               int numberOfInvitees = event['numberOfInvitees'];
 
+<<<<<<< Updated upstream
               return InkWell(
                 //Clicking on the card
                 onTap: () {
@@ -206,6 +207,20 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                     ),
                   );
                 },
+=======
+           return InkWell(
+  //Clicking on the card
+  onTap: () => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => EventAttendancePage(
+        eventId: event['eventId']
+      )
+    )
+  ),
+
+
+>>>>>>> Stashed changes
                 child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
                   height: 160,
