@@ -676,7 +676,7 @@ class _PastInvitationsState extends State<PastInvitations> {
                   child: Image.asset(
                     'assets/teapot.png', // Replace with your asset image path
                     width: 300, // Set your width accordingly
-                    height: 200, // Set your height accordingly
+                    height: 250, // Set your height accordingly
                   ),
                 ),
                 Text(
