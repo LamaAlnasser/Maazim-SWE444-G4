@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EventAttendancePage {
-  
-  static  buildAttendanceInfo({
+  static Widget buildAttendanceInfo({
     required String eventId,
     required List<String> allInviteesPhoneNumbers,
   }) {
