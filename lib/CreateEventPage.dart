@@ -328,7 +328,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
           validator: (value) {
             // Check if the value is empty
             if (value == null || value.isEmpty) {
-              return 'Required phone number.';
+              return 'Please enter phone number.';
             }
 
             // Specific checks for the UAE
