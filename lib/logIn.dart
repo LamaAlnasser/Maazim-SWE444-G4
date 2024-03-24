@@ -13,7 +13,7 @@ class LogIn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    body: LoginScreen(),
+      body: LoginScreen(),
     );
   }
 }
@@ -36,7 +36,6 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       setState(() {
         _errorMessage = null;
-        
       });
 
       if (_formKey.currentState != null && _formKey.currentState!.validate()) {
@@ -57,7 +56,8 @@ class _LoginScreenState extends State<LoginScreen> {
           } else {
             // Handle case where user is not authenticated
             setState(() {
-              _errorMessage = 'You have entered wrong email/password, please try again.';
+              _errorMessage =
+                  'You have entered wrong email/password, please try again.';
             });
           }
         } /*else {
@@ -70,7 +70,8 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-credential') {
         setState(() {
-          _errorMessage = 'You have entered wrong email/password, please try again.';
+          _errorMessage =
+              'You have entered wrong email/password, please try again.';
         });
       } else {
         setState(() {
@@ -98,13 +99,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 20),
                     Text(
                       "Welcome Back",
-                      style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 10),
                     Text(
                       "Please enter your information to login",
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                      style: TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.normal),
                       textAlign: TextAlign.center,
                     ),
 
@@ -113,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
-                        cursorColor:Color(0xFF9a85a4) ,
+                        cursorColor: Color(0xFF9a85a4),
                         controller: _emailController,
                         decoration: InputDecoration(
                           labelText: "Email",
@@ -125,11 +128,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           fillColor: Color(0xFF9a85a4).withOpacity(0.1),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
+                            borderSide: BorderSide(
+                                color: Color(0xFF9a85a4).withOpacity(0.0)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                            borderSide: BorderSide(
+                                color: Color(0xFF9a85a4).withOpacity(0.6)),
                           ),
                           errorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
@@ -146,9 +151,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (value!.isEmpty) {
                             return 'Required email.';
                           }
-                           if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                      .hasMatch(value)) {
-                    return 'Please enter a valid email address.';
+                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                              .hasMatch(value)) {
+                            return 'Please enter a valid email address.';
                           }
                           return null;
                         },
@@ -160,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
-                        cursorColor:Color(0xFF9a85a4) ,
+                        cursorColor: Color(0xFF9a85a4),
                         controller: _passwordController,
                         decoration: InputDecoration(
                           labelText: "Password",
@@ -172,11 +177,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           fillColor: Color(0xFF9a85a4).withOpacity(0.1),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
+                            borderSide: BorderSide(
+                                color: Color(0xFF9a85a4).withOpacity(0.0)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                            borderSide: BorderSide(
+                                color: Color(0xFF9a85a4).withOpacity(0.6)),
                           ),
                           errorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
@@ -187,13 +194,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderSide: BorderSide(color: Colors.red),
                           ),
                           filled: true,
-                          prefixIcon:  Icon(Icons.lock),
+                          prefixIcon: Icon(Icons.lock),
                         ),
                         obscureText: true,
                         validator: (value) {
                           if (value!.isEmpty) {
                             return 'Required password.';
-                          }    // Check if the entered value is a valid email address
+                          } // Check if the entered value is a valid email address
 
                           return null;
                         },
@@ -205,9 +212,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(height: 20),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
-                         child: Text(
+                        child: Text(
                           _errorMessage!,
-                          style: TextStyle(color: Color(0xFFAD331E), fontWeight: FontWeight.normal),
+                          style: TextStyle(
+                              color: Color(0xFFAD331E),
+                              fontWeight: FontWeight.normal),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -241,7 +250,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
+                          MaterialPageRoute(
+                              builder: (context) => const ForgotPasswordPage()),
                         );
                       },
                       child: const Text(
@@ -262,7 +272,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const SignUp()),
+                              MaterialPageRoute(
+                                  builder: (context) => const SignUp()),
                             );
                           },
                           child: const Text(
@@ -282,14 +293,15 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
 
           // Back Button
-         Positioned(
+          Positioned(
             bottom: 25.0,
             left: 15,
             child: ElevatedButton(
-               onPressed: () async {
+              onPressed: () async {
                 await FirebaseAuth.instance.signOut();
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => WelcomePage(), // Ensure WelcomePage is defined
+                  builder: (context) =>
+                      WelcomePage(), // Ensure WelcomePage is defined
                 ));
               },
               style: ElevatedButton.styleFrom(
