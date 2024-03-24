@@ -237,8 +237,8 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
 
               return InkWell(
                 onTap: () async {
-                  // Navigate to InvitationDetailPage and wait for it to pop off the navigation stack
-                  await Navigator.push(
+                  // Store the result of the navigation in a variable
+                  final updateNeeded = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => InvitationDetailPage(
@@ -246,8 +246,10 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
                     ),
                   );
 
-                  // After returning from InvitationDetailPage, refresh the invitations list
-                  refreshInvitations();
+                  // Check if the result indicates that an update is needed
+                  if (updateNeeded == true) {
+                    refreshInvitations(); // Refresh only if an update is needed
+                  }
                 },
                 child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
@@ -649,6 +651,8 @@ class InvitationDetailPage extends StatefulWidget {
 class _InvitationDetailPageState extends State<InvitationDetailPage> {
   late bool hasAccepted;
   late bool hasRejected;
+  late bool changed = false;
+
   Widget _buildLocationWidget(String location, double fem) {
     Uri? uri = Uri.tryParse(location);
     bool isUrl = uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
@@ -849,7 +853,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                   color: Colors.black), // Customize as needed
               onPressed: () {
                 //back to?
-                Navigator.of(context).pop();
+                Navigator.pop(context, changed);
               },
             ),
           ),
@@ -1037,11 +1041,13 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
       if (isAccepted) {
         if (!acceptedInvitees.contains(phoneNumber)) {
           acceptedInvitees.add(phoneNumber);
+          changed = true;
         }
         rejectedInvitees.remove(phoneNumber);
       } else {
         if (!rejectedInvitees.contains(phoneNumber)) {
           rejectedInvitees.add(phoneNumber);
+          changed = true;
         }
         acceptedInvitees.remove(phoneNumber);
       }
