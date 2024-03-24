@@ -10,6 +10,7 @@ import 'package:maazim/layout.dart';
 import 'package:maazim/main.dart'; //use it to go back
 import 'package:maazim/limited_functionality_page.dart'; // Create this file for limited functionality
 import 'dart:async';
+import 'package:maazim/guestHomePage.dart';
 
 void main() async {
   WidgetsFlutterBinding
@@ -163,7 +164,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
           await FirebaseAuth.instance.signInWithCredential(credential);
       if (userCredential.user != null) {
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => const LimitedFunctionalityPage(),
+          builder: (context) => const guestHomePage(),
         ));
       }
     } on FirebaseAuthException catch (e) {
