@@ -179,15 +179,42 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
               int numberOfInvitees = event['numberOfInvitees'];
 
               return InkWell(
-                onTap: () => Navigator.push(
-                 context,
-                 MaterialPageRoute(
-                  builder: (context) => EventAttendancePage(
-                     eventId: event['id'], // Pass the event ID here
-                    eventName: event['eventName'], // Pass the event name here
-                     ),
-                  ),
-                ),
+                 onTap: () async {
+    // Fetch event details from Firestore
+    DocumentSnapshot eventSnapshot = await FirebaseFirestore.instance
+        .collection('events')
+        .doc(event['id'])
+        .get();
+
+    // Extract event details
+    String eventId = eventSnapshot.id;
+    String eventName = eventSnapshot['eventName'];
+    int numberOfInvitees = eventSnapshot['numberOfInvitees'];
+    List<String> inviteesPhoneNumbers = List<String>.from(eventSnapshot['inviteesPhoneNumbers']);
+
+    // Navigate to EventAttendancePage with event details
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EventAttendancePage(
+          eventId: eventId,
+          eventName: eventName,
+          numberOfInvitees: numberOfInvitees,
+          inviteesPhoneNumbers: inviteesPhoneNumbers,
+        ),
+      ),
+    );
+  },
+           //     onTap: () => Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+                //  builder: (context) => EventAttendancePage(
+                //     eventId: event['id'], // Pass the event ID here
+                 //   eventName: event['eventName'], // Pass the event name here
+
+                  //   ),
+                //  ),
+              //  ),
                 //Clicking on the card
                 //  onTap: () => Navigator.push(
                 //      context,
@@ -401,6 +428,7 @@ class _PastEventsState extends State<PastEvents> {
                 //          InvitationDetailPage(invitation: invitation),
                 //      ),
                 //   ),
+                
                 child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
                   height: 160,
