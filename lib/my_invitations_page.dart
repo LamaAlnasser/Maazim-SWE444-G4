@@ -173,16 +173,26 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
       QuerySnapshot querySnapshot = await firestore
           .collection('events')
           .where('inviteesPhoneNumbers', arrayContains: phoneNumber)
-          .where('eventDateTime', isGreaterThan: now) // Only future events
+          // Use the `.where` clause to compare the endTime with the current time
           .get();
-
-      print(
-          'Number of upcoming invitations found: ${querySnapshot.docs.length}'); // Debug log
 
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> invitation = doc.data() as Map<String, dynamic>;
         invitation['id'] = doc.id;
-        invitations.add(invitation);
+
+        // Calculate the endTime
+        DateTime eventDateTime =
+            (invitation['eventDateTime'] as Timestamp).toDate();
+        DateTime endTime =
+            eventDateTime.add(Duration(hours: invitation['duration']));
+
+        // Print the event name and endTime for debugging
+        print('Event "${invitation['eventName']}" endTime: $endTime');
+
+        // Compare endTime with the current time
+        if (endTime.isAfter(DateTime.now())) {
+          invitations.add(invitation);
+        }
       }
 
       // Sort invitations: pending first, then accepted, and rejected last
@@ -438,16 +448,27 @@ class _PastInvitationsState extends State<PastInvitations> {
       QuerySnapshot querySnapshot = await firestore
           .collection('events')
           .where('inviteesPhoneNumbers', arrayContains: phoneNumber)
-          .where('eventDateTime', isLessThan: now) // Only past events
           .get();
-
-      print(
-          'Number of past invitations found: ${querySnapshot.docs.length}'); // Debug log
 
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> invitation = doc.data() as Map<String, dynamic>;
         invitation['id'] = doc.id;
-        invitations.add(invitation);
+
+        // Calculate the endTime
+        DateTime eventDateTime =
+            (invitation['eventDateTime'] as Timestamp).toDate();
+        DateTime endTime =
+            eventDateTime.add(Duration(hours: invitation['duration']));
+
+        // Print the event name and endTime for debugging
+        print('Event "${invitation['eventName']}" endTime: $endTime');
+        print(now.toDate());
+
+        // Check if the endTime is in the past
+        if (endTime.isBefore(now.toDate()) ||
+            endTime.isAtSameMomentAs(now.toDate())) {
+          invitations.add(invitation);
+        }
       }
 
       // Sort invitations: pending first, then accepted, and rejected last
@@ -893,11 +914,15 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
     String eventID = widget.invitation['id'];
     String guestIdentifier = widget.phoneNumber;
     String qrData = '$eventID|$guestIdentifier';
-    DateTime eventDate =
+
+    //Display QR code when End Time for events didn;t come yet
+    DateTime eventDateTime =
         (widget.invitation['eventDateTime'] as Timestamp).toDate();
+    int duration = widget.invitation['duration']; //'duration' is in hours
+    DateTime endTime = eventDateTime.add(Duration(hours: duration));
     DateTime now = DateTime.now();
 
-    if (hasAccepted && eventDate.isAfter(now)) {
+    if (hasAccepted && now.isBefore(endTime)) {
       // Event date is in the future, display QR code
       return Column(
         children: [
@@ -940,7 +965,8 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
         style: TextStyle(
             color: Colors.red, fontSize: 16, fontWeight: FontWeight.w700),
       );
-    } else if (hasAccepted && eventDate.isBefore(now)) {
+    } else if (hasAccepted &&
+        (now.isAfter(endTime) || now.isAtSameMomentAs(endTime))) {
       // Event date is in the past, do not display QR code
       return Text(
         "You have accepted this invitation.",
