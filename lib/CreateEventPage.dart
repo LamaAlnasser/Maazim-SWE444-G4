@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
+import 'package:maazim/Home_Host.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_sms/flutter_sms.dart';
 import 'package:country_picker/country_picker.dart';
@@ -223,7 +224,10 @@ class _CreateEventPageState extends State<CreateEventPage> {
 
   // Assuming this function is called after successfully creating an event
   void _onEventCreatedSuccessfully() {
-    Navigator.of(context).pop(true); // Return true to indicate event creation
+     Navigator.push(
+    context,
+      MaterialPageRoute(builder: (context) => const homePage()),
+     );
   }
 
   bool _isValidLocation(String location) {
@@ -481,9 +485,9 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your name';
                     }
-                  if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$').hasMatch(value)) {
+                 /* if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$').hasMatch(value)) {
                           return 'Note: only letters.';
-                        }
+                        }*/
                     return null;
                   },
                 ),
@@ -529,9 +533,9 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter event name';
                     }
-                    if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$').hasMatch(value)) {
+                    /*if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$').hasMatch(value)) {
                           return 'Note: only letters.';
-                        }
+                        }*/
                     return null;
                   },
                 ),
@@ -575,9 +579,9 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter event type';
                     }
-                    if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$').hasMatch(value)) {
+                    /*if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$').hasMatch(value)) {
                           return 'Note: only letters.';
-                        }
+                        }*/
                     return null;
                   },
                 ),
