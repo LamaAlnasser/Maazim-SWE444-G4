@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:maazim/Home_Host.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:maazim/layout.dart';
-import 'package:maazim/main.dart'; //use it to go back
 import 'dart:async';
 
 void main() async {
@@ -567,10 +566,7 @@ class _OTP_afterSignUpState extends State<OTP_afterSignUp> {
             child: ElevatedButton(
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) =>
-                      WelcomePage(), // Ensure WelcomePage is defined
-                ));
+                Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(
