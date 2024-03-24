@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MyInvitationsPage extends StatefulWidget {
   @override
@@ -625,6 +626,41 @@ class InvitationDetailPage extends StatefulWidget {
 class _InvitationDetailPageState extends State<InvitationDetailPage> {
   late bool hasAccepted;
   late bool hasRejected;
+  Widget _buildLocationWidget(String location, double fem) {
+    Uri? uri = Uri.tryParse(location);
+    bool isUrl = uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
+
+    if (isUrl && uri != null) {
+      // It's a URL, let's make it tappable
+      return CircleAvatar(
+        radius: 25 * fem, // Adjust the size to fit your design
+        backgroundColor: Color(0xFF9a85a4), // Background color
+        child: IconButton(
+          icon:
+              Icon(Icons.location_on, size: 24 * fem), // Icon inside the button
+          color: Colors.white, // Icon color
+          onPressed: () async {
+            if (await canLaunch(uri.toString())) {
+              await launch(uri.toString());
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Could not launch $location')),
+              );
+            }
+          },
+        ),
+      );
+    } else {
+      // It's not a URL, just display it as text
+      return Text(
+        location,
+        style: TextStyle(
+            fontSize: 18 * fem,
+            color: Color(0xff9a85a4),
+            fontWeight: FontWeight.w700),
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -712,7 +748,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                 Padding(
                   padding: EdgeInsets.only(top: 35 * fem),
                   child: Text(
-                    "${widget.invitation['inviterName']} \nInvites you to\n ${widget.invitation['eventName']}!",
+                    "${widget.invitation['inviterName']} \nInvites you to ${widget.invitation['eventName']}!",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 20 * fem,
@@ -735,16 +771,13 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                   ),
                 ),
                 //Location:
+                // Location Display Handling
                 Padding(
-                  padding: EdgeInsets.only(top: 1 * fem),
-                  child: Text(
-                    "${widget.invitation['eventLocation']}",
-                    style: TextStyle(
-                        fontSize: 18 * fem,
-                        color: Color(0xff9a85a4),
-                        fontWeight: FontWeight.w700),
-                  ),
+                  padding: EdgeInsets.only(top: 6 * fem),
+                  child: _buildLocationWidget(
+                      widget.invitation['eventLocation'], fem),
                 ),
+
                 //end location
                 Padding(
                   padding: EdgeInsets.only(top: 20 * fem),
