@@ -82,17 +82,24 @@ class _MyEventsPageState extends State<MyEventsPage> {
         ],
       ),
       //add button
-      floatingActionButton: Padding(
+      floatingActionButton: 
+      Padding(
         padding: const EdgeInsets.all(16.0),
         child: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CreateEventPage(),
-              ),
-            );
-          },
+          onPressed: ()async {
+    // Navigates to the CreateEventPage and waits for a result
+    final bool eventCreated = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CreateEventPage()),
+    ) ?? false;
+
+    // If an event was created, refresh the events list
+    if (eventCreated) {
+      setState(() {
+        // This will cause the widgets to rebuild and fetch new events data
+      });
+    }
+  },
           child: Icon(
             Icons.add,
             size: 36,
@@ -123,32 +130,40 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
     eventsFuture = getHostedEvents();
   }
 
-  Future<List<Map<String, dynamic>>> getHostedEvents() async {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    List<Map<String, dynamic>> events = [];
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        QuerySnapshot querySnapshot = await firestore
-            .collection('events')
-            .where('userId', isEqualTo: user.uid)
-            .where('eventDateTime', isGreaterThan: Timestamp.now())
-            .get();
+ Future<List<Map<String, dynamic>>> getHostedEvents() async {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  List<Map<String, dynamic>> events = [];
+  try {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      QuerySnapshot querySnapshot = await firestore
+          .collection('events')
+          .where('userId', isEqualTo: user.uid)
+          .get();
 
-        for (var doc in querySnapshot.docs) {
-          Map<String, dynamic> event = doc.data() as Map<String, dynamic>;
-          event['id'] = doc.id;
+      var now = Timestamp.now();
+      for (var doc in querySnapshot.docs) {
+        Map<String, dynamic> event = doc.data() as Map<String, dynamic>;
+        event['id'] = doc.id;
+
+        // Calculate the event end time by adding the duration to the event start time
+        Timestamp startTime = event['eventDateTime'];
+        int durationHours = event['duration'] ?? 1; // default to 0 if not set
+        DateTime endTime = startTime.toDate().add(Duration(hours: durationHours));
+
+        // Only add to upcoming events if the current time is before the event end time
+        if (endTime.isAfter(now.toDate())) {
           events.add(event);
         }
-      } else {
-        print('User is not logged in.');
       }
-    } catch (e) {
-      print("Error getting events: $e");
+    } else {
+      print('User is not logged in.');
     }
-    return events;
+  } catch (e) {
+    print("Error getting events: $e");
   }
-  //end getHostedEvents
+  return events;
+}
 
   @override
   Widget build(BuildContext context) {
@@ -331,29 +346,39 @@ class _PastEventsState extends State<PastEvents> {
     eventsFuture = getPastEvents();
   }
 
-  Future<List<Map<String, dynamic>>> getPastEvents() async {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    List<Map<String, dynamic>> events = [];
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        QuerySnapshot querySnapshot = await firestore
-            .collection('events')
-            .where('userId', isEqualTo: user.uid)
-            .where('eventDateTime', isLessThan: Timestamp.now())
-            .get();
+Future<List<Map<String, dynamic>>> getPastEvents() async {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  List<Map<String, dynamic>> events = [];
+  try {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      QuerySnapshot querySnapshot = await firestore
+          .collection('events')
+          .where('userId', isEqualTo: user.uid)
+          .get();
 
-        for (var doc in querySnapshot.docs) {
-          Map<String, dynamic> event = doc.data() as Map<String, dynamic>;
-          event['id'] = doc.id;
+      var now = Timestamp.now();
+      for (var doc in querySnapshot.docs) {
+        Map<String, dynamic> event = doc.data() as Map<String, dynamic>;
+        event['id'] = doc.id;
+
+        // Calculate the event end time by adding the duration to the event start time
+        Timestamp startTime = event['eventDateTime'];
+        int durationHours = event['duration'] ?? 0; // default to 0 if not set
+        DateTime endTime = startTime.toDate().add(Duration(hours: durationHours));
+
+        // Only add to past events if the current time is after the event end time
+        if (endTime.isBefore(now.toDate())) {
           events.add(event);
         }
       }
-    } catch (e) {
-      print("Error getting past events: $e");
     }
-    return events;
+  } catch (e) {
+    print("Error getting past events: $e");
   }
+  return events;
+}
+
 
     @override
   Widget build(BuildContext context) {
