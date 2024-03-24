@@ -91,7 +91,7 @@ class _SignUpContentState extends State<SignUpContent> {
             setState(() {
               showError = true;
               errorMessage =
-                  'The email is already in use. Please try another one.';
+                  'The email is already in use.\nPlease try another one.';
               // _isLoading = false; // Re-enable the button or hide loading indicator
             });
             return; // Stop further execution
@@ -111,7 +111,7 @@ class _SignUpContentState extends State<SignUpContent> {
             setState(() {
               showError = true;
               errorMessage =
-                  'The email already in use.\n Please try another one.';
+                  'The email already in use.\nPlease try another one.';
               // _isLoading = false; // Re-enable the button or hide loading indicator
             });
           }
