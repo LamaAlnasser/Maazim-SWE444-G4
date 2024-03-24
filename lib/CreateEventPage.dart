@@ -408,6 +408,16 @@ class _CreateEventPageState extends State<CreateEventPage> {
       );
     }
   }
+  String? validateString(String? value, {int maxLength = 50}) {
+  if (value == null || value.isEmpty) {
+    return 'This field is required.';
+  }
+  if (value.length > maxLength) {
+    return 'Maximum length exceeded. Maximum characters: $maxLength';
+  }
+  return null;
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -485,9 +495,12 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your name';
                     }
-                 /* if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$').hasMatch(value)) {
-                          return 'Note: only letters.';
-                        }*/
+                     if (value.contains(RegExp(r'[0-9]'))) {
+                     return 'Note: only letters.';
+                      }
+                    if (value.length > 30) {
+                    return 'Maximum length exceeded. Maximum characters: 30';
+                    }
                     return null;
                   },
                 ),
@@ -533,9 +546,9 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter event name';
                     }
-                    /*if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$').hasMatch(value)) {
-                          return 'Note: only letters.';
-                        }*/
+                    if (value.length > 30) {
+                  return 'Maximum length exceeded. Maximum characters: 30';
+                 }
                     return null;
                   },
                 ),
@@ -579,9 +592,12 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter event type';
                     }
-                    /*if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$').hasMatch(value)) {
-                          return 'Note: only letters.';
-                        }*/
+                    if (value.contains(RegExp(r'[0-9]'))) {
+                     return 'Note: only letters.';
+                      }
+                    if (value.length > 30) {
+                  return 'Maximum length exceeded. Maximum characters: 30';
+                 }
                     return null;
                   },
                 ),
