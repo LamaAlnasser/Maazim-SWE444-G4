@@ -376,7 +376,28 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
             },
           );
         } else {
-          return Center(child: Text("No upcoming invitations at the moment."));
+          return Center(child: Column(
+          mainAxisAlignment: MainAxisAlignment.center, // Center the children vertically
+          children: [
+            Opacity(opacity: 0.5,
+            child: Image.asset(
+              'assets/teapot.png', // Replace with your asset image path
+              width: 300, // Set your width accordingly
+              height: 250, // Set your height accordingly
+            ),),
+            SizedBox(height: 20), // Add some space between the image and the text
+            Text(
+              "No Upcoming Invitations",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10), // Add some space between the image and the text
+            Text(
+              "You have to be invited to an event",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 24), ],),);
         }
       },
     );
@@ -646,7 +667,33 @@ class _PastInvitationsState extends State<PastInvitations> {
             },
           );
         } else {
-          return Center(child: Text("No past invitations at the moment."));
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Opacity(
+                  opacity: 0.5,
+                  child: Image.asset(
+                    'assets/teapot.png', // Replace with your asset image path
+                    width: 300, // Set your width accordingly
+                    height: 200, // Set your height accordingly
+                  ),
+                ),
+                Text(
+                  "No Past Invitaions",
+                textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  "Looks like there are no invitations in the past.",
+                   textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 24),
+              ],
+            ),
+          );
         }
       },
     );
