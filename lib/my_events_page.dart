@@ -533,12 +533,14 @@ Future<List<Map<String, dynamic>>> getPastEvents() async {
                 ),
                 Text(
                   "No Past Events",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 16),
                 Text(
                   "Looks like there are no events in the past.",
-                  style: TextStyle(fontSize: 18),
+                   textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 24),
               ],
