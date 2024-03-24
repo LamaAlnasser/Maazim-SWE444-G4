@@ -674,40 +674,57 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
   late bool hasRejected;
   late bool changed = false;
 
-  Widget _buildLocationWidget(String location, double fem) {
-    Uri? uri = Uri.tryParse(location);
-    bool isUrl = uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
+  Widget _buildLocationWidget(String address,
+      {String? eventLocation, double fem = 1.0}) {
+    List<Widget> locationWidgets = [];
 
-    if (isUrl && uri != null) {
-      // It's a URL, let's make it tappable
-      return CircleAvatar(
-        radius: 25 * fem, // Adjust the size to fit your design
-        backgroundColor: Color(0xFF9a85a4), // Background color
-        child: IconButton(
-          icon:
-              Icon(Icons.location_on, size: 24 * fem), // Icon inside the button
-          color: Colors.white, // Icon color
-          onPressed: () async {
-            if (await canLaunch(uri.toString())) {
-              await launch(uri.toString());
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Could not launch $location')),
-              );
-            }
-          },
-        ),
-      );
-    } else {
-      // It's not a URL, just display it as text
-      return Text(
-        location,
+    // Always add the address.
+    locationWidgets.add(
+      Text(
+        address,
         style: TextStyle(
             fontSize: 18 * fem,
             color: Color(0xff9a85a4),
             fontWeight: FontWeight.w700),
-      );
+      ),
+    );
+
+    // If there is an eventLocation link, try to parse it and add a clickable icon.
+    if (eventLocation?.isNotEmpty == true) {
+      Uri? uri = Uri.tryParse(eventLocation!);
+      bool isUrl =
+          uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
+
+      if (isUrl && uri != null) {
+        locationWidgets.add(
+          GestureDetector(
+            onTap: () async {
+              if (await canLaunch(uri.toString())) {
+                await launch(uri.toString());
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Could not launch location link')),
+                );
+              }
+            },
+            child: Padding(
+              padding: EdgeInsets.only(top: 8.0),
+              child: CircleAvatar(
+                radius: 25 * fem,
+                backgroundColor: Color(0xFF9a85a4),
+                child: Icon(Icons.location_on,
+                    size: 24 * fem, color: Colors.white),
+              ),
+            ),
+          ),
+        );
+      }
     }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: locationWidgets,
+    );
   }
 
   @override
@@ -833,9 +850,12 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                 Padding(
                   padding: EdgeInsets.only(top: 6 * fem),
                   child: _buildLocationWidget(
-                      widget.invitation['eventLocation'], fem),
+                    widget.invitation['address'],
+                    eventLocation: widget.invitation['eventLocation']
+                        as String?, // Make sure to safely cast this as it is optional
+                    fem: fem,
+                  ),
                 ),
-
                 //end location
                 Padding(
                   padding: EdgeInsets.only(top: 20 * fem),
