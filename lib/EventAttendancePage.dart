@@ -1,3 +1,6 @@
+import 'dart:html';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:maazim/CreateEventPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -440,7 +443,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
     );
   }
 }
-*/
+
 
 //////////////
 
@@ -466,7 +469,7 @@ class EventAttendancePage extends StatelessWidget {
         child: FutureBuilder<Map<String, List<String>>>(
           future: EventAttendanceAnalysis.analyzeAttendance(
             10, // Provide the numberOfInvitees here
-            ['1234567890', '2345678901', '3456789012'], // Provide the inviteesPhoneNumbers here
+            ['552478997', '532094741', '3456789012'], // Provide the inviteesPhoneNumbers here
           ),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -494,9 +497,276 @@ class EventAttendancePage extends StatelessWidget {
       ),
     );
   }
-}
-/////////////
+}*/
 
+class EventAttendancePage extends StatelessWidget {
+  final String eventId;
+  final String eventName;
+  final int numberOfInvitees;
+  final List<String> inviteesPhoneNumbers;
+
+  const EventAttendancePage({
+    Key? key,
+    required this.eventId,
+    required this.eventName, required this.numberOfInvitees, required this.inviteesPhoneNumbers,
+  }) : super(key: key);
+/*
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Event Attendance: $eventName'),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
+       child:  Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+          const  Text(
+              'Event Information:',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 22),
+           Text('Event Name :$eventName', style: TextStyle(color: Color(0xFF9a85a4), fontSize: 14)
+            ) ,
+            Text('Event Type :$KeyEventType', style: const TextStyle(color: Color(0xFF9a85a4), fontSize: 14)
+            )
+            , Text('Event Location :$KeyLocation', style: TextStyle(color: Color(0xFF9a85a4), fontSize: 14)
+            )
+          ]
+       )
+  )
+  )
+  }*/
+  @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Event Attendance: $eventName'),
+    ),
+    body: SingleChildScrollView(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Event Information:',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 22),
+          Text('Event Name: $eventName', style: TextStyle(color: Color(0xFF9a85a4), fontSize: 14)),
+          Text('Event Type: $KeyEventType', style: const TextStyle(color: Color(0xFF9a85a4), fontSize: 14)),
+          Text('Event Location: $KeyLocation', style: TextStyle(color: Color(0xFF9a85a4), fontSize: 14)),
+        ],
+      ),
+    ),
+  );
+}
+@override
+Widget buildEventAttendance(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Event Attendance: $eventName'),
+    ),
+    body: FutureBuilder<Map<String, Map<String, dynamic>>>(
+      future: EventAttendanceAnalysis.analyzeAttendance(
+        numberOfInvitees, // Provide the numberOfInvitees here
+        inviteesPhoneNumbers, // Provide the inviteesPhoneNumbers here
+      ),
+      builder: (BuildContext context, AsyncSnapshot<Map<String, Map<String, dynamic>>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (snapshot.hasData) {
+          Map<String, List<String>> attendance = snapshot.data!.cast<String, List<String>>();
+          return SingleChildScrollView( // Add a SingleChildScrollView here if needed
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Accepted Attendees (${attendance['accepted']!.length})',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                // Display accepted attendees
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: attendance['accepted']!.map((phoneNumber) {
+                    // You can fetch user name using phone number here
+                    // Example: Text('Name: ${fetchUserName(phoneNumber)}'),
+                    return ListTile(
+                      title: Text(phoneNumber),
+                      leading: Icon(Icons.check_circle, color: Colors.green),
+                    );
+                  }).toList(),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Rejected Attendees (${attendance['rejected']!.length})',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                // Display rejected attendees
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: attendance['rejected']!.map((phoneNumber) {
+                    // You can fetch user name using phone number here
+                    // Example: Text('Name: ${fetchUserName(phoneNumber)}'),
+                    return ListTile(
+                      title: Text(phoneNumber),
+                      leading: Icon(Icons.cancel, color: Colors.red),
+                    );
+                  }).toList(),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Pending Attendees (${attendance['pending']!.length})',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                // Display pending attendees
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: attendance['pending']!.map((phoneNumber) {
+                    // You can fetch user name using phone number here
+                    // Example: Text('Name: ${fetchUserName(phoneNumber)}'),
+                    return ListTile(
+                      title: Text(phoneNumber),
+                      leading: Icon(Icons.access_time, color: Colors.orange),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          );
+        } else {
+          return Text('No data available');
+        }
+      },
+    ),
+  );
+}}
+   /*@override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Event Attendance: $eventName'),
+
+       child:FutureBuilder<Map<String, Map<String, dynamic>>> (future: EventAttendanceAnalysis.analyzeAttendance(
+          numberOfInvitees, // Provide the numberOfInvitees here
+          inviteesPhoneNumbers,// Provide the inviteesPhoneNumbers here
+          ), builder: (BuildContext context, AsyncSnapshot<Map<String, Map<String, dynamic>>> snapshot) {  if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else if (snapshot.hasData) {
+              Map<String, List<String>> attendance = snapshot.data!.cast<String, List<String>>();
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Accepted Attendees (${attendance['accepted']!.length})',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  // Display accepted attendees
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: attendance['accepted']!.map((phoneNumber) {
+                      // You can fetch user name using phone number here
+                      // Example: Text('Name: ${fetchUserName(phoneNumber)}'),
+                      return ListTile(
+                        title: Text(phoneNumber),
+                        leading: Icon(Icons.check_circle, color: Colors.green),
+                      );
+                    }
+                    ).toList(),
+                  ),
+//
+                  SizedBox(height: 16),
+                  Text(
+                    'Rejected Attendees (${attendance['rejected']!.length})',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  // Display rejected attendees
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: attendance['rejected']!.map((phoneNumber) {
+                      // You can fetch user name using phone number here
+                      // Example: Text('Name: ${fetchUserName(phoneNumber)}'),
+                      return ListTile(
+                        title: Text(phoneNumber),
+                        leading: Icon(Icons.cancel, color: Colors.red),
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Pending Attendees (${attendance['pending']!.length})',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  // Display pending attendees
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: attendance['pending']!.map((phoneNumber) {
+                      // You can fetch user name using phone number here
+                      // Example: Text('Name: ${fetchUserName(phoneNumber)}'),
+                      return ListTile(
+                        title: Text(phoneNumber),
+                        leading: Icon(Icons.access_time, color: Colors.orange),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              );
+            } else {
+              return Text('No data available');
+            } },
+        )
+      )
+    );
+    } }*/
+    //
+class EventAttendanceAnalysis {
+  static Future<Map<String, Map<String, dynamic>>> analyzeAttendance(
+      int numberOfInvitees, List<String> inviteesPhoneNumbers) async {
+    Map<String, Map<String, dynamic>> attendance = {
+      'accepted': {'count': 0, 'icon': Icons.check_circle, 'color': Colors.green},
+      'rejected': {'count': 0, 'icon': Icons.cancel, 'color': Colors.red},
+      'pending': {'count': 0, 'icon': Icons.access_time, 'color': Colors.orange},
+    };
+    try {
+      // Fetch the responses of invitees from Firestore
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('responses')
+          .where('eventId', isEqualTo: 'YOUR_EVENT_ID')
+          .get();
+      // Iterate over the invitees' phone numbers
+      for (int i = 0; i < numberOfInvitees; i++) {
+        String phoneNumber = inviteesPhoneNumbers[i];   
+        // Check if the response for the current invitee exists
+        QueryDocumentSnapshot? response = querySnapshot.docs.firstWhere(
+          (doc) => doc['phoneNumber'] == phoneNumber,
+        );
+        if (response != null) {
+          // If response exists, categorize the attendee based on the response
+          String status = response['status'];
+          attendance[status]!['count']++;
+        } else {
+          // If no response, consider the attendee as pending
+          attendance['pending']!['count']++;
+        }
+      }
+    } catch (e) {
+      print('Error analyzing attendance: $e');
+    }
+    return attendance;
+  }
+}
+/*
 class EventAttendanceAnalysis {
   static Future<Map<String, List<String>>> analyzeAttendance(
       int numberOfInvitees, List<String> inviteesPhoneNumbers) async {
