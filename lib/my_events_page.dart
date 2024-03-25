@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:maazim/Home_Host.dart';
+import 'package:maazim/EventAttendancePage.dart';
 
 class MyEventsPage extends StatefulWidget {
   @override
@@ -15,16 +16,17 @@ class _MyEventsPageState extends State<MyEventsPage> {
 
   @override
   Widget build(BuildContext context) {
-   return Scaffold(
+    return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-            Padding(padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-            child:Text(
-            'My Events',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30 ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+            child: Text(
+              'My Events',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
             ),
-                    ),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
             child: Row(
@@ -82,24 +84,24 @@ class _MyEventsPageState extends State<MyEventsPage> {
         ],
       ),
       //add button
-      floatingActionButton: 
-      Padding(
+      floatingActionButton: Padding(
         padding: const EdgeInsets.all(16.0),
         child: FloatingActionButton(
-          onPressed: ()async {
-    // Navigates to the CreateEventPage and waits for a result
-    final bool eventCreated = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => CreateEventPage()),
-    ) ?? false;
+          onPressed: () async {
+            // Navigates to the CreateEventPage and waits for a result
+            final bool eventCreated = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CreateEventPage()),
+                ) ??
+                false;
 
-    // If an event was created, refresh the events list
-    if (eventCreated) {
-      setState(() {
-        // This will cause the widgets to rebuild and fetch new events data
-      });
-    }
-  },
+            // If an event was created, refresh the events list
+            if (eventCreated) {
+              setState(() {
+                // This will cause the widgets to rebuild and fetch new events data
+              });
+            }
+          },
           child: Icon(
             Icons.add,
             size: 36,
@@ -116,7 +118,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
 
 //from above i chancged line 84-85 only
 class UpcomingEvents extends StatefulWidget {
-  @override 
+  @override
   _UpcomingEventsState createState() => _UpcomingEventsState();
 }
 
@@ -130,40 +132,41 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
     eventsFuture = getHostedEvents();
   }
 
- Future<List<Map<String, dynamic>>> getHostedEvents() async {
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
-  List<Map<String, dynamic>> events = [];
-  try {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      QuerySnapshot querySnapshot = await firestore
-          .collection('events')
-          .where('userId', isEqualTo: user.uid)
-          .get();
+  Future<List<Map<String, dynamic>>> getHostedEvents() async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    List<Map<String, dynamic>> events = [];
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        QuerySnapshot querySnapshot = await firestore
+            .collection('events')
+            .where('userId', isEqualTo: user.uid)
+            .get();
 
-      var now = Timestamp.now();
-      for (var doc in querySnapshot.docs) {
-        Map<String, dynamic> event = doc.data() as Map<String, dynamic>;
-        event['id'] = doc.id;
+        var now = Timestamp.now();
+        for (var doc in querySnapshot.docs) {
+          Map<String, dynamic> event = doc.data() as Map<String, dynamic>;
+          event['id'] = doc.id;
 
-        // Calculate the event end time by adding the duration to the event start time
-        Timestamp startTime = event['eventDateTime'];
-        int durationHours = event['duration'] ?? 1; // default to 0 if not set
-        DateTime endTime = startTime.toDate().add(Duration(hours: durationHours));
+          // Calculate the event end time by adding the duration to the event start time
+          Timestamp startTime = event['eventDateTime'];
+          int durationHours = event['duration'] ?? 1; // default to 0 if not set
+          DateTime endTime =
+              startTime.toDate().add(Duration(hours: durationHours));
 
-        // Only add to upcoming events if the current time is before the event end time
-        if (endTime.isAfter(now.toDate())) {
-          events.add(event);
+          // Only add to upcoming events if the current time is before the event end time
+          if (endTime.isAfter(now.toDate())) {
+            events.add(event);
+          }
         }
+      } else {
+        print('User is not logged in.');
       }
-    } else {
-      print('User is not logged in.');
+    } catch (e) {
+      print("Error getting events: $e");
     }
-  } catch (e) {
-    print("Error getting events: $e");
+    return events;
   }
-  return events;
-}
 
   @override
   Widget build(BuildContext context) {
@@ -194,13 +197,13 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
 
               return InkWell(
                 //Clicking on the card
-                //  onTap: () => Navigator.push(
-                //      context,
-                //      MaterialPageRoute(
-                ///       builder: (context) =>
-                //          InvitationDetailPage(invitation: invitation),
-                //      ),
-                //   ),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        EventAttendancePage(eventId: event['id']),
+                  ),
+                ),
                 child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
                   height: 160,
@@ -304,28 +307,39 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
             },
           );
         } else {
-          return Center(child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Center the children vertically
-          children: [
-            Opacity(opacity: 0.5,
-            child: Image.asset(
-              'assets/lavender.png', // Replace with your asset image path
-              width: 300, // Set your width accordingly
-              height: 250, // Set your height accordingly
-            ),),
-            SizedBox(height: 20), // Add some space between the image and the text
-            Text(
-              "No Upcoming Events",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+          return Center(
+            child: Column(
+              mainAxisAlignment:
+                  MainAxisAlignment.center, // Center the children vertically
+              children: [
+                Opacity(
+                  opacity: 0.5,
+                  child: Image.asset(
+                    'assets/lavender.png', // Replace with your asset image path
+                    width: 300, // Set your width accordingly
+                    height: 250, // Set your height accordingly
+                  ),
+                ),
+                SizedBox(
+                    height:
+                        20), // Add some space between the image and the text
+                Text(
+                  "No Upcoming Events",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                    height:
+                        10), // Add some space between the image and the text
+                Text(
+                  "To create new events press the + button",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 24),
+              ],
             ),
-            SizedBox(height: 10), // Add some space between the image and the text
-            Text(
-              "To create new events press the + button",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 24), ],),);
+          );
         }
       },
     );
@@ -333,7 +347,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
 }
 
 class PastEvents extends StatefulWidget {
-  @override 
+  @override
   _PastEventsState createState() => _PastEventsState();
 }
 
@@ -346,41 +360,41 @@ class _PastEventsState extends State<PastEvents> {
     eventsFuture = getPastEvents();
   }
 
-Future<List<Map<String, dynamic>>> getPastEvents() async {
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
-  List<Map<String, dynamic>> events = [];
-  try {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      QuerySnapshot querySnapshot = await firestore
-          .collection('events')
-          .where('userId', isEqualTo: user.uid)
-          .get();
+  Future<List<Map<String, dynamic>>> getPastEvents() async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    List<Map<String, dynamic>> events = [];
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        QuerySnapshot querySnapshot = await firestore
+            .collection('events')
+            .where('userId', isEqualTo: user.uid)
+            .get();
 
-      var now = Timestamp.now();
-      for (var doc in querySnapshot.docs) {
-        Map<String, dynamic> event = doc.data() as Map<String, dynamic>;
-        event['id'] = doc.id;
+        var now = Timestamp.now();
+        for (var doc in querySnapshot.docs) {
+          Map<String, dynamic> event = doc.data() as Map<String, dynamic>;
+          event['id'] = doc.id;
 
-        // Calculate the event end time by adding the duration to the event start time
-        Timestamp startTime = event['eventDateTime'];
-        int durationHours = event['duration'] ?? 0; // default to 0 if not set
-        DateTime endTime = startTime.toDate().add(Duration(hours: durationHours));
+          // Calculate the event end time by adding the duration to the event start time
+          Timestamp startTime = event['eventDateTime'];
+          int durationHours = event['duration'] ?? 0; // default to 0 if not set
+          DateTime endTime =
+              startTime.toDate().add(Duration(hours: durationHours));
 
-        // Only add to past events if the current time is after the event end time
-        if (endTime.isBefore(now.toDate())) {
-          events.add(event);
+          // Only add to past events if the current time is after the event end time
+          if (endTime.isBefore(now.toDate())) {
+            events.add(event);
+          }
         }
       }
+    } catch (e) {
+      print("Error getting past events: $e");
     }
-  } catch (e) {
-    print("Error getting past events: $e");
+    return events;
   }
-  return events;
-}
 
-
-    @override
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: eventsFuture,
@@ -409,13 +423,13 @@ Future<List<Map<String, dynamic>>> getPastEvents() async {
 
               return InkWell(
                 //Clicking on the card
-                //  onTap: () => Navigator.push(
-                //      context,
-                //      MaterialPageRoute(
-                ///       builder: (context) =>
-                //          InvitationDetailPage(invitation: invitation),
-                //      ),
-                //   ),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        EventAttendancePage(eventId: event['id']),
+                  ),
+                ),
                 child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
                   height: 160,
@@ -533,14 +547,14 @@ Future<List<Map<String, dynamic>>> getPastEvents() async {
                 ),
                 Text(
                   "No Past Events",
-                textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 16),
                 Text(
                   "Looks like there are no events in the past.",
-                   textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 24),
               ],
