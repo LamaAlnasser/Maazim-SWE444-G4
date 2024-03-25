@@ -221,7 +221,7 @@ final _formKey = GlobalKey<FormState>();
   SnackBar(
     content: DefaultTextStyle(
       style: TextStyle(fontSize: 18), // Adjust the font size here
-      child: Text('Password changed successfully.'),
+      child: Text('Password updated successfully.'),
     ),
     duration: Duration(seconds: 5),
   ),

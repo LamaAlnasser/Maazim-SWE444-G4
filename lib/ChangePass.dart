@@ -165,7 +165,7 @@ class _ChangePassState extends State<ChangePass> {
       
           
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0),
+                padding: const EdgeInsets.symmetric(horizontal: 85),
               
               child: ElevatedButton(
                 onPressed: () {
