@@ -22,7 +22,7 @@ final _formKey = GlobalKey<FormState>();
 
   String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Required password.';
+      return 'Required field.';
     }
     // Custom password strength check
     if (value.length < 8) {
@@ -153,12 +153,15 @@ final _formKey = GlobalKey<FormState>();
                   controller: confirmPasswordController,
                   obscureText: obscureConfirmPassword,
                   cursorColor: Color(0xFF9a85a4),
-                  validator: (value) {
-                    if (value != newPasswordController.text) {
-                      return 'Passwords do not match.';
-                    }
-                    return null;
-                  },
+                    validator: (value) {
+                     if (value == null || value.isEmpty) {
+                            return 'Required field.';
+                                                         }
+                      if (value != newPasswordController.text) {
+                          return 'Passwords do not match.';
+                                                         }
+                            return null;
+                                        },
                   decoration: InputDecoration(
                     labelText: 'Confirm Password',
                     labelStyle: TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
