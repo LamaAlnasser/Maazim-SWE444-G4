@@ -31,6 +31,8 @@ dependencies:
   flutter:
     sdk: flutter
   intl: ^0.17.0
+  syncfusion_flutter_charts: ^21.2.4 
+  pie_chart: ^5.0.0
 
 
     
