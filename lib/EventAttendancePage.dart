@@ -1,6 +1,8 @@
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart'; // Add this import to format the date and time
@@ -20,8 +22,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
   late Future<DocumentSnapshot> eventDetailsFuture;
   
   get dataMap => null;
-  
-  get phoneNumber => null;
+    
 
   @override
   void initState() {
@@ -30,8 +31,10 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
         .collection('events')
         .doc(widget.eventId)
         .get();
+        
   }
 
+  
   /*Widget _buildLocationWidget(String address, {String? eventLocation}) {
     bool canOpenMap = eventLocation != null && eventLocation.isNotEmpty;
     return ListTile(
@@ -53,6 +56,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
           : null,
     );
   }*/
+  
   Future<String?> _getFullNameFromPhoneNumber(String phoneNumber) async {
   try {
     // Query Firestore to find the document where the phoneNumber field matches the given phoneNumber
@@ -80,6 +84,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
     return null;
   }
 }
+
   Widget _buildLocationWidget(String address, {String? eventLocation}) {
   bool canOpenMap = eventLocation != null && eventLocation.isNotEmpty;
   return Container(
@@ -110,7 +115,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
           size: 30,
         ),
       ),
-    ),
+    ), 
       title: Text(
        'Address'  ,
         style: TextStyle(
@@ -545,7 +550,8 @@ Container(
     ],
         ),
       ),
-      SizedBox(height: 10), // Add some space between title and ExpansionTiles
+        Container( height: 2,color: Color(0xFF9a85a4)),SizedBox(height: 5),
+     // Add some space between title and ExpansionTiles
 
 ExpansionTile(
 title: Text('Accepted Attendees (${acceptedInvitees.length})'),
@@ -657,11 +663,12 @@ ExpansionTile(
       ),
     ],
         ),
-      ),
+      ),      Container( height: 2,color: Color(0xFF9a85a4)),
+
       // Placeholder for attendance chart can be added here
 
  Container(
-  
+ 
   height: 150,
   child: PieChart(
     dataMap: dataMap,
@@ -684,15 +691,102 @@ ExpansionTile(
  
     ],
   ),
-),
+), 
 
-
+  Container(
+padding: EdgeInsets.fromLTRB(80, 5, 80, 5), // Adds 100 pixels of padding to all sides
+  child:ElevatedButton(
+  onPressed: () {
+    // Check if the acceptedInvitees list is empty
+    if (acceptedInvitees.isEmpty) {
+      // Delete the event from Firebase
+      FirebaseFirestore.instance.collection('events').doc(widget.eventId).delete().then((_) {
+        // Show a success message using an alert dialog
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Success'),
+              content: Text('Event deleted successfully.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the alert dialog
+                    Navigator.pushReplacementNamed(context, 'my_events_page');
+               },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }).catchError((error) {
+        // Show an error message using an alert dialog
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Error'),
+              content: Text('Failed to delete event: $error'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      });
+    } else {
+      // Show an alert dialog indicating that the event cannot be deleted
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Deletion Not Allowed'),
+            content: Text('Event cannot be deleted as there are accepted invitees.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
             ],
           );
         },
+      );
+    }
+  },
+  child: Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(Icons.delete, color: Colors.white), // Delete icon
+      SizedBox(width:8), // Add some space between icon and text
+      Text('Delete Event' ,style: TextStyle(
+    fontWeight: FontWeight.bold,)), // Button text
+    ],
+  ),
+  style: ElevatedButton.styleFrom(
+    foregroundColor: Colors.white, backgroundColor: Colors.red, // Text color
+  ),
+    ),
+          ),
+   ],
+
+
+);
+
+          
+        },
       ),
-    );
+    ); 
+                  
   }
+  
 
   // This helper function computes the list of pending invitees.
   List<String> _calculatePendingInvitees(Map<String, dynamic> eventData) {
