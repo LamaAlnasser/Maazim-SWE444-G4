@@ -56,8 +56,7 @@ class _guestEventsPageState extends State<guestEventsPage> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                primary: Color(0xFF9a85a4), // Button background color
-                onPrimary: Colors.white, // Text color
+                foregroundColor: Colors.white, backgroundColor: Color(0xFF9a85a4), // Text color
                 padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15), // Add padding to make the button bigger
               ),
               child: Text(
