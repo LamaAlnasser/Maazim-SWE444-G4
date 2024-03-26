@@ -39,7 +39,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: _showUpcomingEvents
+                    backgroundColor: _showUpcomingEvents
                         ? Color(0xFF9a85a4)
                         : Color(0xFF9a85a4).withOpacity(0.2),
                     fixedSize: Size(171, 30),
@@ -59,7 +59,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: _showUpcomingEvents
+                    backgroundColor: _showUpcomingEvents
                         ? Color(0xFF9a85a4).withOpacity(0.2)
                         : Color(0xFF9a85a4),
                     fixedSize: Size(171, 30),
