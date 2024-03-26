@@ -173,9 +173,8 @@ class _ChangePassState extends State<ChangePass> {
                
                 }, 
                 style: ElevatedButton.styleFrom(
-                  shape: StadiumBorder(),
+                  shape: StadiumBorder(), backgroundColor: Color(0xFF9a85a4).withOpacity(0.9),
                   padding: EdgeInsets.symmetric(vertical: 10),
-                  primary: Color(0xFF9a85a4).withOpacity(0.9),
                 ),
                 child: Text('Next',
                 style: TextStyle(
