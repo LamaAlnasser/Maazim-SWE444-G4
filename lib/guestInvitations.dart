@@ -44,7 +44,7 @@ class _guestInvitationsPageState extends State<guestInvitationsPage> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: _showUpcomingInvitations
+                    backgroundColor: _showUpcomingInvitations
                         ? Color(0xFF9a85a4)
                         : Color(0xFF9a85a4).withOpacity(0.2),
                     fixedSize: Size(171, 30),
@@ -64,7 +64,7 @@ class _guestInvitationsPageState extends State<guestInvitationsPage> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: !_showUpcomingInvitations
+                    backgroundColor: !_showUpcomingInvitations
                         ? Color(0xFF9a85a4)
                         : Color(0xFF9a85a4).withOpacity(0.2),
                     fixedSize: Size(171, 30),
