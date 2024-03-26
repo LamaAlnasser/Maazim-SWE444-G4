@@ -417,9 +417,8 @@ class _SignUpContentState extends State<SignUpContent> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  shape: StadiumBorder(),
+                  shape: StadiumBorder(), backgroundColor: Color(0xFF9a85a4).withOpacity(0.9),
                   padding: EdgeInsets.symmetric(vertical: 16),
-                  primary: Color(0xFF9a85a4).withOpacity(0.9),
                 ),
                 child: Text(
                   'Sign up',
