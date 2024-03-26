@@ -240,9 +240,8 @@ final _formKey = GlobalKey<FormState>();
                   
                 },
                 style: ElevatedButton.styleFrom(
-                  shape: StadiumBorder(),
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  primary: Color(0xFF9a85a4).withOpacity(0.9), ),
+                  shape: StadiumBorder(), backgroundColor: Color(0xFF9a85a4).withOpacity(0.9),
+                  padding: EdgeInsets.symmetric(vertical: 10), ),
 
                 child: Text('Update Password',
                 style: TextStyle(
