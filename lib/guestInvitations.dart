@@ -376,28 +376,39 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
             },
           );
         } else {
-          return Center(child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Center the children vertically
-          children: [
-            Opacity(opacity: 0.5,
-            child: Image.asset(
-              'assets/teapot.png', // Replace with your asset image path
-              width: 300, // Set your width accordingly
-              height: 250, // Set your height accordingly
-            ),),
-            SizedBox(height: 20), // Add some space between the image and the text
-            Text(
-              "No Upcoming Invitations",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+          return Center(
+            child: Column(
+              mainAxisAlignment:
+                  MainAxisAlignment.center, // Center the children vertically
+              children: [
+                Opacity(
+                  opacity: 0.5,
+                  child: Image.asset(
+                    'assets/teapot.png', // Replace with your asset image path
+                    width: 300, // Set your width accordingly
+                    height: 250, // Set your height accordingly
+                  ),
+                ),
+                SizedBox(
+                    height:
+                        20), // Add some space between the image and the text
+                Text(
+                  "No Upcoming Invitations",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                    height:
+                        10), // Add some space between the image and the text
+                Text(
+                  "You have to be invited to an event",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 24),
+              ],
             ),
-            SizedBox(height: 10), // Add some space between the image and the text
-            Text(
-              "You have to be invited to an event",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 24), ],),);
+          );
         }
       },
     );
@@ -667,7 +678,7 @@ class _PastInvitationsState extends State<PastInvitations> {
             },
           );
         } else {
-           return Center(
+          return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -681,14 +692,14 @@ class _PastInvitationsState extends State<PastInvitations> {
                 ),
                 Text(
                   "No Past Invitaions",
-                textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 16),
                 Text(
                   "Looks like there are no invitations in the past.",
-                   textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 24),
               ],
@@ -1089,26 +1100,29 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
 
   Future<void> respondToInvitation(bool isAccepted) async {
     // Confirmation dialog
-    bool confirm = await showCupertinoDialog<bool>(
+    bool confirm = await showDialog<bool>(
           context: context,
-          builder: (BuildContext context) => CupertinoAlertDialog(
-            title: Text('Confirm Your Response'),
-            content: Text(
-                'Are you sure you want to ${isAccepted ? 'accept' : 'reject'} this invitation?'),
-            actions: <Widget>[
-              CupertinoDialogAction(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
-              ),
-              CupertinoDialogAction(
-                isDefaultAction: true,
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text(isAccepted ? 'Accept' : 'Reject'),
-              ),
-            ],
-          ),
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title:
+                  Text('Confirm\n Your Response', textAlign: TextAlign.center),
+              content: Text(
+                  'Are you sure you want to ${isAccepted ? 'accept' : 'reject'} this invitation?',
+                  textAlign: TextAlign.center),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text(isAccepted ? 'Accept' : 'Reject'),
+                ),
+              ],
+            );
+          },
         ) ??
-        false; // Handling null (tap outside the dialog or pressing cancel returns false)
+        false; // Handling null (tap outside the dialog or pressing the back button returns false)
 
     if (!confirm) return; // Exit if not confirmed
 
