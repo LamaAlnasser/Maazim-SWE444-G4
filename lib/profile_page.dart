@@ -73,7 +73,7 @@ class _ProfilePageState extends State<ProfilePage> {
       Padding(
         padding: const EdgeInsets.only(bottom: 50, top: 0), // Add space at the bottom
         child: const Text(
-          "Profile",
+          "My Profile",
           style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         ),
       ),
@@ -128,21 +128,42 @@ class _ProfilePageState extends State<ProfilePage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center, // Center buttons
                             children: [
-                              TextButton(
+                              Padding(padding: const EdgeInsets.symmetric(horizontal: 5),
+                              child: ElevatedButton(
                                 onPressed: () {
                                   Navigator.of(context).pop(false); // Return false if user chooses "No"
                                 },
+                                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 16),
+                    backgroundColor: const Color(0xFF9a85a4)
+                        .withOpacity(0.9), // Rounded corners
+                  ),
                                 child: Text(
                                   "Cancel",
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18), // Make "Cancel" bold
-                                ),
-                              ),
-                              TextButton(
+                                 style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 255, 255, 255))),
+                              ),),
+                              Padding(padding: const EdgeInsets.symmetric(horizontal: 5),
+                              child: ElevatedButton(
                                 onPressed: () {
                                   Navigator.of(context).pop(true); // Return true if user chooses "Yes"
                                 },
-                                child: Text("OK", style: TextStyle(fontSize: 16)),
-                              ),
+                                 style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 16),
+                    backgroundColor: const Color(0xFF9a85a4)
+                        .withOpacity(0.9), // Rounded corners
+                  ),
+                                child: Text("OK",  style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 255, 255, 255))),
+                              ),),
                             ],
                           ),
                         ],
