@@ -148,79 +148,133 @@ class _CreateEventPageState extends State<CreateEventPage> {
       });
   }
 
-  void _createEventAndSendInvitations() {
-    if (_formKey.currentState!.validate()) {
-      // Extract phone numbers into a list
-      List<String> phoneNumbers = _inviteesPhoneControllers
-          .map((controller) => controller.text.trim())
-          .where((number) => number.isNotEmpty)
-          .toList();
+  void _createEventAndSendInvitations() async {
+  if (_formKey.currentState!.validate()) {
+    final DateTime selectedDateTime = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+      _selectedTime.hour,
+      _selectedTime.minute,
+    );
 
-      // Create a set from the list to identify duplicates
-      final phoneNumbersSet = phoneNumbers.toSet();
+    // Check if there is any conflict with an existing event
+    bool isEventConflict = await _checkEventConflict(selectedDateTime);
 
-      if (phoneNumbersSet.length != phoneNumbers.length) {
-        // There are duplicates, show an error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Duplicate phone numbers are not allowed.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return; // Stop further execution
-      }
+    if (isEventConflict) {
+      // Show AlertDialog for event conflict
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              'Event Conflict',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            content:
+                Text('An event already exists at the selected date and time.'),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 16),
+                    backgroundColor: const Color(0xFF9a85a4)
+                        .withOpacity(0.9), // Rounded corners
+                  ),
+                  child: const Text('OK',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 255, 255, 255))),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
 
-      String eventLocation = _eventLocationController.text;
-      bool isValidLocation = _isValidLocation(eventLocation);
-      if (!isValidLocation) {
-        // Show error message or handle invalid location format
-        return;
-      }
+    // No conflicts found, proceed with event creation
+    List<String> phoneNumbers = _inviteesPhoneControllers
+        .map((controller) => controller.text.trim())
+        .where((number) => number.isNotEmpty)
+        .toList();
+    final phoneNumbersSet = phoneNumbers.toSet();
 
-      // Get the current user
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        String userId = user.uid;
+    if (phoneNumbersSet.length != phoneNumbers.length) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Duplicate phone numbers are not allowed.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
-        // Create an Event object
-        Event event = Event(
-            eventName: _eventNameController.text,
-            address: _eventAddressController.text,
-            eventLocation: _eventLocationController.text,
-            eventType: _eventTypeController.text,
-            eventDate: _selectedDate,
-            eventTime: _selectedTime,
-            inviterName: _inviterNameController.text,
-            numberOfInvitees: int.parse(_numberOfInviteesController.text),
-            inviteesPhoneNumbers: phoneNumbers,
-            duration: _eventDuration);
+    String eventLocation = _eventLocationController.text;
+    bool isValidLocation = _isValidLocation(eventLocation);
+    if (!isValidLocation) {
+      return;
+    }
 
-        // Save the event data to Firestore
-        FirebaseFirestore.instance.collection('events').add({
-          'userId': userId,
-          'eventName': event.eventName,
-          'address': event.address, // Now saving address
-          'eventLocation': event.eventLocation,
-          'eventType': event.eventType,
-          'eventDateTime': Timestamp.fromDate(DateTime(
-              event.eventDate.year,
-              event.eventDate.month,
-              event.eventDate.day,
-              event.eventTime.hour,
-              event.eventTime.minute)),
-          'inviterName': event.inviterName,
-          'numberOfInvitees': event.numberOfInvitees,
-          'inviteesPhoneNumbers': event.inviteesPhoneNumbers,
-          'duration': event.duration,
-          'acceptedInvitees': [], // Initialize as empty list
-          'rejectedInvitees': [], // Initialize as empty list
-        }).then((value) {
-          _sendSMSInvitations(phoneNumbers);
-          _onEventCreatedSuccessfully();
-        }).catchError((error) {});
-      }
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String userId = user.uid;
+
+      Event event = Event(
+        eventName: _eventNameController.text,
+        address: _eventAddressController.text,
+        eventLocation: _eventLocationController.text,
+        eventType: _eventTypeController.text,
+        eventDate: _selectedDate,
+        eventTime: _selectedTime,
+        inviterName: _inviterNameController.text,
+        numberOfInvitees: int.parse(_numberOfInviteesController.text),
+        inviteesPhoneNumbers: phoneNumbers,
+        duration: _eventDuration,
+      );
+      FirebaseFirestore.instance.collection('events').add({
+        'userId': userId,
+        'eventName': event.eventName,
+        'address': event.address, // Now saving address
+        'eventLocation': event.eventLocation,
+        'eventType': event.eventType,
+        'eventDateTime': Timestamp.fromDate(DateTime(
+          event.eventDate.year,
+          event.eventDate.month,
+          event.eventDate.day,
+          event.eventTime.hour,
+          event.eventTime.minute,
+        )),
+        'inviterName': event.inviterName,
+        'numberOfInvitees': event.numberOfInvitees,
+        'inviteesPhoneNumbers': event.inviteesPhoneNumbers,
+        'duration': event.duration,
+        'acceptedInvitees': [], // Initialize as empty list
+        'rejectedInvitees': [], // Initialize as empty list
+      }).then((value) {
+        _sendSMSInvitations(phoneNumbers);
+        _onEventCreatedSuccessfully();
+      }).catchError((error) {});
     }
   }
+}
+
+Future<bool> _checkEventConflict(DateTime selectedDateTime) async {
+  final QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
+      .collection('events')
+      .where('eventDateTime', isEqualTo: Timestamp.fromDate(selectedDateTime))
+      .get();
+  return snapshot.docs.isNotEmpty;
+}
+
 
   // Assuming this function is called after successfully creating an event
   void _onEventCreatedSuccessfully() {
