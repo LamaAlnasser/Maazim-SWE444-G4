@@ -108,7 +108,7 @@ class guestProfilePageState extends State<guestProfilePage> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Center(child: Text("Logout")),
+                      title: Center(child: Text("Logout", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),)),
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
