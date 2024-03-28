@@ -119,7 +119,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Center(child: Text("Logout")), // Centered title
+                      title: Center(child: Text("Logout", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),)), // Centered title
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
