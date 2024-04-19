@@ -210,35 +210,49 @@ final _formKey = GlobalKey<FormState>();
               
              child:  ElevatedButton(
                 
+          onPressed: () {
+  if (_formKey.currentState!.validate()) {
+    // Validation passed, proceed with password update
+    FirebaseAuth.instance.currentUser?.updatePassword(newPasswordController.text).then((_) {
+      // Password update successful
+      setState(() {
+        errorMessage = null;
+      });
+
+      // Show success AlertDialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Success",textAlign: TextAlign.center,),
+            content: Text(
+              "Password updated successfully!",
+              style: TextStyle(fontSize: 17),
+              textAlign: TextAlign.center,
+            ),
+            actions: <Widget>[
+             SizedBox(height: 10,),
+             Center(
+              child:TextButton(
+                child: Text("OK"),
                 onPressed: () {
-                  
-                  if (_formKey.currentState!.validate()) {
-                    // Validation passed, proceed with password update
-                    FirebaseAuth.instance.currentUser?.updatePassword(newPasswordController.text).then((_) {
-                      // Password update successful
-                      setState(() {
-                        errorMessage = null;
-                      });
-                      // Show success message or navigate to another page
-                        ScaffoldMessenger.of(context).showSnackBar(
-  SnackBar(
-    content: DefaultTextStyle(
-      style: TextStyle(fontSize: 18), // Adjust the font size here
-      child: Text('Password updated successfully.'),
-    ),
-    duration: Duration(seconds: 5),
-  ),
-);
-                        
-                    }).catchError((error) {
-                      // Password update failed
-                      setState(() {
-                        errorMessage = error.toString();
-                      });
-                    });
-                  }
-                  
+                  Navigator.of(context).pop(); // Close the dialog
                 },
+              ),
+             ),
+            ],
+          );
+        },
+      );
+    }).catchError((error) {
+      // Password update failed
+      setState(() {
+        errorMessage = error.toString();
+      });
+    });
+  }
+},
+
                 style: ElevatedButton.styleFrom(
                   shape: StadiumBorder(), backgroundColor: Color(0xFF9a85a4).withOpacity(0.9),
                   padding: EdgeInsets.symmetric(vertical: 10), ),

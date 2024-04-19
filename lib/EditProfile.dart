@@ -59,61 +59,103 @@ class _EditProfileState extends State<EditProfile> {
     }
   }
 
+
   void updateProfile() async {
-      if (_formKey.currentState!.validate()) {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        Map<String, dynamic> updatedFields = {};
+  if (_formKey.currentState!.validate()) {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      Map<String, dynamic> updatedFields = {};
 
-        if (firstName != firstNameController.text) {
-          updatedFields['firstName'] = firstNameController.text;
-        }
+      if (firstName != firstNameController.text) {
+        updatedFields['firstName'] = firstNameController.text;
+      }
 
-        if (lastName != lastNameController.text) {
-          updatedFields['lastName'] = lastNameController.text;
-        }
+      if (lastName != lastNameController.text) {
+        updatedFields['lastName'] = lastNameController.text;
+      }
 
-        if (email != emailController.text) {
-          updatedFields['email'] = emailController.text;
-        }
+      if (email != emailController.text) {
+        updatedFields['email'] = emailController.text;
+      }
 
-        if (updatedFields.isNotEmpty) {
-          await FirebaseFirestore.instance.collection('users').doc(user.uid).update(updatedFields);
+      if (updatedFields.isNotEmpty) {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).update(updatedFields);
 
-          setState(() {
-            if (updatedFields.containsKey('firstName')) {
-              firstName = updatedFields['firstName']!;
-            }
-            if (updatedFields.containsKey('lastName')) {
-              lastName = updatedFields['lastName']!;
-            }
-            if (updatedFields.containsKey('email')) {
-              email = updatedFields['email']!;
-            }
-          });
+        setState(() {
+          if (updatedFields.containsKey('firstName')) {
+            firstName = updatedFields['firstName']!;
+          }
+          if (updatedFields.containsKey('lastName')) {
+            lastName = updatedFields['lastName']!;
+          }
+          if (updatedFields.containsKey('email')) {
+            email = updatedFields['email']!;
+          }
+        });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
+        // Show dialog for success
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Success", textAlign: TextAlign.center,),
+              
+              
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(height: 10),
+             Text(
                 "Profile updated successfully!",
-                style: TextStyle(fontSize: 20.0),
+                style: TextStyle(fontSize: 17.0),
+                 textAlign: TextAlign.center,
               ),
-             duration: Duration(seconds: 3), 
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+        ],
+              ),
+              
+              actions: <Widget>[
+                Center(child: 
+                TextButton(
+                  child: Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                
+                ),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // Show dialog for no changes
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(""),
               content: Text(
                 "No changes were made.",
                 style: TextStyle(fontSize: 20.0),
               ),
-            ),
-          );
-        }
+              actions: <Widget>[
+                Center(
+                child: TextButton(
+                  child: Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                ),
+                ),
+              ],
+            );
+          },
+        );
       }
     }
   }
+}
   @override
   Widget build(BuildContext context) {
       return Scaffold(
