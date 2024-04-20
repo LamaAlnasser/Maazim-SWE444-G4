@@ -5,8 +5,6 @@ import 'package:maazim/Home_Host.dart';
 import 'package:maazim/logIn.dart';
 import 'package:maazim/ChangePass.dart';
 
-
-
 class EditProfile extends StatefulWidget {
   const EditProfile({Key? key}) : super(key: key);
 
@@ -19,7 +17,6 @@ class _EditProfileState extends State<EditProfile> {
   late TextEditingController lastNameController;
   late TextEditingController emailController;
   late TextEditingController phoneNumberController;
-  
 
   String firstName = "";
   String lastName = "";
@@ -39,7 +36,7 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   void fetchUserProfile() async {
-       User? user = FirebaseAuth.instance.currentUser;
+    User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       DocumentSnapshot doc = await FirebaseFirestore.instance
           .collection('users')
@@ -60,7 +57,7 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   void updateProfile() async {
-      if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate()) {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         Map<String, dynamic> updatedFields = {};
@@ -78,7 +75,10 @@ class _EditProfileState extends State<EditProfile> {
         }
 
         if (updatedFields.isNotEmpty) {
-          await FirebaseFirestore.instance.collection('users').doc(user.uid).update(updatedFields);
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .update(updatedFields);
 
           setState(() {
             if (updatedFields.containsKey('firstName')) {
@@ -92,70 +92,92 @@ class _EditProfileState extends State<EditProfile> {
             }
           });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                "Profile updated successfully!",
-                style: TextStyle(fontSize: 20.0),
-              ),
-             duration: Duration(seconds: 3), 
-            ),
+          // Show dialog for success
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Success"),
+                content: Text(
+                  "Profile updated successfully!",
+                  style: TextStyle(fontSize: 20.0),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text("OK"),
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                  ),
+                ],
+              );
+            },
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                "No changes were made.",
-                style: TextStyle(fontSize: 20.0),
-              ),
-            ),
+          // Show dialog for no changes
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Notice"),
+                content: Text(
+                  "No changes were made.",
+                  style: TextStyle(fontSize: 20.0),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text("OK"),
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                  ),
+                ],
+              );
+            },
           );
         }
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
-      return Scaffold(
+    return Scaffold(
       appBar: AppBar(
-  title: Padding(
-    padding: const EdgeInsets.fromLTRB(
-                        0, 0, 0, 0),
-    child: Row(
-      mainAxisSize: MainAxisSize.min, // Use this to make sure the children of the Row are at the center.
-      children: [
-        Image.asset(
-          'assets/Logo.PNG', // Replace 'your_image.png' with your image asset path
-          height: 30, // Adjust the height as needed
+        title: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+          child: Row(
+            mainAxisSize: MainAxisSize
+                .min, // Use this to make sure the children of the Row are at the center.
+            children: [
+              Image.asset(
+                'assets/Logo.PNG', // Replace 'your_image.png' with your image asset path
+                height: 30, // Adjust the height as needed
+              ),
+              const SizedBox(
+                  width: 8), // Add some space between the image and the title
+              const Text(
+                'Maazim',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(width: 8), // Add some space between the image and the title
-        const Text(
-          'Maazim',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ],
-    ),
-  ),
-  centerTitle: true,
-  elevation: 0,
-),
-
- 
-
-     body: SingleChildScrollView(
-        padding:const EdgeInsets.all(24.0),
-         child: Form(
+        centerTitle: true,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-
-   
-          children: [
-            const Text(
-                      "Edit Profile",
-                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 20),
+            children: [
+              const Text(
+                "Edit Profile",
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
 
               Row(
                 children: [
@@ -170,14 +192,16 @@ class _EditProfileState extends State<EditProfile> {
                           if (value == null || value.isEmpty) {
                             return 'Required First Name.';
                           }
-                          if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$').hasMatch(value)) {
+                          if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$')
+                              .hasMatch(value)) {
                             return 'Note: only letters.';
                           }
                           return null;
                         },
                         decoration: InputDecoration(
                           labelText: "First Name",
-                          labelStyle: TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                          labelStyle:
+                              TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
                           errorStyle: TextStyle(fontSize: 10),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
@@ -205,7 +229,6 @@ class _EditProfileState extends State<EditProfile> {
                           ),
                           prefixIcon: Icon(Icons.person),
                         ),
-                      
                       ),
                     ),
                   ),
@@ -221,14 +244,16 @@ class _EditProfileState extends State<EditProfile> {
                           if (value == null || value.isEmpty) {
                             return 'Required Last Name.';
                           }
-                          if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$').hasMatch(value)) {
+                          if (!RegExp(r'^[a-zA-Z\u0621-\u064A]+$')
+                              .hasMatch(value)) {
                             return 'Note: only letters.';
                           }
                           return null;
                         },
                         decoration: InputDecoration(
                           labelText: "Last Name",
-                          labelStyle: TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                          labelStyle:
+                              TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
                           errorStyle: TextStyle(fontSize: 10),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
@@ -266,147 +291,130 @@ class _EditProfileState extends State<EditProfile> {
               ),
               SizedBox(height: 20),
               Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-              ),
-
-              child: TextFormField(
-                controller: emailController,
-                cursorColor: Color(0xFF9a85a4),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Required email.';
-                  }
-                  // Check if the entered value is a valid email address
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                      .hasMatch(value)) {
-                    return 'Please enter a valid email address.';
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  labelStyle: TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
-                  errorStyle: TextStyle(fontSize: 10),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: Color(0xFF9a85a4).withOpacity(0.1),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide(
-                      color: Color(0xFF9a85a4).withOpacity(0.6),
-                    ),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide(color: Colors.red),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide(color: Colors.red),
-                  ),
-                  prefixIcon: Icon(Icons.email),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
                 ),
-                onChanged: (value) {
-                  // Handle state update here if needed
-                },
-              ),
-              ),
-                  SizedBox(height: 20),
-                  
-
-                   
-     
-                  Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-              ),
-                 child: TextFormField(
-                
-                controller: phoneNumberController,
-                cursorColor: Color(0xFF9a85a4),
-                enabled: false,
-                decoration: InputDecoration(
-                  labelText: 'Phone number',
-                  labelStyle: TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
-                  errorStyle: TextStyle(fontSize: 10),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
-                 
-                  filled: true,
-                  
-                  fillColor: Color(0xFF9a85a4).withOpacity(0.1),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide(
-                      color: Color(0xFF9a85a4).withOpacity(0.6),
+                child: TextFormField(
+                  controller: emailController,
+                  cursorColor: Color(0xFF9a85a4),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Required email.';
+                    }
+                    // Check if the entered value is a valid email address
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                        .hasMatch(value)) {
+                      return 'Please enter a valid email address.';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    labelStyle:
+                        TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                    errorStyle: TextStyle(fontSize: 10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
                     ),
+                    filled: true,
+                    fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(
+                        color: Color(0xFF9a85a4).withOpacity(0.6),
+                      ),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                    prefixIcon: Icon(Icons.email),
                   ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide(color: Colors.red),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide(color: Colors.red),
-                  ),
-                  prefixIcon: Icon(Icons.phone),
-                  
+                  onChanged: (value) {
+                    // Handle state update here if needed
+                  },
                 ),
-               
               ),
-            
-                   ),
-                
-                SizedBox(height: 20),
+              SizedBox(height: 20),
+
               Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 70),
-     child:  ElevatedButton(
-              onPressed: updateProfile,
-              style: ElevatedButton.styleFrom(
-                 shape: const StadiumBorder(),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: const Color(0xFF9a85a4).withOpacity(0.9),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                ),
+                child: TextFormField(
+                  controller: phoneNumberController,
+                  cursorColor: Color(0xFF9a85a4),
+                  enabled: false,
+                  decoration: InputDecoration(
+                    labelText: 'Phone number',
+                    labelStyle:
+                        TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                    errorStyle: TextStyle(fontSize: 10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(
+                        color: Color(0xFF9a85a4).withOpacity(0.6),
+                      ),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                    prefixIcon: Icon(Icons.phone),
+                  ),
+                ),
               ),
-                
-                child: const Text('Update', style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),),
-      ),
+
+              SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 70),
+                child: ElevatedButton(
+                  onPressed: updateProfile,
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: const Color(0xFF9a85a4).withOpacity(0.9),
+                  ),
+                  child: const Text(
+                    'Update',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
 
-     SizedBox(height: 0), // Add some space between the buttons
-
-
-
-
-           
+              SizedBox(height: 0), // Add some space between the buttons
             ],
-          
           ),
-          
         ),
-        
-        
       ),
-      
     );
-    
   }
 
   @override
@@ -417,5 +425,4 @@ class _EditProfileState extends State<EditProfile> {
     phoneNumberController.dispose();
     super.dispose();
   }
-  
 }
