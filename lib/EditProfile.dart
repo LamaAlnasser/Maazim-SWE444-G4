@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:maazim/Home_Host.dart';
 import 'package:maazim/logIn.dart';
 import 'package:maazim/ChangePass.dart';
+import 'package:maazim/main.dart';
+import 'package:flutter/material.dart';
 
 
 
@@ -413,6 +415,8 @@ class _EditProfileState extends State<EditProfile> {
             
                    ),
                 
+
+                
                 SizedBox(height: 20),
               Padding(
   padding: const EdgeInsets.symmetric(horizontal: 70),
@@ -432,13 +436,28 @@ class _EditProfileState extends State<EditProfile> {
       ),
               ),
 
-     SizedBox(height: 0), // Add some space between the buttons
+     SizedBox(height: 200), // Add some space between the buttons
 
-
-
-
+          
+ElevatedButton(
+  onPressed: deleteAccount,
+  style: ElevatedButton.styleFrom(
+    shape: const StadiumBorder(),
+    padding: const EdgeInsets.symmetric(vertical: 16),
+    //backgroundColor: Colors.red, // Change color to red for emphasis
+  ),
+  child: const Text(
+    'Delete Account',
+    style: TextStyle(
+      fontSize: 20,
+      color: Color(0xFF9a85a4),
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+), 
            
             ],
+            
           
           ),
           
@@ -446,10 +465,170 @@ class _EditProfileState extends State<EditProfile> {
         
         
       ),
-      
+ 
     );
     
   }
+/*
+  void deleteAccount() async {
+  // Show a confirmation dialog
+  bool confirmDelete = await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+ Stack(
+    alignment: Alignment.center,
+    children: [
+      Icon(
+        Icons.circle,
+        color: Colors.red.withOpacity(0.2),
+        size: 40,
+      ),
+      Text(
+        "!",
+        style: TextStyle(
+          color: Colors.red,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ],
+  ), const SizedBox(width: 8), // Add some space between the image and the title
+            Text(
+              'Delete Account',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+
+        content: Text("Are you sure you want to delete your account? This action cannot be undone."),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false); // Return false to cancel deletion
+            },
+            style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 16),
+                    backgroundColor: const Color(0xFF9a85a4)
+                        .withOpacity(0.9), // Rounded corners
+              ),
+            child: Text("Cancel",
+             style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 255, 255, 255))),
+          ),
+
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true); // Return true to confirm deletion
+            }, 
+              style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 16),
+                    backgroundColor: Colors.red
+                        .withOpacity(0.9), // Rounded corners
+              ),
+            child: Text("Delete", 
+             style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 255, 255, 255))),
+          ),
+        ],
+      );
+    },
+  );
+
+  
+
+  // If deletion is confirmed, proceed to delete the account
+  if (confirmDelete == true) {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Delete user document from Firestore
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
+
+      // Delete user from Firebase Authentication
+      await user.delete();
+
+      // Navigate to login screen after successful deletion
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => WelcomePage()), // Replace LogIn() with your login screen widget
+        (Route<dynamic> route) => false, // Prevent going back to previous screens
+      );
+    }
+  }
+}*/
+
+Future<void> deleteAccount() async {
+  try {
+    // Get the currently signed-in user
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // Check if the user's authentication state is recent
+      await user.reload();
+      user = FirebaseAuth.instance.currentUser; // Refresh user data
+
+      if (user != null && user.metadata.creationTime != null && user.metadata.lastSignInTime != null &&
+          user.metadata.lastSignInTime!.millisecondsSinceEpoch > user.metadata.creationTime!.millisecondsSinceEpoch) {
+        // User's authentication state is recent, proceed with account deletion
+
+        // Confirm deletion
+        bool confirmation = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Confirm Deletion"),
+              content: Text("Are you sure you want to delete your account? This action cannot be undone."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false); // Dismiss dialog and return false
+                  },
+                  child: Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true); // Dismiss dialog and return true
+                  },
+                  child: Text("Delete"),
+                ),
+              ],
+            );
+          },
+        );
+
+        // If user confirmed deletion
+        if (confirmation) {
+          // Delete the user's account
+          await user.delete();
+          print("Account deleted successfully.");
+
+          // Redirect to the login page
+          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LogIn())); // Replace LoginPage with your login page widget
+        }
+      } else {
+        // User's authentication state is not recent, prompt them to sign in again
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Please sign in again to delete your account."),
+        ));
+      }
+    }
+  } catch (error) {
+    print("Error deleting account: $error");
+    // Display an error message to the user
+  }
+}
+
 
   @override
   void dispose() {
@@ -461,3 +640,4 @@ class _EditProfileState extends State<EditProfile> {
   }
   
 }
+
