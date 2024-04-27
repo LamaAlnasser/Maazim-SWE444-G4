@@ -436,22 +436,30 @@ class _EditProfileState extends State<EditProfile> {
       ),
               ),
 
-     SizedBox(height: 200), // Add some space between the buttons
+     SizedBox(height: 225), // Add some space between the buttons
+     Center(
+     child: Text("_______________________________",
+     style: TextStyle(
+      fontSize: 18,
+      color:  const Color(0xFF9a85a4).withOpacity(0.8),
+      fontWeight: FontWeight.bold,
+    ),),
+    ),
 
           
-ElevatedButton(
+TextButton(
   onPressed: deleteAccount,
   style: ElevatedButton.styleFrom(
     shape: const StadiumBorder(),
     padding: const EdgeInsets.symmetric(vertical: 16),
     //backgroundColor: Colors.red, // Change color to red for emphasis
   ),
-  child: const Text(
+  child: Text(
     'Delete Account',
     style: TextStyle(
-      fontSize: 20,
-      color: Color(0xFF9a85a4),
-      fontWeight: FontWeight.bold,
+      fontSize: 18,
+       color:  const Color(0xFF9a85a4).withOpacity(0.8),
+      fontWeight: FontWeight.normal,
     ),
   ),
 ), 
@@ -469,7 +477,7 @@ ElevatedButton(
     );
     
   }
-/*
+  /*
   void deleteAccount() async {
   // Show a confirmation dialog
   bool confirmDelete = await showDialog(
@@ -568,66 +576,261 @@ ElevatedButton(
   }
 }*/
 
-Future<void> deleteAccount() async {
-  try {
-    // Get the currently signed-in user
-    User? user = FirebaseAuth.instance.currentUser;
+void deleteAccount() async {
+  String? errorMessage;
+  String? passwordErrorMessage;
 
-    if (user != null) {
-      // Check if the user's authentication state is recent
-      await user.reload();
-      user = FirebaseAuth.instance.currentUser; // Refresh user data
-
-      if (user != null && user.metadata.creationTime != null && user.metadata.lastSignInTime != null &&
-          user.metadata.lastSignInTime!.millisecondsSinceEpoch > user.metadata.creationTime!.millisecondsSinceEpoch) {
-        // User's authentication state is recent, proceed with account deletion
-
-        // Confirm deletion
-        bool confirmation = await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text("Confirm Deletion"),
-              content: Text("Are you sure you want to delete your account? This action cannot be undone."),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(false); // Dismiss dialog and return false
-                  },
-                  child: Text("Cancel"),
+  // Show a confirmation dialog
+  bool confirmDelete = await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(
+                  Icons.circle,
+                  color: Colors.red.withOpacity(0.2),
+                  size: 40,
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(true); // Dismiss dialog and return true
-                  },
-                  child: Text("Delete"),
+                Text(
+                  "!",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
+            ),
+            const SizedBox(width: 8), // Add some space between the image and the title
+            Text(
+              'Delete Account',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Text("Are you sure you want to delete your account? This action cannot be undone."),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false); // Return false to cancel deletion
+            },
+            style: ElevatedButton.styleFrom(
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              backgroundColor: const Color(0xFF9a85a4).withOpacity(0.9), // Rounded corners
+            ),
+            child: Text(
+              "Cancel",
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 255, 255, 255),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop(true); // Return true to confirm deletion
+            },
+            style: ElevatedButton.styleFrom(
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              backgroundColor: Colors.red.withOpacity(0.9), // Rounded corners
+            ),
+            child: Text(
+              "Delete",
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 255, 255, 255),
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+
+  // If deletion is confirmed, proceed to delete the account
+  if (confirmDelete == true) {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String? password; // Password entered by the user
+
+      if (password == null) {
+        // Prompt user to enter password
+        password = await _showPasswordInputDialog(context, passwordErrorMessage);
+      }
+
+      if (password != null) {
+        try {
+          // Reauthenticate the user
+          String? email = user.email;
+          if (email != null) {
+            AuthCredential credential = EmailAuthProvider.credential(email: email, password: password);
+            await user.reauthenticateWithCredential(credential);
+
+            // Delete user document from Firestore
+            await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
+
+            // Delete user from Firebase Authentication
+            await user.delete();
+
+            // Navigate to welcome page after successful deletion
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => WelcomePage()), // Replace WelcomePage() with your welcome screen widget
+              (Route<dynamic> route) => false, // Prevent going back to previous screens
             );
-          },
-        );
-
-        // If user confirmed deletion
-        if (confirmation) {
-          // Delete the user's account
-          await user.delete();
-          print("Account deleted successfully.");
-
-          // Redirect to the login page
-          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LogIn())); // Replace LoginPage with your login page widget
+          } else {
+            // Handle case where email is null
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Failed to delete account. Please try again later."),
+            ));
+          }
+        } on FirebaseAuthException catch (error) {
+          // Check if the error is due to an invalid password
+          setState(() {
+            passwordErrorMessage = "Incorrect password. Please try again.";
+          });
+        } catch (error) {
+          print("Error: $error");
         }
-      } else {
-        // User's authentication state is not recent, prompt them to sign in again
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Please sign in again to delete your account."),
-        ));
       }
     }
-  } catch (error) {
-    print("Error deleting account: $error");
-    // Display an error message to the user
   }
 }
+
+Future<String?> _showPasswordInputDialog(BuildContext context, String? errorMessage) async {
+  bool obscureCurrentPassword = true; // Set initial state for password visibility
+
+  TextEditingController passwordController = TextEditingController();
+  return await showDialog<String?>(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text(
+              "Enter Password",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  cursorColor: Color(0xFF9a85a4),
+                  controller: passwordController,
+                  obscureText: obscureCurrentPassword,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                    errorStyle: TextStyle(fontSize: 10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(
+                        color: Color(0xFF9a85a4).withOpacity(0.6),
+                      ),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          obscureCurrentPassword = !obscureCurrentPassword;
+                        });
+                      },
+                      icon: Icon(
+                        obscureCurrentPassword ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+                if (errorMessage != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      errorMessage?? "",
+                      style: TextStyle(color: Colors.red, fontSize: 12),
+                    ),
+                  ),
+              ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(null); // Return null to indicate cancellation
+                },
+              style: ElevatedButton.styleFrom(
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              backgroundColor: const Color(0xFF9a85a4).withOpacity(0.9), // Rounded corners
+              ),
+                child: Text("Cancel",
+                              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 255, 255, 255),
+              ),
+              ),
+              ),
+              TextButton(
+                onPressed: () async {
+                  String password = passwordController.text;
+                  if (password.isEmpty) {
+                    // Show error message if password field is empty
+                    setState(() {
+                      errorMessage = "Password cannot be empty.";
+                    });
+                  } else {
+                    Navigator.of(context).pop(password); // Return entered password
+                  }
+                },
+                  style: ElevatedButton.styleFrom(
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              backgroundColor: const Color(0xFF9a85a4).withOpacity(0.9), // Rounded corners
+              ),
+                child: Text("Confirm",              
+                style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 255, 255, 255),
+              ),
+              ),
+      
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
 
 
   @override
