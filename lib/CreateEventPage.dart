@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_sms/flutter_sms.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:fluttercontactpicker/fluttercontactpicker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Event {
   final String eventName;
