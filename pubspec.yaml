@@ -49,6 +49,7 @@ dependencies:
   motion_tab_bar: ^2.0.4
   flutter_sms: ^2.3.3
   qr_flutter: ^4.1.0
+  fluttercontactpicker: ^4.7.0
 
   
 
