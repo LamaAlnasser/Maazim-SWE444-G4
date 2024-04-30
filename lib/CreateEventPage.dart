@@ -6,6 +6,14 @@ import 'package:maazim/Home_Host.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_sms/flutter_sms.dart';
 import 'package:country_picker/country_picker.dart';
+import 'CoordinatorCredentialsGenerator.dart';
+import 'package:intl/intl.dart';
+
+
+//Emailing the host
+//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
+import 'package:sendgrid_mailer/sendgrid_mailer.dart';
+
 
 class Event {
   final String eventName;
@@ -259,13 +267,64 @@ class _CreateEventPageState extends State<CreateEventPage> {
         'duration': event.duration,
         'acceptedInvitees': [], // Initialize as empty list
         'rejectedInvitees': [], // Initialize as empty list
-      }).then((value) {
+      }).then((docRef) async {
+        // After the event document is successfully added, generate credentials
+      CoordinatorCredentialsGenerator generator = CoordinatorCredentialsGenerator();
+      Map<String, String> credentials = generator.generateCredentials(_eventNameController.text, docRef.id);
+        
+      // Store the credentials in the 'coordinators' collection
+      await FirebaseFirestore.instance.collection('coordinators').doc(docRef.id).set({
+        'eventId': docRef.id,
+        'CoordinatorUsername': credentials['username'],
+        'hashedPassword': credentials['hashedPassword'],
+         'Email': credentials['email'], 
+        
+      });
+      
+             User? user = FirebaseAuth.instance.currentUser;
+            String userEmail = user?.email ?? 'No email found';
+            
+            String coordinatorEmail= credentials['email'] ?? '';// Provide a default value
+            String coordinatorPassword = credentials['password'] ?? ''; // Provide a default value
+
+
+            // Coordinator credentials saved, now send the email
+            sendEmailConfirmation(
+              toEmail: userEmail, // Retrieved from the FirebaseAuth user object
+              eventName: _eventNameController.text,
+              eventAddress: _eventAddressController.text,
+              eventDateTime: _selectedDate.add(Duration(
+                  hours: _selectedTime.hour,
+                  minutes: _selectedTime
+                      .minute)), // Converts selected date and time into a DateTime
+              eventType: _eventTypeController.text,
+              inviterName: _inviterNameController.text,
+              numberOfInvitees:
+                  int.tryParse(_numberOfInviteesController.text) ??
+                      0, // Parses the number of invitees safely
+              eventDuration:
+                  _eventDuration, // Already an integer, no need to convert to string
+              coordinatorEmail:coordinatorEmail,
+                  // Generated username for the coordinator
+              coordinatorPassword:coordinatorPassword,
+                  // Generated password for the coordinator
+            );
+       
+     
+
+        
+
         _sendSMSInvitations(phoneNumbers);
         _onEventCreatedSuccessfully();
-      }).catchError((error) {});
+     }).catchError((error) {});
+
     }
   }
+
+  
 }
+
+
 
 Future<bool> _checkEventConflict(DateTime selectedDateTime) async {
   final QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
@@ -310,6 +369,59 @@ Future<bool> _checkEventConflict(DateTime selectedDateTime) async {
         link.startsWith('https://maps.app.goo.gl/');
   }
 
+Future<void> sendEmailConfirmation({
+    required String toEmail,
+    required String eventName,
+    required String eventAddress,
+    required DateTime eventDateTime,
+    required String eventType,
+    required String inviterName,
+    required int numberOfInvitees,
+    required int eventDuration,
+    required String coordinatorEmail,
+    required String coordinatorPassword,
+  }) async {
+    try {
+      final mailer = Mailer(
+          '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');
+      final toAddress = Address(toEmail);
+      final fromAddress = Address(
+          'MaazimTeam@outlook.com'); // Use your verified sender email here
+      final dateFormat = DateFormat('EEEE, MMMM d, yyyy');
+      final timeFormat = DateFormat('h:mm a');
+      final eventDate = dateFormat.format(eventDateTime);
+      final eventTime = timeFormat.format(eventDateTime);
+
+      final subject = 'Confirmation for "$eventName" Event';
+      final content = Content(
+          'text/plain',
+          'Dear $inviterName,\n\n'
+              'Great news - your event "$eventName" is all set to go! Below you\'ll find the key details for your event:\n\n'
+              'Event Type: $eventType\n'
+              'Date: $eventDate\n'
+              'Time: $eventTime\n'
+              'Duration: $eventDuration hour(s)\n'
+              'Location: $eventAddress\n'
+              'Guests: $numberOfInvitees attendees expected\n\n'
+              'Coordinator Access\n'
+              'To ensure smooth management of your event, please provide your entry coordinator with the credentials below:\n\n'
+              'Email: $coordinatorEmail\n'
+              'Password: $coordinatorPassword\n\n'
+              'We\'re excited to be a part of your special day and look forward to helping you create memorable experiences.\n\n'
+              'Warm regards,\n'
+              'The Maazim Team');
+
+      final personalization = Personalization([toAddress]);
+      final email =
+          Email([personalization], fromAddress, subject, content: [content]);
+
+      final response = await mailer.send(email);
+      //print("Email sent: ${response.message}");
+    } catch (e) {
+      print("Failed to send email: $e");
+    }
+  }
+
   void _sendSMSInvitations(List<String> phoneNumbers) {
     String message = "You're invited to ${_eventNameController.text} on "
         "${_selectedDate.toIso8601String()}. \n Please visit the Maazim application to accept or reject (RSVP) the invitation";
@@ -319,6 +431,8 @@ Future<bool> _checkEventConflict(DateTime selectedDateTime) async {
       // );
     });
   }
+
+
 
   Widget _buildPhoneNumberField(int index) {
     return Padding(

@@ -6,6 +6,12 @@ import 'package:maazim/layout.dart';
 import 'package:maazim/guestLogIn.dart';
 import 'package:maazim/main.dart';
 import 'package:maazim/signUp.dart';
+import 'package:maazim/entryCoordinatorPage.dart';
+import 'package:crypto/crypto.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+
+
 
 class LogIn extends StatelessWidget {
   const LogIn({Key? key}) : super(key: key);
@@ -33,52 +39,116 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _errorMessage;
 
   Future<void> _login(BuildContext context) async {
-    try {
-      setState(() {
-        _errorMessage = null;
-        
-      });
+  try {
+    setState(() {
+      _errorMessage = null;
+    });
 
-      if (_formKey.currentState != null && _formKey.currentState!.validate()) {
-        final email = _emailController.text.trim();
-        final password = _passwordController.text.trim();
-        if (email.isNotEmpty && password.isNotEmpty) {
+    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+
+      if (email.isNotEmpty && password.isNotEmpty) {
+        // Check if it's an entry coordinator
+        if (email.toLowerCase().endsWith('@maazim.com')) {
+          bool isValid = await verifyEntryCoordinator(email, password);
+          if (isValid) {
+            // Fetch coordinator username from database
+            String coordinatorUsername = await fetchCoordinatorUsername(email);
+            // Redirect to entry coordinator page
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => entryCoordinatorPage(coordinatorUsername: coordinatorUsername)),
+            );
+          } else {
+            // Invalid credentials for entry coordinator
+            setState(() {
+              _errorMessage = 'You have entered wrong email/password, please try again.';
+            });
+          }
+        } else {
+          // Host login process
           await FirebaseAuth.instance.signInWithEmailAndPassword(
             email: email,
             password: password,
           );
 
-          // Check if user is authenticated
           if (FirebaseAuth.instance.currentUser != null) {
+            // Redirect to host's home page
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => homePage()),
             );
           } else {
-            // Handle case where user is not authenticated
+            // User is not authenticated
             setState(() {
               _errorMessage = 'You have entered wrong email/password, please try again.';
             });
           }
-        } /*else {
-          // Handle case where email or password is empty
-          setState(() {
-            _errorMessage = 'Please enter email and password.';
-          });
-        }*/
-      }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'invalid-credential') {
-        setState(() {
-          _errorMessage = 'You have entered wrong email/password, please try again.';
-        });
-      } else {
-        setState(() {
-          _errorMessage = e.message ?? 'An error occurred';
-        });
+        }
       }
     }
+  } on FirebaseAuthException catch (e) {
+    setState(() {
+      _errorMessage = e.code == 'invalid-credential'
+          ? 'You have entered wrong email/password, please try again.'
+          : e.message ?? 'An error occurred';
+    });
   }
+}
+
+Future<bool> verifyEntryCoordinator(String email, String password) async {
+  // Extract username from email
+  String username = email.split('@')[0];
+
+  // Query Firestore for the coordinator with matching username
+  var querySnapshot = await FirebaseFirestore.instance
+      .collection('coordinators')
+      .where('CoordinatorUsername', isEqualTo: username)
+      .limit(1)
+      .get();
+
+  if (querySnapshot.docs.isEmpty) {
+    return false; // No matching entry coordinator found
+  }
+
+  // Assuming there is exactly one match, get the first document
+  var doc = querySnapshot.docs.first;
+  String storedHashedPassword = doc['hashedPassword'];
+
+  // Hash the entered password
+  String enteredHashedPassword = generateHashedPassword(password);
+  // Compare the hashed passwords
+  return 
+  enteredHashedPassword == storedHashedPassword;
+    
+}
+
+Future<String> fetchCoordinatorUsername(String email) async {
+  // Extract username from email
+  String username = email.split('@')[0];
+
+  // Query Firestore for the coordinator with matching username
+  var querySnapshot = await FirebaseFirestore.instance
+      .collection('coordinators')
+      .where('CoordinatorUsername', isEqualTo: username)
+      .limit(1)
+      .get();
+
+  if (querySnapshot.docs.isEmpty) {
+    throw Exception('No matching entry coordinator found');
+  }
+
+  // Assuming there is exactly one match, get the first document
+  var doc = querySnapshot.docs.first;
+  return doc['CoordinatorUsername'];
+}
+
+String generateHashedPassword(String password) {
+  var bytes = utf8.encode(password);
+  var digest = sha256.convert(bytes);
+  return digest.toString();
+}
 
   @override
   Widget build(BuildContext context) {
