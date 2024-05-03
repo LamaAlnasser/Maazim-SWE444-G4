@@ -59,7 +59,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
   late List<TextEditingController> _inviteesPhoneControllers;
   String _errorMessage = '';
   late TextEditingController _searchController;
-  String? _selectedEventType; // For storing the selected event type
+ String? _selectedEventType; // For storing the selected event type
   List<String> _eventTypes = [
     'Conference',
     'Wedding',
@@ -142,6 +142,20 @@ class _CreateEventPageState extends State<CreateEventPage> {
       },
     );
   }
+
+  void _scheduleReminder(Event event) {
+  DateTime notificationTime = event.eventDate.subtract(Duration(days: 2));
+  AwesomeNotifications().createNotification(
+    content: NotificationContent(
+      id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+      channelKey: 'basic_channel',
+      title: 'Upcoming Event Reminder',
+      body: '${event.eventName} is happening soon on ${event.eventDate}',
+      notificationLayout: NotificationLayout.BigText,
+    ),
+    schedule: NotificationCalendar.fromDate(date: notificationTime)
+  );
+}
 
   @override
   void initState() {
@@ -228,22 +242,21 @@ class _CreateEventPageState extends State<CreateEventPage> {
       // Remove duplicates
       Set<String> uniquePhoneNumbers = Set.from(phoneNumbers);
 
-      // Proceed only if the number of unique phone numbers matches the number of invitees
-      final int numberOfInvitees =
-          int.tryParse(_numberOfInviteesController.text) ?? 0;
-      if (uniquePhoneNumbers.length != numberOfInvitees) {
+
+    // Proceed only if the number of unique phone numbers matches the number of invitees
+    final int numberOfInvitees = int.tryParse(_numberOfInviteesController.text) ?? 0;
+    if (uniquePhoneNumbers.length != numberOfInvitees) {
+      setState(() {
+        _errorMessage = 'Number of selected invitees does not match the specified number.';
+      });
+         // Set a timer to clear the error message after 5 seconds
+      Future.delayed(Duration(seconds: 5), () {
         setState(() {
-          _errorMessage =
-              'Number of selected invitees does not match the specified number.';
+          _errorMessage = ''; // Clear the error message
         });
-        // Set a timer to clear the error message after 5 seconds
-        Future.delayed(Duration(seconds: 5), () {
-          setState(() {
-            _errorMessage = ''; // Clear the error message
-          });
-        });
-        return;
-      }
+      });
+      return;
+    }
 
       final DateTime selectedDateTime = DateTime(
         _selectedDate.year,
@@ -309,17 +322,18 @@ class _CreateEventPageState extends State<CreateEventPage> {
       }).then((value) {
         _sendSMSInvitations(uniquePhoneNumbers.toList());
         _onEventCreatedSuccessfully();
-        scheduleEventReminder(newEvent);
+        // At the end of your event creation logic, after the event is successfully created
+    _scheduleReminder(newEvent);
       }).catchError((error) {
         setState(() {
           _errorMessage = 'Failed to create event: $error';
         });
-        // Set a timer to clear the error message after 5 seconds
-        Future.delayed(Duration(seconds: 5), () {
-          setState(() {
-            _errorMessage = ''; // Clear the error message
-          });
+           // Set a timer to clear the error message after 5 seconds
+      Future.delayed(Duration(seconds: 5), () {
+        setState(() {
+          _errorMessage = ''; // Clear the error message
         });
+      });
       });
     }
   }
@@ -377,22 +391,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
     });
   }
 
-  Future<void> scheduleEventReminder(Event event) async {
-    DateTime reminderTime =
-        event.eventDate.subtract(Duration(days: 2)); // 2 days before the event
-
-    AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: 1,//createUniqueId(), // Ensure this is unique for each notification
-        channelKey: 'basic_channel',
-        title: '${event.eventName} is coming up!',
-        body: 'Don\'t forget your event scheduled on ${event.eventDate}',
-        notificationLayout: NotificationLayout.Default,
-      ),
-      schedule: NotificationCalendar.fromDate(date: reminderTime),
-    );
-  }
-
   // Method to build contact list UI
   Widget _buildContactList() {
     return Container(
@@ -428,7 +426,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
       setState(() {
         _errorMessage = 'You have reached the maximum number of invitees';
       });
-      // Set a timer to clear the error message after 5 seconds
+         // Set a timer to clear the error message after 5 seconds
       Future.delayed(Duration(seconds: 5), () {
         setState(() {
           _errorMessage = ''; // Clear the error message
@@ -451,7 +449,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
       setState(() {
         _errorMessage = 'Invalid or duplicate number';
       });
-      // Set a timer to clear the error message after 5 seconds
+         // Set a timer to clear the error message after 5 seconds
       Future.delayed(Duration(seconds: 5), () {
         setState(() {
           _errorMessage = ''; // Clear the error message
@@ -468,12 +466,12 @@ class _CreateEventPageState extends State<CreateEventPage> {
         setState(() {
           _errorMessage = 'You have reached the maximum number of invitees';
         });
-        // Set a timer to clear the error message after 5 seconds
-        Future.delayed(Duration(seconds: 5), () {
-          setState(() {
-            _errorMessage = ''; // Clear the error message
-          });
+           // Set a timer to clear the error message after 5 seconds
+      Future.delayed(Duration(seconds: 5), () {
+        setState(() {
+          _errorMessage = ''; // Clear the error message
         });
+      });
         return;
       }
       setState(() => _selectedContacts.add(contact));
@@ -574,24 +572,25 @@ class _CreateEventPageState extends State<CreateEventPage> {
     int inviteCount = int.tryParse(_numberOfInviteesController.text) ?? 0;
     List<Contact> filteredContacts = List.from(_allContacts);
 
-    void filterContacts(String query) {
-      List<Contact> tmp = [];
-      if (query.isNotEmpty) {
-        tmp.addAll(_allContacts.where((contact) =>
-            (contact.displayName ?? "")
-                .toLowerCase()
-                .contains(query.toLowerCase()) ||
-            (contact.phones != null &&
-                contact.phones!.any((phone) =>
-                    phone.value != null && phone.value!.contains(query)))));
-      } else {
-        tmp = List.from(_allContacts);
-      }
-      setState(() {
-        filteredContacts = tmp;
-        print("hoor");
-      });
-    }
+  void filterContacts(String query) {
+  List<Contact> tmp = [];
+  if (query.isNotEmpty) {
+    tmp.addAll(_allContacts.where(
+      (contact) =>
+        (contact.displayName ?? "").toLowerCase().contains(query.toLowerCase()) ||
+        (contact.phones != null && contact.phones!.any(
+          (phone) => phone.value != null && phone.value!.contains(query)
+        ))
+    ));
+  } else {
+    tmp = List.from(_allContacts);
+  }
+  setState(() {
+    filteredContacts = tmp;
+     print("hoor");
+  });
+}
+
 
     await showDialog(
       context: context,
@@ -600,131 +599,119 @@ class _CreateEventPageState extends State<CreateEventPage> {
           child: Container(
             width: 400, // or another fixed width
             height: 600,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18),
-                color: Color.fromARGB(255, 255, 255, 255)),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(18),color: Color.fromARGB(255, 255, 255, 255)),
             // or another fixed height
             child: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-                return Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
-                      child: Text('Select Contacts',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
+             builder: (BuildContext context, StateSetter setState) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+                  child: Text('Select Contacts',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: 'Search',
+                      labelStyle: const TextStyle(
+                          color: Color(0xFF9a85a4), fontSize: 14),
+                      errorStyle: const TextStyle(fontSize: 10),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide.none,
+                      ),
+                      fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide(
+                            color: const Color(0xFF9a85a4).withOpacity(0.0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide(
+                            color: const Color(0xFF9a85a4).withOpacity(0.6)),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: const BorderSide(color: Colors.red),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: const BorderSide(color: Colors.red),
+                      ),
+                      filled: true,
+                       prefixIcon: IconButton(
+        icon: Icon(Icons.search),
+        onPressed: () {
+          filterContacts(_searchController.text);  // Trigger filtering on button press
+        },
+      ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          labelText: 'Search',
-                          labelStyle: const TextStyle(
-                              color: Color(0xFF9a85a4), fontSize: 14),
-                          errorStyle: const TextStyle(fontSize: 10),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide.none,
-                          ),
-                          fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(
-                                color:
-                                    const Color(0xFF9a85a4).withOpacity(0.0)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(
-                                color:
-                                    const Color(0xFF9a85a4).withOpacity(0.6)),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: const BorderSide(color: Colors.red),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: const BorderSide(color: Colors.red),
-                          ),
-                          filled: true,
-                          prefixIcon: IconButton(
-                            icon: Icon(Icons.search),
-                            onPressed: () {
-                              filterContacts(_searchController
-                                  .text); // Trigger filtering on button press
+                    onChanged: (String text) {
+                        setState(() {
+                          filterContacts(text);
+                        });
+                      },
+                  ),
+                ),
+                Expanded(
+                  child: Padding(padding: const EdgeInsets.fromLTRB(12, 0, 0, 0),
+              child: StatefulBuilder(
+                  builder: (BuildContext context, StateSetter setState) {
+                    return ListView.builder(
+                      itemCount: filteredContacts.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        Contact contact = filteredContacts[index];
+                        return ListTile(
+                          key: ValueKey(contact.identifier),
+                          title: Text(contact.displayName ?? "No Name"),
+                          subtitle: Text(contact.phones?.first.value ?? "No Number"),
+                          trailing: Checkbox(
+                            value: _selectedContacts.contains(contact),
+                            onChanged: (bool? value) {
+                              setState(() {
+                                if (value == true) {
+                                  if (!_selectedContacts.contains(contact)) {
+                                    _toggleContactSelection(contact);
+                                  }
+                                } else {
+                                  _selectedContacts.remove(contact);
+                                }
+                              });
                             },
+                            activeColor: Color(0xFF9a85a4),
                           ),
-                        ),
-                        onChanged: (String text) {
-                          setState(() {
-                            filterContacts(text);
-                          });
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 0, 0, 0),
-                        child: StatefulBuilder(
-                          builder:
-                              (BuildContext context, StateSetter setState) {
-                            return ListView.builder(
-                              itemCount: filteredContacts.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                Contact contact = filteredContacts[index];
-                                return ListTile(
-                                  key: ValueKey(contact.identifier),
-                                  title: Text(contact.displayName ?? "No Name"),
-                                  subtitle: Text(contact.phones?.first.value ??
-                                      "No Number"),
-                                  trailing: Checkbox(
-                                    value: _selectedContacts.contains(contact),
-                                    onChanged: (bool? value) {
-                                      setState(() {
-                                        if (value == true) {
-                                          if (!_selectedContacts
-                                              .contains(contact)) {
-                                            _toggleContactSelection(contact);
-                                          }
-                                        } else {
-                                          _selectedContacts.remove(contact);
-                                        }
-                                      });
-                                    },
-                                    activeColor: Color(0xFF9a85a4),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: ElevatedButton.styleFrom(
-                          shape: const StadiumBorder(),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          backgroundColor: const Color(0xFF9a85a4)
-                              .withOpacity(0.9), // Rounded corners
-                        ),
-                        child: const Text('Done',
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255))),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                );
-              },
+                        );
+                      },
+                    );
+                  },
+                ),
+                  ),
+              ),
+                const SizedBox(height: 10),
+                Padding(padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 20),
+                    backgroundColor: const Color(0xFF9a85a4)
+                        .withOpacity(0.9), // Rounded corners
+                  ),
+                  child: const Text('Done',style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 255, 255, 255))),
+                ),),
+                const SizedBox(height: 10),
+              ],
+            );
+           },
             ),
           ),
         );
@@ -795,90 +782,92 @@ class _CreateEventPageState extends State<CreateEventPage> {
     return null;
   }
 
-  Widget _buildEventTypeDropdown() {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(8, 0, 5, 0),
-      child: DropdownButtonFormField2<String>(
-        decoration: InputDecoration(
-          labelText: 'Event Type',
-          labelStyle: const TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
-          errorStyle: const TextStyle(fontSize: 10),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide.none,
-          ),
-          fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide:
-                BorderSide(color: const Color(0xFF9a85a4).withOpacity(0.0)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide:
-                BorderSide(color: const Color(0xFF9a85a4).withOpacity(0.6)),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: const BorderSide(color: Colors.red),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: const BorderSide(color: Colors.red),
-          ),
-          filled: true,
-        ),
-        value: _selectedEventType,
-        dropdownStyleData: DropdownStyleData(
-          maxHeight: 200,
-          width: 330,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            color: Color.fromARGB(255, 233, 228, 237),
-          ),
-          elevation: 16,
-          scrollbarTheme: ScrollbarThemeData(
-            radius: const Radius.circular(40),
-            thickness: MaterialStateProperty.all<double>(6),
-            thumbVisibility: MaterialStateProperty.all<bool>(true),
-          ),
-        ),
-        menuItemStyleData: const MenuItemStyleData(
-            height: 50,
-            padding: EdgeInsets.only(left: 14, right: 14),
-            overlayColor: MaterialStatePropertyAll(const Color(0xFF9a85a4))),
-        onChanged: (String? newValue) {
-          setState(() {
-            _selectedEventType = newValue!;
-          });
-        },
-        items: _eventTypes.map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 5), // Adjust horizontal padding here
-              child: Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal,
-                  color: Color.fromARGB(255, 0, 0, 0),
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-              width: 150, // Use this to adjust width if necessary
-            ),
-          );
-        }).toList(),
-        validator: (value) {
-          if (value == null) {
-            return 'Please select event type';
-          }
-          return null;
-        },
+   Widget _buildEventTypeDropdown() {
+    return Padding(padding: EdgeInsets.fromLTRB(8, 0, 5, 0),
+    child: DropdownButtonFormField2<String>(
+      decoration: InputDecoration(
+        labelText: 'Event Type',
+        labelStyle:
+                        const TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                    errorStyle: const TextStyle(fontSize: 10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                    fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(
+                          color: const Color(0xFF9a85a4).withOpacity(0.0)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(
+                          color: const Color(0xFF9a85a4).withOpacity(0.6)),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
+                    filled: true,
       ),
-    );
+      value: _selectedEventType,
+ dropdownStyleData: DropdownStyleData(
+              maxHeight: 200,
+              width: 330,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                color:  Color.fromARGB(255, 233, 228, 237),
+              ),
+               elevation: 16,
+              scrollbarTheme: ScrollbarThemeData(
+                radius: const Radius.circular(40),
+                thickness: MaterialStateProperty.all<double>(6),
+                thumbVisibility: MaterialStateProperty.all<bool>(true),
+              ),
+            ),
+           menuItemStyleData: const MenuItemStyleData(
+              height: 50,
+              padding: EdgeInsets.only(left: 14, right: 14),
+              overlayColor:MaterialStatePropertyAll(const Color(0xFF9a85a4))
+            ),
+      onChanged: (String? newValue) {
+        setState(() {
+          _selectedEventType = newValue!;
+        });
+      },
+      items: _eventTypes
+          .map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 5), // Adjust horizontal padding here
+          child: Text(
+                        value,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                          color: Color.fromARGB(255, 0, 0, 0),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+          width: 150, // Use this to adjust width if necessary
+        ),
+        );
+      }).toList(),
+      validator: (value) {
+                if (value == null) {
+                  return 'Please select event type';
+                }
+                return null;
+              },
+     ),
+     
+      );
   }
 
   @override
@@ -1016,7 +1005,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                 ),
               ),
               const SizedBox(height: 10),
-              _buildEventTypeDropdown(), // Insert the dropdown widget
+      _buildEventTypeDropdown(), // Insert the dropdown widget
               const SizedBox(height: 10),
               Row(
                 children: [
@@ -1159,9 +1148,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                       child: Row(
                         children: [
                           IconButton(
-                            icon: Icon(
-                              Icons.remove,
-                            ),
+                            icon: Icon(Icons.remove,),
                             onPressed: () {
                               setState(() {
                                 if (_eventDuration > 1) _eventDuration--;
@@ -1177,9 +1164,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                             ),
                           ),
                           IconButton(
-                            icon: Icon(
-                              Icons.add,
-                            ),
+                            icon: Icon(Icons.add,),
                             onPressed: () {
                               if (_eventDuration < 10) {
                                 setState(() => _eventDuration++);
@@ -1402,9 +1387,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                             ),
                             IconButton(
                                 padding: EdgeInsets.fromLTRB(160, 0, 0, 0),
-                                icon: Icon(
-                                  Icons.arrow_forward_ios,
-                                ),
+                                icon: Icon(Icons.arrow_forward_ios,),
                                 onPressed: _showContactPicker),
                           ],
                         )),
@@ -1418,11 +1401,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
               if (_errorMessage.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(18, 0, 0, 10),
-                  child: Text(
-                    _errorMessage,
-                    style: TextStyle(color: Colors.red, fontSize: 12),
-                    textAlign: TextAlign.center,
-                  ),
+                  child: Text(_errorMessage,
+                      style: TextStyle(color: Colors.red, fontSize: 12),textAlign: TextAlign.center,),
                 ),
               const SizedBox(height: 5),
 
