@@ -1,4 +1,3 @@
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -142,20 +141,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
       },
     );
   }
-
-  void _scheduleReminder(Event event) {
-  DateTime notificationTime = event.eventDate.subtract(Duration(days: 2));
-  AwesomeNotifications().createNotification(
-    content: NotificationContent(
-      id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
-      channelKey: 'basic_channel',
-      title: 'Upcoming Event Reminder',
-      body: '${event.eventName} is happening soon on ${event.eventDate}',
-      notificationLayout: NotificationLayout.BigText,
-    ),
-    schedule: NotificationCalendar.fromDate(date: notificationTime)
-  );
-}
 
   @override
   void initState() {
@@ -322,8 +307,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
       }).then((value) {
         _sendSMSInvitations(uniquePhoneNumbers.toList());
         _onEventCreatedSuccessfully();
-        // At the end of your event creation logic, after the event is successfully created
-    _scheduleReminder(newEvent);
       }).catchError((error) {
         setState(() {
           _errorMessage = 'Failed to create event: $error';
