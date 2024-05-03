@@ -33,7 +33,21 @@
 			</array>
 		</dict>
 	</array>
-	
+	<key>NSContactsUsageDescription</key>
+    <string>This app requires access to your contacts to allow you to select invitees for events.</string>
+	<key>NSCalendarsUsageDescription</key>
+    <string>Calendars</string>
+	  <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Need location when in use</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Always and when in use!</string>
+    <key>NSLocationUsageDescription</key>
+    <string>Older devices need location.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Can I have location always?</string>
+ <!-- Permission options for the `camera` group -->
+    <key>NSCameraUsageDescription</key>
+    <string>camera for taking photos</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
