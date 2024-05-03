@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:maazim/guestLogIn.dart';
 import 'package:maazim/logIn.dart';
-import 'package:maazim/notification.dart';
 import 'package:maazim/signUp.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:maazim/layout.dart';
 
-
 Future<void> main() async {
    WidgetsFlutterBinding
       .ensureInitialized(); // Ensure the Flutter binding is initialized
   await Firebase.initializeApp(); // Initialize Firebase
-    NotificationService.init();
   runApp(const MyApp());
 }
 
