@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:maazim/notification.dart';
+import 'package:maazim/notificationGuest.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -19,21 +20,15 @@ class _guestInvitationsPageState extends State<guestInvitationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Row(
-          children: [
-            SizedBox(width: 8),
-            Text(
-              'My Invitations',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-            ),
-          ],
-        ),
-      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+            Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+            child: Text(
+              'My Invitations',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+            ),),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -107,6 +102,12 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
 
   @override
   void initState() {
+             AwesomeNotifications().setListeners(
+    onActionReceivedMethod: NotificationController1.onActionReceivedMethod,
+    onNotificationDisplayedMethod: NotificationController1.onNotificationDisplayedMethod,
+    onNotificationCreatedMethod: NotificationController1.onNotificationCreatedMethod,
+    onDismissActionReceivedMethod: NotificationController1.onDismissActionReceivedMethod
+  );
     super.initState();
     getCurrentUserPhoneNumber().then((phone) {
       if (phone != null && mounted) {
@@ -218,6 +219,25 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
       return [];
     }
   }
+
+    Future<void> scheduleReminder(Map<String, dynamic> invitation) async {
+  DateTime eventDateTime = (invitation['eventDateTime'] as Timestamp).toDate();
+  DateTime reminderTime = eventDateTime.subtract(Duration(hours: 1));
+
+  AwesomeNotifications().createNotification(
+    content: NotificationContent(
+      id: DateTime.now().millisecondsSinceEpoch.remainder(100000), // Unique ID for the notification
+      channelKey: 'basic_channel',
+      title: 'Reminder: ${invitation['eventName']}',
+      body: 'Your event is in two days. Don\'t forget to attend it!',
+      payload: {'invitationId': '123'},
+      notificationLayout: NotificationLayout.Default,
+      displayOnForeground: true,
+      displayOnBackground: true,
+    ),
+    schedule: NotificationCalendar.fromDate(date: reminderTime),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -432,10 +452,10 @@ class _PastInvitationsState extends State<PastInvitations> {
   @override
   void initState() {
              AwesomeNotifications().setListeners(
-    onActionReceivedMethod: NotificationController.onActionReceivedMethod,
-    onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
-    onNotificationCreatedMethod: NotificationController.onNotificationCreatedMethod,
-    onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod
+    onActionReceivedMethod: NotificationController1.onActionReceivedMethod,
+    onNotificationDisplayedMethod: NotificationController1.onNotificationDisplayedMethod,
+    onNotificationCreatedMethod: NotificationController1.onNotificationCreatedMethod,
+    onDismissActionReceivedMethod: NotificationController1.onDismissActionReceivedMethod
   );
     super.initState();
     getCurrentUserPhoneNumber().then((phone) {
@@ -508,7 +528,6 @@ class _PastInvitationsState extends State<PastInvitations> {
         if (endTime.isBefore(now.toDate()) ||
             endTime.isAtSameMomentAs(now.toDate())) {
           invitations.add(invitation);
-           scheduleReminder(invitation);  // Schedule the reminder
         }
       }
 
@@ -533,24 +552,6 @@ class _PastInvitationsState extends State<PastInvitations> {
       return [];
     }
   }
-
-    Future<void> scheduleReminder(Map<String, dynamic> invitation) async {
-  DateTime eventDateTime = (invitation['eventDateTime'] as Timestamp).toDate();
-  DateTime reminderTime = eventDateTime.subtract(Duration(hours: 1));
-
-  AwesomeNotifications().createNotification(
-    content: NotificationContent(
-      id: DateTime.now().millisecondsSinceEpoch.remainder(100000), // Unique ID for the notification
-      channelKey: 'basic_channel',
-      title: 'Reminder: ${invitation['eventName']}',
-      body: 'Your event is in two days. Don\'t forget to attend it!',
-      notificationLayout: NotificationLayout.Default,
-      displayOnForeground: true,
-      displayOnBackground: true,
-    ),
-    schedule: NotificationCalendar.fromDate(date: reminderTime),
-  );
-}
 
   @override
   Widget build(BuildContext context) {
