@@ -45,15 +45,37 @@ class _guestHomePageState extends State<guestHomePage> {
           content:
               Text("This app requires notification access to function properly."),
           actions: <Widget>[
-            TextButton(
-              child: Text("Cancel"),
+                   ElevatedButton(
+                 style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 16),
+                    backgroundColor: const Color(0xFF9a85a4)
+                        .withOpacity(0.9), // Rounded corners
+                  ),
+                  child: const Text('cancel',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 255, 255, 255))),
               onPressed: () {
                 Navigator.of(context)
                     .pop(); // Dismiss the dialog but do nothing
               },
             ),
-            TextButton(
-              child: Text("Settings"),
+            ElevatedButton(
+                 style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 16),
+                    backgroundColor: const Color(0xFF9a85a4)
+                        .withOpacity(0.9), // Rounded corners
+                  ),
+                  child: const Text('Open Settings',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 255, 255, 255))),
               onPressed: () {
                 openAppSettings(); // Open app settings
               },
