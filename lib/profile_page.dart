@@ -5,6 +5,8 @@ import 'package:maazim/EditProfile.dart';
 import 'package:maazim/ChangePass.dart';
 import 'package:maazim/Home_Host.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class ProfilePage extends StatefulWidget {
 
@@ -113,6 +115,17 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             Divider(), // Add a line
+             InkWell(
+  onTap: () {
+    launch("mailto:Maazim444@gmail.com"); // Replace example email with your support email
+  },
+  child: ListTile(
+    leading: Icon(Icons.contact_support, color: Color.fromARGB(255, 154, 133, 164)), // Icon for Contact Us
+    title: Text('Contact Us'),
+  ),
+),
+Divider(), // Add a line
+
             InkWell(
               onTap: () async {
                 bool confirmLogout = await showDialog(
@@ -167,10 +180,12 @@ class _ProfilePageState extends State<ProfilePage> {
                             ],
                           ),
                         ],
+                        
                       ),
                     );
                   },
                 );
+                
 
                 if (confirmLogout == true) {
                   await FirebaseAuth.instance.signOut();
@@ -189,5 +204,9 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
+
+    // Inside the Column children list, add the following InkWell
+
+
   }
 }
