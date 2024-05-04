@@ -40,6 +40,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        navigatorKey: NotificationController.navigatorKey, // Use the static GlobalKey
       title: 'Maazim',
       debugShowCheckedModeBanner: false,
       home: WelcomePage(),
