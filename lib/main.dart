@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:maazim/guestLogIn.dart';
 import 'package:maazim/logIn.dart';
@@ -12,7 +13,24 @@ Future<void> main() async {
    WidgetsFlutterBinding
       .ensureInitialized(); // Ensure the Flutter binding is initialized
   await Firebase.initializeApp(); // Initialize Firebase
-    NotificationService.init();
+  await AwesomeNotifications().initialize(
+    null, // Ensure you have an app icon in your Android and iOS project
+    [
+      NotificationChannel(
+        channelGroupKey: "basic_channel_group",
+        channelKey: 'basic_channel',
+        channelName: 'Basic notifications',
+        channelDescription: 'Notification channel for basic tests',
+        defaultColor: Color(0xFF9D50DD),
+        importance: NotificationImportance.High,
+        ledColor: Colors.white
+      )
+    ],
+    channelGroups: [
+     NotificationChannelGroup(channelGroupKey: 'basic_channel_group', channelGroupName: 'basic_group')
+    ],
+    debug: true
+  );
   runApp(const MyApp());
 }
 
@@ -121,3 +139,4 @@ class WelcomePage extends StatelessWidget {
     );
   }
 }
+
