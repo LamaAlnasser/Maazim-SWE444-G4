@@ -35,6 +35,7 @@ class _guestHomePageState extends State<guestHomePage> {
   }
 
   void _requestPermissions() {
+     AwesomeNotifications().requestPermissionToSendNotifications();
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
       if (!isAllowed) {
          showDialog(
