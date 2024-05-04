@@ -35,6 +35,8 @@ class _guestHomePageState extends State<guestHomePage> {
   }
 
   void _requestPermissions() {
+    // Optionally, prompt the user with a custom dialog before calling requestPermissionToSendNotifications
+    AwesomeNotifications().requestPermissionToSendNotifications();
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
       if (!isAllowed) {
          showDialog(
