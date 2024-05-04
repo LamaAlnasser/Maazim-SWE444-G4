@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:maazim/Home_Host.dart';
+import 'package:maazim/notification.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_sms/flutter_sms.dart';
 import 'package:country_picker/country_picker.dart';
@@ -145,6 +146,12 @@ class _CreateEventPageState extends State<CreateEventPage> {
 
   @override
   void initState() {
+      AwesomeNotifications().setListeners(
+    onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+    onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
+    onNotificationCreatedMethod: NotificationController.onNotificationCreatedMethod,
+    onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod
+  );
     super.initState();
     _eventNameController = TextEditingController();
     _eventAddressController = TextEditingController();
@@ -153,7 +160,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
     _inviterNameController = TextEditingController();
     _numberOfInviteesController = TextEditingController();
     _inviteesPhoneControllers = [TextEditingController()];
-    _searchController = TextEditingController();
+    _searchController  = TextEditingController();
     _checkPermissionsAndLoadContacts();
     // Fetch user data and autofill inviter name
     _fetchUserData();
@@ -309,7 +316,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
       }).then((value) {
         _sendSMSInvitations(uniquePhoneNumbers.toList());
         _onEventCreatedSuccessfully();
-        scheduleEventReminder(newEvent);
+        scheduleEventReminder(selectedDateTime, _eventNameController.text);
       }).catchError((error) {
         setState(() {
           _errorMessage = 'Failed to create event: $error';
@@ -322,6 +329,20 @@ class _CreateEventPageState extends State<CreateEventPage> {
         });
       });
     }
+  }
+
+  void scheduleEventReminder(DateTime eventTime, String eventName) {
+    print("notification created");
+    AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: 10,
+          channelKey: 'basic_channel',
+          title: 'Event Reminder',
+          body: 'Your event $eventName is starting soon!',
+        ),
+        schedule: NotificationCalendar.fromDate(
+            date: eventTime.subtract(Duration(hours: 1)), // 1 hour before event
+            preciseAlarm: true));
   }
 
   Future<bool> _checkEventConflict(DateTime selectedDateTime) async {
@@ -375,22 +396,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
       //SnackBar(content: Text('Failed to send invitations: $error')),
       // );
     });
-  }
-
-  Future<void> scheduleEventReminder(Event event) async {
-    DateTime reminderTime =
-        event.eventDate.subtract(Duration(days: 2)); // 2 days before the event
-
-    AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: 1,//createUniqueId(), // Ensure this is unique for each notification
-        channelKey: 'basic_channel',
-        title: '${event.eventName} is coming up!',
-        body: 'Don\'t forget your event scheduled on ${event.eventDate}',
-        notificationLayout: NotificationLayout.Default,
-      ),
-      schedule: NotificationCalendar.fromDate(date: reminderTime),
-    );
   }
 
   // Method to build contact list UI
