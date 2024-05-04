@@ -531,7 +531,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                 await FirebaseAuth.instance.signOut();
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
                   builder: (context) =>
-                      MyApp(), // Ensure WelcomePage is defined
+                      WelcomePage(), // Ensure WelcomePage is defined
                 ));
               },
               style: ElevatedButton.styleFrom(
