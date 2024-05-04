@@ -1,6 +1,9 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:maazim/CreateEventPage.dart';
+import 'package:maazim/notification.dart';
 import 'package:motion_tab_bar/MotionTabBar.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'profile_page.dart'; // Import your profile page file
 import 'my_events_page.dart'; // Import your my events page file
 import 'my_invitations_page.dart'; // Import your my invitations page file
@@ -20,6 +23,7 @@ class _homePageState extends State<homePage> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _selectedIndex);
+    _requestPermissions();
   }
 
   @override
@@ -27,6 +31,39 @@ class _homePageState extends State<homePage> {
     _pageController.dispose();
     super.dispose();
   }
+
+  void _requestPermissions() {
+    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+      if (!isAllowed) {
+   showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Permission Required"),
+          content:
+              Text("This app requires notification access to function properly."),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(); // Dismiss the dialog but do nothing
+              },
+            ),
+            TextButton(
+              child: Text("Settings"),
+              onPressed: () {
+                openAppSettings(); // Open app settings
+              },
+            ),
+          ],
+        );
+      },
+    );
+      }
+    });
+  }
+  
 
   void _onItemTapped(int index) {
     setState(() {
@@ -51,7 +88,8 @@ class _homePageState extends State<homePage> {
               'assets/Logo.PNG', // Replace 'your_image.png' with your image asset path
               height: 30, // Adjust the height as needed
             ),
-            const SizedBox(width: 8), // Add some space between the image and the title
+            const SizedBox(
+                width: 8), // Add some space between the image and the title
             Text(
               'Maazim',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -71,11 +109,10 @@ class _homePageState extends State<homePage> {
         physics: NeverScrollableScrollPhysics(), // Disable page swiping
         children: <Widget>[
           ProfilePage(), // Your profile page widget
-          MyEventsPage(),// Your my events page widget
+          MyEventsPage(), // Your my events page widget
           MyInvitationsPage(), // Your my invitations page widget
         ],
       ),
-
       bottomNavigationBar: MotionTabBar(
         labels: const ["Profile", "Events", "Invitations"],
         initialSelectedTab: "Events",
@@ -93,7 +130,6 @@ class _homePageState extends State<homePage> {
         },
         icons: const [Icons.person, Icons.event, Icons.mail],
         textStyle: const TextStyle(color: const Color(0xFF9a85a4)),
-        
       ),
     );
   }
