@@ -576,6 +576,7 @@ TextButton(
   }
 }*/
 
+/*
 void deleteAccount() async {
   String? errorMessage;
   String? passwordErrorMessage;
@@ -705,6 +706,153 @@ void deleteAccount() async {
     }
   }
 }
+*/
+
+void deleteAccount() async {
+  String? errorMessage;
+  String? passwordErrorMessage;
+
+  // Show a confirmation dialog
+  bool confirmDelete = await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(
+                  Icons.circle,
+                  color: Colors.red.withOpacity(0.2),
+                  size: 40,
+                ),
+                Text(
+                  "!",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 8), // Add some space between the image and the title
+            Text(
+              'Delete Account',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Text("Are you sure you want to delete your account? This action cannot be undone."),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false); // Return false to cancel deletion
+            },
+            style: ElevatedButton.styleFrom(
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              backgroundColor: const Color(0xFF9a85a4).withOpacity(0.9), // Rounded corners
+            ),
+            child: Text(
+              "Cancel",
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 255, 255, 255),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop(true); // Return true to confirm deletion
+            },
+            style: ElevatedButton.styleFrom(
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              backgroundColor: Colors.red.withOpacity(0.9), // Rounded corners
+            ),
+            child: Text(
+              "Delete",
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 255, 255, 255),
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+
+  // If deletion is confirmed, proceed to delete the account
+  if (confirmDelete == true) {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String? password; // Password entered by the user
+
+      if (password == null) {
+        // Prompt user to enter password
+        password = await _showPasswordInputDialog(context, passwordErrorMessage);
+      }
+
+      if (password != null) {
+        try {
+          // Reauthenticate the user
+          String? email = user.email;
+          if (email != null) {
+            AuthCredential credential = EmailAuthProvider.credential(email: email, password: password);
+            await user.reauthenticateWithCredential(credential);
+
+            // Delete user document from Firestore
+            await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
+
+            // Delete user from Firebase Authentication
+            await user.delete();
+
+            // Delete events associated with the user
+            await deleteEventsForUser(user.uid);
+
+            // Navigate to welcome page after successful deletion
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => WelcomePage()), // Replace WelcomePage() with your welcome screen widget
+              (Route<dynamic> route) => false, // Prevent going back to previous screens
+            );
+          } else {
+            // Handle case where email is null
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Failed to delete account. Please try again later."),
+            ));
+          }
+        } on FirebaseAuthException catch (error) {
+          // Check if the error is due to an invalid password
+          setState(() {
+            passwordErrorMessage = "Incorrect password. Please try again.";
+          });
+        } catch (error) {
+          print("Error: $error");
+        }
+      }
+    }
+  }
+}
+
+Future<void> deleteEventsForUser(String userID) async {
+  try {
+    QuerySnapshot eventsSnapshot = await FirebaseFirestore.instance.collection('Event').where('userID', isEqualTo: userID).get();
+    for (QueryDocumentSnapshot eventDoc in eventsSnapshot.docs) {
+      await eventDoc.reference.delete();
+    }
+    print('Events deleted successfully for user ID: $userID');
+  } catch (error) {
+    print('Error deleting events: $error');
+  }
+}
+
 
 Future<String?> _showPasswordInputDialog(BuildContext context, String? errorMessage) async {
   bool obscureCurrentPassword = true; // Set initial state for password visibility
