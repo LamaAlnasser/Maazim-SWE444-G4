@@ -1,8 +1,10 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:maazim/notification.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -105,6 +107,12 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
 
   @override
   void initState() {
+          AwesomeNotifications().setListeners(
+    onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+    onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
+    onNotificationCreatedMethod: NotificationController.onNotificationCreatedMethod,
+    onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod
+  );
     super.initState();
     getCurrentUserPhoneNumber().then((phone) {
       if (phone != null && mounted) {
@@ -192,6 +200,7 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
         // Compare endTime with the current time
         if (endTime.isAfter(DateTime.now())) {
           invitations.add(invitation);
+          scheduleReminder(invitation);  // Schedule the reminder
         }
       }
 
@@ -216,6 +225,25 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
       return [];
     }
   }
+
+  Future<void> scheduleReminder(Map<String, dynamic> invitation) async {
+  DateTime eventDateTime = (invitation['eventDateTime'] as Timestamp).toDate();
+  DateTime reminderTime = eventDateTime.subtract(Duration(hours: 1));
+
+  AwesomeNotifications().createNotification(
+    content: NotificationContent(
+      id: DateTime.now().millisecondsSinceEpoch.remainder(100000), // Unique ID for the notification
+      channelKey: 'basic_channel',
+      title: 'Reminder: ${invitation['eventName']}',
+      body: 'Your event is in two days. Don\'t forget to attend it!',
+      notificationLayout: NotificationLayout.Default,
+      displayOnForeground: true,
+      displayOnBackground: true,
+    ),
+    schedule: NotificationCalendar.fromDate(date: reminderTime),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
