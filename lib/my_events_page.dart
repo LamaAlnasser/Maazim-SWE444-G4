@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:maazim/CreateEventPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:maazim/Home_Host.dart';
 import 'package:maazim/EventAttendancePage.dart';
+import 'package:maazim/notification.dart';
 
 class MyEventsPage extends StatefulWidget {
   @override
