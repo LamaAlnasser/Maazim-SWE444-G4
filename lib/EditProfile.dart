@@ -745,8 +745,23 @@ void deleteAccount() async {
             ),
           ],
         ),
-        content: Text("Are you sure you want to delete your account? This action cannot be undone."),
-        actions: <Widget>[
+content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Are you sure you want to delete your account?"),
+            SizedBox(height: 16),
+            Text(
+              "By deleting your account:",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text("- All your Events will be deleted."),
+            Text("- Your invitations are saved on your phone number so you can use the app as a guest."),
+            SizedBox(height: 16),
+            Text("Note:",style: TextStyle(fontWeight: FontWeight.bold)),
+            Text("if you want to delete your account because you are changing your phone number, make sure to contact us."),
+          ],
+        ),        actions: <Widget>[
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(false); // Return false to cancel deletion
@@ -853,7 +868,7 @@ Future<void> deleteEventsForUser(String userID) async {
   }
 }
 
-
+/*
 Future<String?> _showPasswordInputDialog(BuildContext context, String? errorMessage) async {
   bool obscureCurrentPassword = true; // Set initial state for password visibility
 
@@ -977,6 +992,188 @@ Future<String?> _showPasswordInputDialog(BuildContext context, String? errorMess
       );
     },
   );
+}
+*/
+Future<String?> _showPasswordInputDialog(BuildContext context, String? errorMessage) async {
+  bool obscureCurrentPassword = true; // Set initial state for password visibility
+
+  TextEditingController passwordController = TextEditingController();
+  return await showDialog<String?>(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+               return AlertDialog(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(
+                  Icons.circle,
+                  color: Colors.red.withOpacity(0.2),
+                  size: 40,
+                ),
+                Text(
+                  "!",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 8), // Add some space between the image and the title
+            Text(
+              'Confirmation',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+               Text("Enter your password to confirm the account deletion"),
+               SizedBox(height: 16),
+                TextFormField(
+                  cursorColor: Color(0xFF9a85a4),
+                  controller: passwordController,
+                  obscureText: obscureCurrentPassword,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                    errorStyle: TextStyle(fontSize: 10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(
+                        color: Color(0xFF9a85a4).withOpacity(0.6),
+                      ),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          obscureCurrentPassword = !obscureCurrentPassword;
+                        });
+                      },
+                      icon: Icon(
+                        obscureCurrentPassword ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+              if (errorMessage != null)
+  Padding(
+    padding: const EdgeInsets.only(top: 8),
+    child: Text(
+      errorMessage ?? "", // Provide a default value if errorMessage is null
+      style: TextStyle(color: Colors.red, fontSize: 12),
+    ),
+  ),
+
+              ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(null); // Return null to indicate cancellation
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                  backgroundColor: const Color(0xFF9a85a4).withOpacity(0.9), // Rounded corners
+                ),
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 255, 255, 255),
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () async {
+                  String password = passwordController.text;
+                  if (password.isEmpty) {
+                    // Show error message if password field is empty
+                    setState(() {
+                      errorMessage = "Password cannot be empty.";
+                    });
+                  } else {
+                    // Validate the password here
+                    bool isPasswordValid = await validatePassword(password); // Replace validatePassword with your validation function
+                    if (isPasswordValid) {
+                      Navigator.of(context).pop(password); // Return entered password
+                    } else {
+                      // Show error message if password is incorrect
+                      setState(() {
+                        errorMessage = "Incorrect password. Please try again.";
+                      });
+                    }
+                  }
+                },
+            style: ElevatedButton.styleFrom(
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              backgroundColor: Colors.red.withOpacity(0.9), // Rounded corners
+            ),
+            child: Text(
+              "Confirm",
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 255, 255, 255),
+              ),
+            ),
+          ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
+
+
+Future<bool> validatePassword(String password) async {
+  // Check if the entered password matches the user's actual password
+  try {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      AuthCredential credential = EmailAuthProvider.credential(email: user.email!, password: password);
+      await user.reauthenticateWithCredential(credential);
+      // If reauthentication is successful, return true
+      return true;
+    }
+  } catch (error) {
+    // If reauthentication fails, return false
+    return false;
+  }
+  // If user is null or reauthentication fails, return false
+  return false;
 }
 
 
