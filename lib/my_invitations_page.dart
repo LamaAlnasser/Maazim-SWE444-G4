@@ -19,21 +19,15 @@ class _MyInvitationsPageState extends State<MyInvitationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Row(
-          children: [
-            SizedBox(width: 8),
-            Text(
-              'My Invitations',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-            ),
-          ],
-        ),
-      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+            Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+            child: Text(
+              'My Invitations',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+            ),),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -236,6 +230,7 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
       channelKey: 'basic_channel',
       title: 'Reminder: ${invitation['eventName']}',
       body: 'Your event is in two days. Don\'t forget to attend it!',
+      payload: {'invitationId': '123'},
       notificationLayout: NotificationLayout.Default,
       displayOnForeground: true,
       displayOnBackground: true,
@@ -457,7 +452,14 @@ class _PastInvitationsState extends State<PastInvitations> {
 
   @override
   void initState() {
+    
     super.initState();
+              AwesomeNotifications().setListeners(
+    onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+    onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
+    onNotificationCreatedMethod: NotificationController.onNotificationCreatedMethod,
+    onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod
+  );
     getCurrentUserPhoneNumber().then((phone) {
       // Make sure to check if the widget is still mounted before calling setState
       if (phone != null && mounted) {
@@ -748,7 +750,7 @@ class InvitationDetailPage extends StatefulWidget {
   const InvitationDetailPage({
     Key? key,
     required this.invitation,
-    required this.phoneNumber, // Modify the constructor to require a phoneNumber
+    required this.phoneNumber, String? invitationId, // Modify the constructor to require a phoneNumber
   }) : super(key: key);
 
   @override
@@ -788,9 +790,42 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
               if (await canLaunch(uri.toString())) {
                 await launch(uri.toString());
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Could not launch location link')),
-                );
+                // Display error message for invalid map link
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              'Invalid Map Link',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            content:
+                Text('Please provide a valid Google Maps or iOS Maps link.'),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 16),
+                    backgroundColor: const Color(0xFF9a85a4)
+                        .withOpacity(0.9), // Rounded corners
+                  ),
+                  child: const Text('OK',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 255, 255, 255))),
+                ),
+              ),
+            ],
+          );
+        },
+      );
               }
             },
             child: Padding(
