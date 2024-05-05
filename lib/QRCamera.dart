@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async'; // Import dart:async to use Timer
 
 class QRScanPage extends StatefulWidget {
   final String coordinatorUsername;
@@ -15,11 +17,17 @@ class _QRScanPageState extends State<QRScanPage> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   QRViewController? controller;
   Barcode? barcode;
+  Timer? _messageTimer; // Timer to manage display message duration
+
   String? displayMessage; // Changed to hold the display message directly
+  Set<String> checkedInGuestIds =
+      Set(); // This set will track checked-in guests.
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void dispose() {
     controller?.dispose();
+    _messageTimer?.cancel(); // Cancel the timer if active
     super.dispose();
   }
 
@@ -86,6 +94,10 @@ class _QRScanPageState extends State<QRScanPage> {
         textColor = Colors.red.shade800;
         backgroundColor = Colors.red.shade200;
         break;
+      case "Guest has already checked in.":
+        textColor = Colors.orange.shade800;
+        backgroundColor = Colors.orange.shade200;
+        break;
       default:
         textColor = Colors.black87;
         backgroundColor = Colors.white24;
@@ -111,19 +123,66 @@ class _QRScanPageState extends State<QRScanPage> {
 
   void onQRViewCreated(QRViewController controller) {
     this.controller = controller;
-    controller.scannedDataStream.listen((scanData) {
-      setState(() {
-        var parts = scanData.code!.split('|');
-        if (parts.isNotEmpty) {
-          var eventId = parts[0];
-          displayMessage = eventId == widget.coordinatorUsername
-              ? "A guest can enter."
-              : "Not a guest.";
+    controller.scannedDataStream.listen((scanData) async {
+      _messageTimer?.cancel(); // Cancel any existing timer
+      var parts = scanData.code!.split('|');
+      if (parts.length == 2) {
+        var eventId = parts[0].trim();
+        var guestId = parts[1].trim();
+
+        if (eventId == widget.coordinatorUsername) {
+          if (checkedInGuestIds.contains(guestId)) {
+            updateDisplay("Guest has already checked in.");
+          } else {
+            // Show the "A guest can enter." message immediately.
+            updateDisplay("A guest can enter.",
+                duration: 3); // Display this message for 10 seconds
+
+            // Delay adding the guest ID to the set and updating Firestore
+            await Future.delayed(Duration(seconds: 10), () {
+              checkedInGuestIds
+                  .add(guestId); // Add the guest ID to the set after the delay
+              updateFirestore(
+                  guestId); // Update Firestore after the message has been displayed
+            });
+          }
         } else {
-          displayMessage =
-              "Invalid QR Code"; // Default message if not a valid code
+          updateDisplay("Not a guest.");
         }
+      } else {
+        updateDisplay("Invalid QR Code");
+      }
+    });
+  }
+
+  void updateDisplay(String message, {int duration = 20}) {
+    setState(() {
+      displayMessage = message;
+    });
+    _messageTimer = Timer(Duration(seconds: duration), () {
+      setState(() {
+        displayMessage = null;
       });
     });
+  }
+
+  Future<void> updateFirestore(String guestId) async {
+    try {
+      var querySnapshot = await _firestore
+          .collection('coordinators')
+          .where('eventId', isEqualTo: widget.coordinatorUsername)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        var docRef = querySnapshot.docs.first.reference;
+        await docRef.update({
+          'checkedInGuestIds': FieldValue.arrayUnion([guestId])
+        });
+      } else {
+        print(
+            "No matching document found for event ID: ${widget.coordinatorUsername}");
+      }
+    } catch (e) {
+      print('Error updating Firestore: $e');
+    }
   }
 }
