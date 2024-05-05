@@ -23,7 +23,9 @@ Future<void> main() async {
         channelDescription: 'Notification channel for basic tests',
         defaultColor: Color(0xFF9D50DD),
         importance: NotificationImportance.High,
-        ledColor: Colors.white
+        ledColor: Colors.white,
+        playSound: true,
+        enableVibration: true,
       )
     ],
     channelGroups: [
