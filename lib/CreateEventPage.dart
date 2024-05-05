@@ -709,11 +709,11 @@ class _CreateEventPageState extends State<CreateEventPage> {
                               itemCount: filteredContacts.length,
                               itemBuilder: (BuildContext context, int index) {
                                 Contact contact = filteredContacts[index];
+                                print("Phones for contact: ${contact.displayName} are: ${contact.phones}");
                                 return ListTile(
                                   key: ValueKey(contact.identifier),
                                   title: Text(contact.displayName ?? "No Name"),
-                                  subtitle: Text(contact.phones?.first.value ??
-                                      "No Number"),
+                                  subtitle: Text(contact.phones != null && contact.phones!.isNotEmpty ? contact.phones!.first.value ?? "No Number" : "No Number"),
                                   trailing: Checkbox(
                                     value: _selectedContacts.contains(contact),
                                     onChanged: (bool? value) {
