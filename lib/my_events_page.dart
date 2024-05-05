@@ -130,6 +130,12 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
 
   @override
   void initState() {
+              AwesomeNotifications().setListeners(
+    onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+    onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
+    onNotificationCreatedMethod: NotificationController.onNotificationCreatedMethod,
+    onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod
+  );
     super.initState();
     eventsFuture = getHostedEvents();
   }
@@ -159,6 +165,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
           // Only add to upcoming events if the current time is before the event end time
           if (endTime.isAfter(now.toDate())) {
             events.add(event);
+            scheduleReminder(event);
           }
         }
       } else {
@@ -168,6 +175,27 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
       print("Error getting events: $e");
     }
     return events;
+  }
+
+  Future<void> scheduleReminder(Map<String, dynamic> event) async {
+    DateTime eventDateTime = (event['eventDateTime'] as Timestamp).toDate();
+    DateTime reminderTime = eventDateTime.subtract(Duration(days: 2));
+
+    AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: DateTime.now()
+            .millisecondsSinceEpoch
+            .remainder(100000), // Unique ID for the notification
+        channelKey: 'basic_channel',
+        title: 'Reminder: ${event['eventName']}',
+        body: 'Your event is in two days. Don\'t forget to prepare for it!',
+        payload: {'invitationId': '123'},
+        notificationLayout: NotificationLayout.Default,
+        displayOnForeground: true,
+        displayOnBackground: true,
+      ),
+      schedule: NotificationCalendar.fromDate(date: reminderTime),
+    );
   }
 
   @override
@@ -358,6 +386,12 @@ class _PastEventsState extends State<PastEvents> {
 
   @override
   void initState() {
+              AwesomeNotifications().setListeners(
+    onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+    onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
+    onNotificationCreatedMethod: NotificationController.onNotificationCreatedMethod,
+    onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod
+  );
     super.initState();
     eventsFuture = getPastEvents();
   }
