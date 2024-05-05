@@ -222,7 +222,7 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
 
     Future<void> scheduleReminder(Map<String, dynamic> invitation) async {
   DateTime eventDateTime = (invitation['eventDateTime'] as Timestamp).toDate();
-  DateTime reminderTime = eventDateTime.subtract(Duration(hours: 1));
+  DateTime reminderTime = eventDateTime.subtract(Duration(days: 2));
 
   AwesomeNotifications().createNotification(
     content: NotificationContent(
