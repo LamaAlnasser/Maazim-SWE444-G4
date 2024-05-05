@@ -124,7 +124,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Permission Required"),
+          title: Text("Permission Required", 
+               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
           content:
               Text("This app requires contact access to function properly."),
           actions: <Widget>[
@@ -233,6 +234,30 @@ class _CreateEventPageState extends State<CreateEventPage> {
       initialDate: _selectedDate,
       firstDate: DateTime.now(),
       lastDate: DateTime(2101),
+       builder: (BuildContext context, Widget? child) {
+      return Theme(
+        data: ThemeData.light().copyWith(
+          colorScheme: ColorScheme.light(
+            primary: Color(0xFF9a85a4), // header background color
+            onPrimary: Colors.white, // header text color
+            surface: Color.fromARGB(255, 255, 255, 255), // background color
+            onSurface: Colors.black, // body text color
+          ),
+          dialogBackgroundColor: Color(0xFF9a85a4), // background color
+             textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(
+              primary: Colors.white, // Text color
+              backgroundColor:  Color(0xFF9a85a4),
+              padding: EdgeInsets.symmetric(horizontal: 10), // Button background color
+              shape: RoundedRectangleBorder( // Button shape
+                borderRadius: BorderRadius.circular(18),
+              ),
+            ),
+          ),
+        ),
+        child: child!,
+      );
+    },
     );
     if (picked != null && picked != _selectedDate)
       setState(() {
@@ -242,7 +267,33 @@ class _CreateEventPageState extends State<CreateEventPage> {
 
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked =
-        await showTimePicker(context: context, initialTime: _selectedTime);
+        await showTimePicker(
+          context: context, 
+          initialTime: _selectedTime,
+           builder: (BuildContext context, Widget? child) {
+      return Theme(
+        data: ThemeData.dark().copyWith(
+          colorScheme: ColorScheme.dark(
+            primary: Color(0xFF9a85a4),
+            onPrimary: Colors.white,
+            surface: Color.fromARGB(255, 255, 255, 255),
+            onSurface: Color(0xFF9a85a4),
+          ),
+          dialogBackgroundColor: Color(0xFF9a85a4),
+          textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(
+              primary: Colors.white, // Text color for buttons
+              backgroundColor: Color(0xFF9a85a4), // Button background color
+              shape: RoundedRectangleBorder( // Button shape
+                borderRadius: BorderRadius.circular(18),
+              ),
+            ),
+          ),
+        ),
+        child: child!,
+      );
+    },
+  );
     if (picked != null && picked != _selectedTime)
       setState(() {
         _selectedTime = picked;
