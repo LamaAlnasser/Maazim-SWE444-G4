@@ -99,33 +99,34 @@ class _EditProfileState extends State<EditProfile> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text("Success", textAlign: TextAlign.center,),
-              
-              
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(height: 10),
+              backgroundColor:  Color.fromARGB(255, 255, 255, 255),
+              title: Text("Success", 
+               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+              content: 
              Text(
-                "Profile updated successfully!",
-                style: TextStyle(fontSize: 17.0),
-                 textAlign: TextAlign.center,
-              ),
-        ],
-              ),
-              
-              actions: <Widget>[
-                Center(child: 
-                TextButton(
-                  child: Text("OK"),
+                "Profile updated successfully!" ),
+              actions:  [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
+                    Navigator.of(context).pop();
                   },
-                
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 16),
+                    backgroundColor: const Color(0xFF9a85a4)
+                        .withOpacity(0.9), // Rounded corners
+                  ),
+                  child: const Text('OK',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 255, 255, 255))),
                 ),
-                ),
-              ],
+              ),
+            ],
             );
           },
         );
@@ -135,21 +136,33 @@ class _EditProfileState extends State<EditProfile> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
+             backgroundColor:  Color.fromARGB(255, 255, 255, 255),
               title: Text(""),
               content: Text(
                 "No changes were made.",
-                style: TextStyle(fontSize: 20.0),
               ),
-              actions: <Widget>[
-                Center(
-                child: TextButton(
-                  child: Text("OK"),
+              actions:  [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
+                    Navigator.of(context).pop();
                   },
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 16),
+                    backgroundColor: const Color(0xFF9a85a4)
+                        .withOpacity(0.9), // Rounded corners
+                  ),
+                  child: const Text('OK',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 255, 255, 255))),
                 ),
-                ),
-              ],
+              ),
+            ],
             );
           },
         );
