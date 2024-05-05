@@ -32,61 +32,64 @@ class _homePageState extends State<homePage> {
     super.dispose();
   }
 
-  void _requestPermissions() {
-    AwesomeNotifications().requestPermissionToSendNotifications();
-    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-      if (!isAllowed) {
-   showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Permission Required"),
-          content:
-              Text("This app requires notification access to function properly."),
-          actions: <Widget>[
-                   ElevatedButton(
-                 style: ElevatedButton.styleFrom(
-                    shape: const StadiumBorder(),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 16),
-                    backgroundColor: const Color(0xFF9a85a4)
-                        .withOpacity(0.9), // Rounded corners
-                  ),
-                  child: const Text('cancel',
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255))),
-              onPressed: () {
-                Navigator.of(context)
-                    .pop(); // Dismiss the dialog but do nothing
+void _requestPermissions() {
+  AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+    if (!isAllowed) {
+      AwesomeNotifications().requestPermissionToSendNotifications().then((_) {
+        AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+          if (!isAllowed) {
+            // Show dialog here
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text("Permission Required"),
+                  content: Text(
+                      "This app requires notification access to function properly."),
+                  actions: <Widget>[
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: const StadiumBorder(),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 16),
+                        backgroundColor: const Color(0xFF9a85a4).withOpacity(0.9),
+                      ),
+                      child: const Text('Cancel',
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 255, 255, 255))),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Dismiss the dialog
+                      },
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: const StadiumBorder(),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 16),
+                        backgroundColor: const Color(0xFF9a85a4).withOpacity(0.9),
+                      ),
+                      child: const Text('Open Settings',
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 255, 255, 255))),
+                      onPressed: () {
+                        openAppSettings(); // Open app settings
+                      },
+                    ),
+                  ],
+                );
               },
-            ),
-            ElevatedButton(
-                 style: ElevatedButton.styleFrom(
-                    shape: const StadiumBorder(),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 16),
-                    backgroundColor: const Color(0xFF9a85a4)
-                        .withOpacity(0.9), // Rounded corners
-                  ),
-                  child: const Text('Open Settings',
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255))),
-              onPressed: () {
-                openAppSettings(); // Open app settings
-              },
-            ),
-          ],
-        );
-      },
-    );
-      }
-    });
-  }
-  
+            );
+          }
+        });
+      });
+    }
+  });
+}
+
 
   void _onItemTapped(int index) {
     setState(() {
