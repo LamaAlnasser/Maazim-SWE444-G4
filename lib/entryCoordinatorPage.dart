@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:maazim/layout.dart';
 import 'package:maazim/main.dart';
 import 'package:motion_tab_bar/MotionTabBar.dart';
-import 'package:maazim/CoordinatorWelcomePage.dart'; //Tab1 the defualt
+import 'package:maazim/CoordinatorWelcomePage.dart'; //Tab1 
 import 'package:maazim/QRScannerPage.dart'; //Tab2
 
 class EntityCoordinatorPage extends StatefulWidget {
