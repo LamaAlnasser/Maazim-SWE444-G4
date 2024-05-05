@@ -1167,20 +1167,52 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
+              backgroundColor:  Color.fromARGB(255, 255, 255, 255),
               title:
-                  Text('Confirm\n Your Response', textAlign: TextAlign.center),
+                  Text('Confirm\nYour Response',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
               content: Text(
                   'Are you sure you want to ${isAccepted ? 'accept' : 'reject'} this invitation?',
-                  textAlign: TextAlign.center),
+                ),
               actions: <Widget>[
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancel'),
+                Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 16),
+                    backgroundColor: const Color(0xFF9a85a4)
+                        .withOpacity(0.9), // Rounded corners
+                  ),
+                  child: const Text('Cancel',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 255, 255, 255))),
                 ),
-                TextButton(
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: ElevatedButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: Text(isAccepted ? 'Accept' : 'Reject'),
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 16),
+                    backgroundColor: const Color(0xFF9a85a4)
+                        .withOpacity(0.9), // Rounded corners
+                  ),
+                  child: Text(isAccepted ? 'Accept' : 'Reject',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 255, 255, 255))),
                 ),
+              ),
               ],
             );
           },
