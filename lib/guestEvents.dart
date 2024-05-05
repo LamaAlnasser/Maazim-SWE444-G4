@@ -8,7 +8,6 @@ class guestEventsPage extends StatefulWidget {
 }
 
 class _guestEventsPageState extends State<guestEventsPage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,41 +23,49 @@ class _guestEventsPageState extends State<guestEventsPage> {
           ],
         ),
       ),
-      body: Center( // Center the column on the screen
+      body: Center(
+        // Center the column on the screen
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Center the children vertically
+          mainAxisAlignment:
+              MainAxisAlignment.center, // Center the children vertically
           children: [
-            Opacity(opacity: 0.4,
-            child: Image.asset(
-              'assets/lavender.png', // Replace with your asset image path
-              width: 300, // Set your width accordingly
-              height: 250, // Set your height accordingly
-            ),),
-            SizedBox(height: 20), // Add some space between the image and the text
+            Opacity(
+              opacity: 0.4,
+              child: Image.asset(
+                'assets/lavender.png', // Replace with your asset image path
+                width: 300, // Set your width accordingly
+                height: 250, // Set your height accordingly
+              ),
+            ),
+            SizedBox(
+                height: 20), // Add some space between the image and the text
             Text(
               "No Available Events",
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10), // Add some space between the image and the text
+            SizedBox(
+                height: 10), // Add some space between the image and the text
             Text(
               "To have access to full features please",
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 24), 
+            SizedBox(height: 24),
             // Add some space between the text and the button
             ElevatedButton(
-              onPressed: (){
+              onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const SignUp()),
                 );
               },
               style: ElevatedButton.styleFrom(
-                primary: Color(0xFF9a85a4), // Button background color
-                onPrimary: Colors.white, // Text color
-                padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15), // Add padding to make the button bigger
+                backgroundColor: Color(0xFF9a85a4), // Button background color
+                foregroundColor: Colors.white, // Text color
+                padding: EdgeInsets.symmetric(
+                    horizontal: 100,
+                    vertical: 15), // Add padding to make the button bigger
               ),
               child: Text(
                 "Sign up",
