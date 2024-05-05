@@ -30,10 +30,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  intl: ^0.17.0
+  intl: ^0.19.0
   syncfusion_flutter_charts: ^21.2.4 
   pie_chart: ^5.0.0
   flutter_local_notifications: ^5.0.0
+  awesome_notifications_fcm: ^0.9.3+1
 
     
   # The following adds the Cupertino Icons font to your application.
