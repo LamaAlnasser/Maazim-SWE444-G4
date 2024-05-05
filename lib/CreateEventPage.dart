@@ -346,7 +346,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Event Conflict'),
+              title: Text('Event Conflict', 
+               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
               content: Text(
                   'An event already exists at the selected date and time.'),
               actions: [
@@ -791,8 +792,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
                       child: Text('Select Contacts',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
+               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(24.0),
@@ -1630,6 +1630,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
