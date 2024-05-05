@@ -47,9 +47,17 @@ dependencies:
   motion_tab_bar: ^2.0.4
   flutter_sms: ^2.3.3
   qr_flutter: ^4.1.0
-
+  qr_scanner_overlay: ^0.0.2
+  password_hash_plus: ^4.0.0
+  crypto: ^3.0.1
+  quickalert: ^1.1.0
+  sendgrid_mailer: ^0.1.3
+  mobile_scanner: ^5.1.0
+  flutter_barcode_scanner: ^2.0.0
+  qrscan: ^0.3.3
+  permission_handler: ^11.3.1
+  qr_code_scanner: ^1.0.1
   
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -84,6 +92,7 @@ flutter:
     - assets/images/boarder/white.png
     - assets/teapot.png
     - assets/lavender.png
+    - assets/QRCode.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
