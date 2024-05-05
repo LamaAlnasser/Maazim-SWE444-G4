@@ -243,7 +243,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
             surface: Color.fromARGB(255, 255, 255, 255), // background color
             onSurface: Colors.black, // body text color
           ),
-          dialogBackgroundColor: Color(0xFF9a85a4), // background color
+          dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255), // background color
              textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(
               primary: Colors.white, // Text color
@@ -277,13 +277,14 @@ class _CreateEventPageState extends State<CreateEventPage> {
             primary: Color(0xFF9a85a4),
             onPrimary: Colors.white,
             surface: Color.fromARGB(255, 255, 255, 255),
-            onSurface: Color(0xFF9a85a4),
+            onSurface: Color.fromARGB(255, 0, 0, 0),
           ),
-          dialogBackgroundColor: Color(0xFF9a85a4),
+          dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255),
           textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(
               primary: Colors.white, // Text color for buttons
-              backgroundColor: Color(0xFF9a85a4), // Button background color
+              backgroundColor: Color(0xFF9a85a4), 
+              padding: EdgeInsets.symmetric(horizontal: 10),// Button background color
               shape: RoundedRectangleBorder( // Button shape
                 borderRadius: BorderRadius.circular(18),
               ),
