@@ -130,55 +130,52 @@ class _ProfilePageState extends State<ProfilePage> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Center(child: Text("Logout", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),)), // Centered title
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text("Are you trying to log out?", textAlign: TextAlign.center), // Centered message
-                          SizedBox(height: 12), // Spacer
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center, // Center buttons
-                            children: [
-                              Padding(padding: const EdgeInsets.symmetric(horizontal: 5),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(false); // Return false if user chooses "No"
-                                },
-                                  style: ElevatedButton.styleFrom(
+                       backgroundColor:  Color.fromARGB(255, 255, 255, 255),
+                      title:  Text("Logout", 
+               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),// Centered title
+                      content: Text("Are you trying to log out?"),
+                      actions: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  style: ElevatedButton.styleFrom(
                     shape: const StadiumBorder(),
                     padding: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 16),
                     backgroundColor: const Color(0xFF9a85a4)
                         .withOpacity(0.9), // Rounded corners
                   ),
-                                child: Text(
-                                  "Cancel",
-                                 style: TextStyle(
+                  child: const Text('Cancel',
+                      style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: Color.fromARGB(255, 255, 255, 255))),
-                              ),),
-                              Padding(padding: const EdgeInsets.symmetric(horizontal: 5),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(true); // Return true if user chooses "Yes"
-                                },
-                                 style: ElevatedButton.styleFrom(
+                ),
+              ),
+               Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: ElevatedButton(
+                  onPressed: () {
+                     Navigator.of(context).pop(true);
+                  },
+                  style: ElevatedButton.styleFrom(
                     shape: const StadiumBorder(),
                     padding: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 16),
                     backgroundColor: const Color(0xFF9a85a4)
                         .withOpacity(0.9), // Rounded corners
                   ),
-                                child: Text("OK",  style: TextStyle(
+                  child: const Text('OK',
+                      style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: Color.fromARGB(255, 255, 255, 255))),
-                              ),),
+                ),
+              ),
                             ],
-                          ),
-                        ],
-                      ),
                     );
                   },
                 );
