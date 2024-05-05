@@ -36,6 +36,18 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
 
   String? _errorMessage;
+  bool _obscureText =
+      true; // Define the _obscureText variable and initialize it to true
+
+  // Getter method for _obscureText
+  bool get obscureText => _obscureText;
+
+  // Setter method for _obscureText
+  set obscureText(bool value) {
+    setState(() {
+      _obscureText = value;
+    });
+  }
 
   Future<void> _login(BuildContext context) async {
     try {
@@ -235,6 +247,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
 
                     // Password
+                    /*
                     const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -271,6 +284,68 @@ class _LoginScreenState extends State<LoginScreen> {
                           prefixIcon: Icon(Icons.lock),
                         ),
                         obscureText: true,
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Required password.';
+                          } // Check if the entered value is a valid email address
+
+                          return null;
+                        },
+                      ),
+                    ),
+*/
+// Password
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: TextFormField(
+                        cursorColor: Color(0xFF9a85a4),
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                          labelStyle: TextStyle(color: Color(0xFF9a85a4)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(
+                                color: Color(0xFF9a85a4).withOpacity(0.0)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(
+                                color: Color(0xFF9a85a4).withOpacity(0.6)),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                          filled: true,
+                          prefixIcon: Icon(Icons.lock),
+                          suffixIcon: IconButton(
+  onPressed: () {
+    setState(() {
+      _obscureText = !_obscureText; // Toggle the visibility of the password
+    });
+  },
+  icon: Icon(
+    _obscureText ? Icons.visibility_off : Icons.visibility,
+    // Use Icons.visibility when password is obscured (_obscureText is true)
+    // Use Icons.visibility_off when password is visible (_obscureText is false)
+    color: Colors.grey, // Adjust the color of the icon if needed
+  ),
+),
+
+                        ),
+                        obscureText:
+                            _obscureText, // Use the _obscureText variable to determine whether to obscure the text
                         validator: (value) {
                           if (value!.isEmpty) {
                             return 'Required password.';
