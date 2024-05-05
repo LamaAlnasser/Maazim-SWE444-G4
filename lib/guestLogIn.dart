@@ -167,7 +167,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
         ));
       }
     } on FirebaseAuthException catch (e) {
-      _showSnackbar('Failed to sign in: ${e.message}');
+      print('Failed to sign in');
     }
   }
 
