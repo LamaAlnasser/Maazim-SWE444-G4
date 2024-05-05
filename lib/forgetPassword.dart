@@ -42,6 +42,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   String _errorMessage = '';
   bool _isButtonEnabled = true;
   int _timerSeconds = 30;
+  bool _isMaazimTeamEmail = false;
 
   void _startTimer() {
     Timer.periodic(Duration(seconds: 1), (timer) {
@@ -136,12 +137,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         onChanged: (value) {
-                          if (_userNotFound) {
-                            setState(() {
-                              _userNotFound = false;
-                            });
-                          }
-                        },
+  // Convert the email to lowercase before checking
+  if (value.toLowerCase().contains('@maazim.com')) {
+    setState(() {
+      _isMaazimTeamEmail = true;
+      _errorMessage = "It looks like you're an entry coordinator! This feature isn’t available for your account. Please get in touch with our support team";
+    });
+  } else {
+    setState(() {
+      _isMaazimTeamEmail = false;
+      _errorMessage = '';
+    });
+  }
+},
                         decoration: InputDecoration(
                           labelText: 'Email',
                           labelStyle: TextStyle(color: Color(0xFF9a85a4)),

@@ -52,9 +52,12 @@ class _LoginScreenState extends State<LoginScreen> {
           if (email.toLowerCase().endsWith('@maazim.com')) {
             bool isValid = await verifyEntryCoordinator(email, password);
             if (isValid) {
-              // Fetch coordinator username from database
-              String coordinatorUsername =
-                  await fetchCoordinatorUsername(email);
+              // Remove the "EC_" prefix
+              String coordinatorUsername = email.toLowerCase().startsWith('ec_')
+                  ? email.substring(3)
+                  : email;
+              // Remove the "@" symbol and everything after it
+              coordinatorUsername = coordinatorUsername.split('@')[0];
               // Redirect to entry coordinator page
               Navigator.pushReplacement(
                 context,

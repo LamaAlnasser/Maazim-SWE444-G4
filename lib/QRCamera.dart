@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'dart:io'; // Needed for Platform.isAndroid
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class QRScanPage extends StatefulWidget {
   final String coordinatorUsername;
@@ -16,6 +17,7 @@ class _QRScanPageState extends State<QRScanPage> {
   QRViewController? controller;
   Barcode? barcode;
   String? displayMessage; // Changed to hold the display message directly
+  List<String> checkedInIds = []; // Array to hold checked-in people's IDs
 
   @override
   void dispose() {
@@ -86,6 +88,10 @@ class _QRScanPageState extends State<QRScanPage> {
         textColor = Colors.red.shade800;
         backgroundColor = Colors.red.shade200;
         break;
+      case "Already checked in.":
+        textColor = Colors.orange.shade800;
+        backgroundColor = Colors.orange.shade200;
+        break;
       default:
         textColor = Colors.black87;
         backgroundColor = Colors.white24;
@@ -114,16 +120,41 @@ class _QRScanPageState extends State<QRScanPage> {
     controller.scannedDataStream.listen((scanData) {
       setState(() {
         var parts = scanData.code!.split('|');
-        if (parts.isNotEmpty) {
+        if (parts.length == 2) {
+          // Check if the QR code has both parts
           var eventId = parts[0];
-          displayMessage = eventId == widget.coordinatorUsername
-              ? "A guest can enter."
-              : "Not a guest.";
+          var guestId = parts[1];
+          if (eventId == widget.coordinatorUsername) {
+            if (checkedInIds.contains(guestId)) {
+              displayMessage =
+                  "Already checked in."; // Display message for already checked-in guest
+            } else {
+              displayMessage = "A guest can enter.";
+              checkedInIds.add(guestId); // Add the guest ID to the array
+              updateCoordinator(widget.coordinatorUsername,
+                  guestId); // Update the coordinators collection
+            }
+          } else {
+            displayMessage = "Not a guest.";
+          }
         } else {
           displayMessage =
               "Invalid QR Code"; // Default message if not a valid code
         }
       });
+    });
+  }
+
+  void updateCoordinator(String coordinatorUsername, String guestId) {
+    FirebaseFirestore.instance
+        .collection('coordinators')
+        .doc(coordinatorUsername)
+        .set({
+      'checkedInGuests': FieldValue.arrayUnion([guestId]),
+    }, SetOptions(merge: true)).then((value) {
+      print('Coordinator updated successfully');
+    }).catchError((error) {
+      print('Failed to update coordinator: $error');
     });
   }
 }
