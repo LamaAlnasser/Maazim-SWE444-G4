@@ -407,9 +407,10 @@ Future<void> sendEmailConfirmation({
               'To ensure smooth management of your event, please provide your entry coordinator with the credentials below:\n\n'
               'Email: $coordinatorEmail\n'
               'Password: $coordinatorPassword\n\n'
+              'Just a little heads-up: entry coordinators aren’t able to change their passwords once set. We ask that you keep these credentials safe and sound — they’re key to a smooth entry at your event!\n\n'
               'We\'re excited to be a part of your special day and look forward to helping you create memorable experiences.\n\n'
               'Warm regards,\n'
-              'The Maazim Team');
+              'The Maazim Team'); 
 
       final personalization = Personalization([toAddress]);
       final email =
