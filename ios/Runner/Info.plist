@@ -47,7 +47,7 @@
     <string>Can I have location always?</string>
  <!-- Permission options for the `camera` group -->
     <key>NSCameraUsageDescription</key>
-    <string>camera for taking photos</string>
+    <string>Maazim needs camera access to scan QR codes</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
