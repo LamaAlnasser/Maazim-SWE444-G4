@@ -124,6 +124,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor:  Color.fromARGB(255, 255, 255, 255),
           title: Text("Permission Required", 
                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
           content:
@@ -189,6 +190,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
     _numberOfInviteesController = TextEditingController();
     _inviteesPhoneControllers = [TextEditingController()];
     _searchController = TextEditingController();
+     _selectedEventType = _eventTypes.first; // Set an initial value
     _checkPermissionsAndLoadContacts();
     // Fetch user data and autofill inviter name
     _fetchUserData();
@@ -378,7 +380,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
         eventName: _eventNameController.text,
         address: _eventAddressController.text,
         eventLocation: _eventLocationController.text,
-        eventType: _eventTypeController.text,
+        eventType: _selectedEventType.toString(),
         eventDate: _selectedDate,
         eventTime: _selectedTime,
         inviterName: _inviterNameController.text,
@@ -936,6 +938,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            backgroundColor:  Color.fromARGB(255, 255, 255, 255),
             title: Text(
               'Invalid Map Link',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -1034,7 +1037,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
             overlayColor: MaterialStatePropertyAll(const Color(0xFF9a85a4))),
         onChanged: (String? newValue) {
           setState(() {
-            _selectedEventType = newValue!;
+            _selectedEventType = newValue;
           });
         },
         items: _eventTypes.map<DropdownMenuItem<String>>((String value) {
