@@ -151,7 +151,7 @@ class _OTP_afterSignUpState extends State<OTP_afterSignUp> {
         _signInWithCredential(credential);
       },
       verificationFailed: (FirebaseAuthException e) {
-        _showSnackbar('Failed to Verify Phone Number: ${e.message}');
+         _phoneNumberError = 'Faild to verify phone number';
       },
       codeSent: (String verificationId, int? resendToken) {
         setState(() {
