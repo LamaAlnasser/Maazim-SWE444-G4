@@ -4,16 +4,12 @@ import 'package:maazim/Home_Host.dart';
 import 'package:maazim/profile_page.dart';
 
 class NewPasswordHost extends StatefulWidget {
- 
-
-
   @override
   _NewPasswordHostState createState() => _NewPasswordHostState();
 }
 
 class _NewPasswordHostState extends State<NewPasswordHost> {
-
-final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
   final newPasswordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
   String? errorMessage;
@@ -42,32 +38,27 @@ final _formKey = GlobalKey<FormState>();
     return null;
   }
 
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        
         automaticallyImplyLeading: true,
         leading: Padding(
-           padding: const EdgeInsets.only(left: 16.0, top: 30),
-      child: IconButton(
-      onPressed: () {
-        // Navigate to another page
-      Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => homePage()),
-            );
-      },
-      icon: Icon(Icons.arrow_back),
-      tooltip: 'Go to Another Page',
-    ), ),
+          padding: const EdgeInsets.only(left: 16.0, top: 30),
+          child: IconButton(
+            onPressed: () {
+              // Navigate to another page
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => homePage()),
+              );
+            },
+            icon: Icon(Icons.arrow_back),
+            tooltip: 'Go to Another Page',
+          ),
+        ),
         title: Row(
           mainAxisSize: MainAxisSize.min,
-         
           children: [
             Image.asset(
               'assets/Logo.PNG',
@@ -77,7 +68,6 @@ final _formKey = GlobalKey<FormState>();
             const Text(
               'Maazim',
               style: TextStyle(fontWeight: FontWeight.bold),
-              
             ),
           ],
         ),
@@ -85,7 +75,6 @@ final _formKey = GlobalKey<FormState>();
         elevation: 0,
       ),
       body: SingleChildScrollView(
-        
         padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey, // Use _formKey here
@@ -107,7 +96,8 @@ final _formKey = GlobalKey<FormState>();
                   validator: validatePassword,
                   decoration: InputDecoration(
                     labelText: ' New Password',
-                    labelStyle: TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                    labelStyle:
+                        TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
                     errorStyle: TextStyle(fontSize: 10),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
@@ -121,7 +111,8 @@ final _formKey = GlobalKey<FormState>();
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                      borderSide:
+                          BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
@@ -138,7 +129,9 @@ final _formKey = GlobalKey<FormState>();
                         });
                       },
                       icon: Icon(
-                        obscureNewPassword ? Icons.visibility_off : Icons.visibility,
+                        obscureNewPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         color: Colors.grey,
                       ),
                     ),
@@ -153,18 +146,19 @@ final _formKey = GlobalKey<FormState>();
                   controller: confirmPasswordController,
                   obscureText: obscureConfirmPassword,
                   cursorColor: Color(0xFF9a85a4),
-                    validator: (value) {
-                     if (value == null || value.isEmpty) {
-                            return 'Required field.';
-                                                         }
-                      if (value != newPasswordController.text) {
-                          return 'Passwords do not match.';
-                                                         }
-                            return null;
-                                        },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Required field.';
+                    }
+                    if (value != newPasswordController.text) {
+                      return 'Passwords do not match.';
+                    }
+                    return null;
+                  },
                   decoration: InputDecoration(
                     labelText: 'Confirm Password',
-                    labelStyle: TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                    labelStyle:
+                        TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
                     errorStyle: TextStyle(fontSize: 10),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
@@ -178,7 +172,8 @@ final _formKey = GlobalKey<FormState>();
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                      borderSide:
+                          BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
@@ -195,68 +190,70 @@ final _formKey = GlobalKey<FormState>();
                         });
                       },
                       icon: Icon(
-                          obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                        obscureConfirmPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         color: Colors.grey,
                       ),
                     ),
                   ),
                 ),
               ),
-                SizedBox(height: 20),
-
+              SizedBox(height: 20),
 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 60),
-              
-             child:  ElevatedButton(
-                
-                onPressed: () {
-                  
-                  if (_formKey.currentState!.validate()) {
-                    // Validation passed, proceed with password update
-                    FirebaseAuth.instance.currentUser?.updatePassword(newPasswordController.text).then((_) {
-                      // Password update successful
-                      setState(() {
-                        errorMessage = null;
-                      });
-                      // Show success message or navigate to another page
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      // Validation passed, proceed with password update
+                      FirebaseAuth.instance.currentUser
+                          ?.updatePassword(newPasswordController.text)
+                          .then((_) {
+                        // Password update successful
+                        setState(() {
+                          errorMessage = null;
+                        });
+                        // Show success message or navigate to another page
                         ScaffoldMessenger.of(context).showSnackBar(
-  SnackBar(
-    content: DefaultTextStyle(
-      style: TextStyle(fontSize: 18), // Adjust the font size here
-      child: Text('Password updated successfully.'),
-    ),
-    duration: Duration(seconds: 5),
-  ),
-);
-                        
-                    }).catchError((error) {
-                      // Password update failed
-                      setState(() {
-                        errorMessage = error.toString();
+                          SnackBar(
+                            content: DefaultTextStyle(
+                              style: TextStyle(
+                                  fontSize: 18), // Adjust the font size here
+                              child: Text('Password updated successfully.'),
+                            ),
+                            duration: Duration(seconds: 5),
+                          ),
+                        );
+                      }).catchError((error) {
+                        // Password update failed
+                        setState(() {
+                          errorMessage = error.toString();
+                        });
                       });
-                    });
-                  }
-                  
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: StadiumBorder(),
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  primary: Color(0xFF9a85a4).withOpacity(0.9), ),
-
-                child: Text('Update Password',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),),
-              ), ),
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: StadiumBorder(),
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    backgroundColor: Color(0xFF9a85a4).withOpacity(0.9),
+                  ),
+                  child: Text(
+                    'Update Password',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
               SizedBox(height: 16),
               Center(
-                child: errorMessage != null ? Text(errorMessage!, style: TextStyle(color: Colors.red)) : Container(),
+                child: errorMessage != null
+                    ? Text(errorMessage!, style: TextStyle(color: Colors.red))
+                    : Container(),
               ),
-
-              
             ],
           ),
         ),
