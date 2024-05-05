@@ -7,6 +7,8 @@ import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart'; // Add this import to format the date and time
 import 'package:pie_chart/pie_chart.dart';
+import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
+import 'Home_Host.dart';
 
 
 class EventAttendancePage extends StatefulWidget {
@@ -33,30 +35,109 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
         .get();
         
   }
+void deleteEvent(BuildContext context, String eventId) {
+  // Show confirmation dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Confirm Deletion'),
+        content: Text('Are you sure you want to delete this event?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // Dismiss the dialog
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              // Call the function to delete the event
+              _deleteEvent(context, eventId);
+              
+            },
+            child: Text('Delete'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
-  
-  /*Widget _buildLocationWidget(String address, {String? eventLocation}) {
-    bool canOpenMap = eventLocation != null && eventLocation.isNotEmpty;
-    return ListTile(
-      leading: Icon(Icons.location_on, color: Colors.blue),
-      title: Text(address),
-      subtitle: canOpenMap
-          ? Text('Tap to open maps', style: TextStyle(color: Colors.blue))
-          : null,
-      onTap: canOpenMap
-          ? () async {
-              if (await canLaunch(eventLocation)) {
-                await launch(eventLocation);
-              } else {
+void _deleteEvent(BuildContext context, String eventId) {
+  // Delete the event from Firebase
+  FirebaseFirestore.instance.collection('events').doc(eventId).delete().then((_) {
+    // Show success message
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Success'),
+          content: Text('Event deleted successfully.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Close the success dialog
+       Navigator.push(
+    context,
+      MaterialPageRoute(builder: (context) => const homePage()),
+     );
+                // Navigate back to events page
+                // Show a snackbar to indicate successful deletion
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Could not launch maps link')),
+                  SnackBar(
+                    content: Text('Your deletion is completed.'),
+                    backgroundColor: Colors.green,
+                  ),
                 );
-              }
-            }
-          : null,
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
     );
-  }*/
-  
+  }).catchError((error) {
+    // Show an error message using an alert dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text('Failed to delete event: $error'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  });
+}
+
+
+
+/*
+void sendNotificationToInvitees(List<String> invitees) {
+  // Iterate through invitees and send notification
+  invitees.forEach((invitee) {
+    // Prepare the notification message
+    FcmNotification(
+      title: 'Event Update',
+      body: 'The event you were invited to has been canceled.',
+      data: {
+        // You can add additional data here if needed
+      },
+      to: invitee, // Receiver's FCM token
+    ).send();
+  });
+}
+*/
   Future<String?> _getFullNameFromPhoneNumber(String phoneNumber) async {
   try {
     // Query Firestore to find the document where the phoneNumber field matches the given phoneNumber
@@ -692,89 +773,54 @@ ExpansionTile(
     ],
   ),
 ), 
-
-  Container(
-padding: EdgeInsets.fromLTRB(80, 5, 80, 5), // Adds 100 pixels of padding to all sides
-  child:ElevatedButton(
-  onPressed: () {
-    // Check if the acceptedInvitees list is empty
-    if (acceptedInvitees.isEmpty) {
-      // Delete the event from Firebase
-      FirebaseFirestore.instance.collection('events').doc(widget.eventId).delete().then((_) {
-        // Show a success message using an alert dialog
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Success'),
-              content: Text('Event deleted successfully.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the alert dialog
-                    Navigator.pushReplacementNamed(context, 'my_events_page');
-               },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      }).catchError((error) {
-        // Show an error message using an alert dialog
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Error'),
-              content: Text('Failed to delete event: $error'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      });
-    } else {
-      // Show an alert dialog indicating that the event cannot be deleted
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Deletion Not Allowed'),
-            content: Text('Event cannot be deleted as there are accepted invitees.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
+   SizedBox(height: 10),
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceAround, // Adjust as needed
+  children: [
+    Container(
+      width: 170,
+      height: 40,
+      child: ElevatedButton(
+        onPressed: () {
+          // Add your edit button logic here
         },
-      );
-    }
-  },
-  child: Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Icon(Icons.delete, color: Colors.white), // Delete icon
-      SizedBox(width:8), // Add some space between icon and text
-      Text('Delete Event' ,style: TextStyle(
-    fontWeight: FontWeight.bold,)), // Button text
-    ],
-  ),
-  style: ElevatedButton.styleFrom(
-    foregroundColor: Colors.white, backgroundColor: Colors.red, // Text color
-  ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.edit, color: Colors.white), // Edit icon
+            SizedBox(width: 5),
+            Text('Edit Event', style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white, backgroundColor: Colors.blue,
+        ),
+      ),
     ),
-          ),
+    Container(
+    width: 170,
+      height: 40,
+      child: ElevatedButton(
+        onPressed: () {
+         deleteEvent(context, widget.eventId); 
+          // Add your delete button logic here
+        },
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.delete, color: Colors.white), // Delete icon
+            SizedBox(width: 5),
+            Text('Delete Event', style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white, backgroundColor: Colors.red,
+        ),
+      ),
+    ),
+  ],
+),
+  
    ],
 
 
