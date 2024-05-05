@@ -137,7 +137,8 @@ class _EditProfileState extends State<EditProfile> {
           builder: (BuildContext context) {
             return AlertDialog(
              backgroundColor:  Color.fromARGB(255, 255, 255, 255),
-              title: Text(""),
+              title: Text("Editing", 
+               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
               content: Text(
                 "No changes were made.",
               ),
@@ -489,6 +490,7 @@ class _EditProfileState extends State<EditProfile> {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
+         backgroundColor:  Color.fromARGB(255, 255, 255, 255),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -650,6 +652,7 @@ Future<void> deleteEventsForUser(String userID) async {
       return StatefulBuilder(
         builder: (context, setState) {
                return AlertDialog(
+         backgroundColor:  Color.fromARGB(255, 255, 255, 255),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
