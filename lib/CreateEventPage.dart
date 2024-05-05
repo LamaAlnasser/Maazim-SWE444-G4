@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,6 +7,15 @@ import 'package:maazim/Home_Host.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_sms/flutter_sms.dart';
 import 'package:country_picker/country_picker.dart';
+import 'dart:convert';
+import 'dart:math';
+import 'package:crypto/crypto.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/intl.dart';
+
+//Emailing the host
+//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
+import 'package:sendgrid_mailer/sendgrid_mailer.dart';
 
 class Event {
   final String eventName;
@@ -52,7 +62,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
   late DateTime _selectedDate = DateTime.now();
   late TimeOfDay _selectedTime = TimeOfDay.now();
   late List<TextEditingController> _inviteesPhoneControllers;
-  
 
   Country selectedCountry = Country(
       phoneCode: "966",
@@ -215,6 +224,50 @@ class _CreateEventPageState extends State<CreateEventPage> {
           'acceptedInvitees': [], // Initialize as empty list
           'rejectedInvitees': [], // Initialize as empty list
         }).then((value) {
+          //Added
+          // After the event is created, you have the event ID
+          String eventId = value.id;
+          String username = _generateUsername(eventId); // Using event ID
+          String originalPass = generatePlaintextPassword(8);
+          String password = generateHashedPassword(originalPass);
+
+          // Save the coordinator credentials to a new collection
+          FirebaseFirestore.instance.collection('coordinators').add({
+            'eventId': eventId,
+            'username': username,
+            'password': password, // Hashing before saving
+          }).then((_) {
+            // Print credentials as log
+            print(
+                'Coordinator credentials - Username: $username, Password: $password');
+            User? user = FirebaseAuth.instance.currentUser;
+            String userEmail = user?.email ?? 'No email found';
+
+            // Coordinator credentials saved, now send the email
+            // sendEmailConfirmation(
+            //   toEmail: userEmail, // Retrieved from the FirebaseAuth user object
+            //   eventName: _eventNameController.text,
+            //   eventAddress: _eventAddressController.text,
+            //   eventDateTime: _selectedDate.add(Duration(
+            //       hours: _selectedTime.hour,
+            //       minutes: _selectedTime
+            //           .minute)), // Converts selected date and time into a DateTime
+            //   eventType: _eventTypeController.text,
+            //   inviterName: _inviterNameController.text,
+            //   numberOfInvitees:
+            //       int.tryParse(_numberOfInviteesController.text) ??
+            //           0, // Parses the number of invitees safely
+            //   eventDuration:
+            //       _eventDuration, // Already an integer, no need to convert to string
+            //   coordinatorUsername:
+            //       username, // Generated username for the coordinator
+            //   coordinatorPassword:
+            //       originalPass, // Generated password for the coordinator
+            // );
+//i didnt send email reomve the comments above to send
+          });
+          //Until here
+
           _sendSMSInvitations(phoneNumbers);
           _onEventCreatedSuccessfully();
         }).catchError((error) {});
@@ -222,12 +275,110 @@ class _CreateEventPageState extends State<CreateEventPage> {
     }
   }
 
-  // Assuming this function is called after successfully creating an event
+  //Added
+  Future<void> sendEmailConfirmation({
+    required String toEmail,
+    required String eventName,
+    required String eventAddress,
+    required DateTime eventDateTime,
+    required String eventType,
+    required String inviterName,
+    required int numberOfInvitees,
+    required int eventDuration,
+    required String coordinatorUsername,
+    required String coordinatorPassword,
+  }) async {
+    try {
+      final mailer = Mailer(
+          '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');
+      final toAddress = Address(toEmail);
+      final fromAddress = Address(
+          'MaazimTeam@outlook.com'); // Use your verified sender email here
+      final dateFormat = DateFormat('EEEE, MMMM d, yyyy');
+      final timeFormat = DateFormat('h:mm a');
+      final eventDate = dateFormat.format(eventDateTime);
+      final eventTime = timeFormat.format(eventDateTime);
+
+      final subject = 'Confirmation for "$eventName" Event';
+      final content = Content(
+          'text/plain',
+          'Dear $inviterName,\n\n'
+              'Great news - your event "$eventName" is all set to go! Below you\'ll find the key details for your event:\n\n'
+              'Event Type: $eventType\n'
+              'Date: $eventDate\n'
+              'Time: $eventTime\n'
+              'Duration: $eventDuration hour(s)\n'
+              'Location: $eventAddress\n'
+              'Guests: $numberOfInvitees attendees expected\n\n'
+              'Coordinator Access\n'
+              'To ensure smooth management of your event, please provide your entry coordinator with the credentials below:\n\n'
+              'Username: $coordinatorUsername\n'
+              'Password: $coordinatorPassword\n\n'
+              'We\'re excited to be a part of your special day and look forward to helping you create memorable experiences.\n\n'
+              'Warm regards,\n'
+              'The Maazim Team');
+
+      final personalization = Personalization([toAddress]);
+      final email =
+          Email([personalization], fromAddress, subject, content: [content]);
+
+      final response = await mailer.send(email);
+      //print("Email sent: ${response.message}");
+    } catch (e) {
+      print("Failed to send email: $e");
+    }
+  }
+
+  //Added
+  String _generateUsername(String eventId) {
+    // Example: Use the event ID with some random text and append the domain
+    return 'EC_$eventId@Maazim.com';
+  }
+
+  //Added
+  // String _generatePassword() {
+  //   // Generate a random password
+  //   const length = 8;
+  //   final random = Random.secure();
+  //   const availableChars =
+  //       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  //   final password = List.generate(length,
+  //           (index) => availableChars[random.nextInt(availableChars.length)])
+  //       .join();
+
+  //   // Print the original password just to debug
+  //   print('Original Password: $password');
+
+  //   // Hash the password
+  //   var bytes = utf8.encode(password); // data being hashed
+  //   var digest = sha256.convert(bytes);
+
+  //   return digest.toString();
+  // }
+
+  String generatePlaintextPassword(int length) {
+    const allowedChars =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    final random = Random.secure();
+    final password = List.generate(length,
+        (index) => allowedChars[random.nextInt(allowedChars.length)]).join();
+    print('orginal pass  $password');
+    return password;
+  }
+
+  String generateHashedPassword(String password) {
+    final bytes = utf8.encode(password); // data being hashed
+    final digest = sha256.convert(bytes);
+
+    return digest.toString();
+  }
+
+  // Assuming this function is called afteraa successfully creating an event
   void _onEventCreatedSuccessfully() {
-     Navigator.push(
-    context,
+    Navigator.push(
+      context,
       MaterialPageRoute(builder: (context) => const homePage()),
-     );
+    );
   }
 
   bool _isValidLocation(String location) {
@@ -351,12 +502,12 @@ class _CreateEventPageState extends State<CreateEventPage> {
             }
 
             final duplicates = _inviteesPhoneControllers
-            .where((controller) => controller.text.trim() == value.trim())
-            .length;
-        if (duplicates > 1) {
-          return 'Duplicate phone number detected.';
-        }
-        return null; // If no duplicates are found, return null.
+                .where((controller) => controller.text.trim() == value.trim())
+                .length;
+            if (duplicates > 1) {
+              return 'Duplicate phone number detected.';
+            }
+            return null; // If no duplicates are found, return null.
           },
         ));
   }
@@ -408,16 +559,16 @@ class _CreateEventPageState extends State<CreateEventPage> {
       );
     }
   }
-  String? validateString(String? value, {int maxLength = 50}) {
-  if (value == null || value.isEmpty) {
-    return 'This field is required.';
-  }
-  if (value.length > maxLength) {
-    return 'Maximum length exceeded. Maximum characters: $maxLength';
-  }
-  return null;
-}
 
+  String? validateString(String? value, {int maxLength = 50}) {
+    if (value == null || value.isEmpty) {
+      return 'This field is required.';
+    }
+    if (value.length > maxLength) {
+      return 'Maximum length exceeded. Maximum characters: $maxLength';
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -495,11 +646,11 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your name';
                     }
-                     if (value.contains(RegExp(r'[0-9]'))) {
-                     return 'Note: only letters.';
-                      }
+                    if (value.contains(RegExp(r'[0-9]'))) {
+                      return 'Note: only letters.';
+                    }
                     if (value.length > 30) {
-                    return 'Maximum length exceeded. Maximum characters: 30';
+                      return 'Maximum length exceeded. Maximum characters: 30';
                     }
                     return null;
                   },
@@ -547,8 +698,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
                       return 'Please enter event name';
                     }
                     if (value.length > 30) {
-                  return 'Maximum length exceeded. Maximum characters: 30';
-                 }
+                      return 'Maximum length exceeded. Maximum characters: 30';
+                    }
                     return null;
                   },
                 ),
@@ -593,11 +744,11 @@ class _CreateEventPageState extends State<CreateEventPage> {
                       return 'Please enter event type';
                     }
                     if (value.contains(RegExp(r'[0-9]'))) {
-                     return 'Note: only letters.';
-                      }
+                      return 'Note: only letters.';
+                    }
                     if (value.length > 30) {
-                  return 'Maximum length exceeded. Maximum characters: 30';
-                 }
+                      return 'Maximum length exceeded. Maximum characters: 30';
+                    }
                     return null;
                   },
                 ),
@@ -817,10 +968,10 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter event address';
                     }
-                     if (value.length > 50) {
-                  return 'Maximum length exceeded. Maximum characters: 50';
-                 }
-                    return null; 
+                    if (value.length > 50) {
+                      return 'Maximum length exceeded. Maximum characters: 50';
+                    }
+                    return null;
                   },
                 ),
               ),
