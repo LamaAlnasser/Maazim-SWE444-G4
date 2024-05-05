@@ -142,7 +142,7 @@ class _GuestSignInPageState extends State<GuestLogIn> {
         _signInWithCredential(credential);
       },
       verificationFailed: (FirebaseAuthException e) {
-        _showSnackbar('Failed to Verify Phone Number: ${e.message}');
+        _phoneNumberError = 'Faild to verify phone number';
       },
       codeSent: (String verificationId, int? resendToken) {
         setState(() {
@@ -200,30 +200,31 @@ class _GuestSignInPageState extends State<GuestLogIn> {
 
   void _attemptPhoneNumberVerification() async {
     final phoneNumber = _phoneNumberController.text.trim();
-  if (_formKey.currentState!.validate()) {
-    // Clear any existing error message
-    setState(() {
-      _phoneNumberError = null;
-    });
-
-    // Check Firestore for the phone number
-    final querySnapshot = await FirebaseFirestore.instance
-        .collection('users') // Assuming 'users' is your collection
-        .where('phoneNumber', isEqualTo: phoneNumber)
-        .limit(1)
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
-      // Phone number exists in Firestore, set error message and rebuild the widget
+    if (_formKey.currentState!.validate()) {
+      // Clear any existing error message
       setState(() {
-        _phoneNumberError = 'This phone number is registerd';
+        _phoneNumberError = null;
       });
-    } else {
-      // Phone number does not exist in Firestore, proceed with verification
-      String completePhoneNumber = '+${selectedCountry.phoneCode}$phoneNumber';
-      _verifyPhoneNumber(completePhoneNumber);
+
+      // Check Firestore for the phone number
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('users') // Assuming 'users' is your collection
+          .where('phoneNumber', isEqualTo: phoneNumber)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Phone number exists in Firestore, set error message and rebuild the widget
+        setState(() {
+          _phoneNumberError = 'This phone number is registerd';
+        });
+      } else {
+        // Phone number does not exist in Firestore, proceed with verification
+        String completePhoneNumber =
+            '+${selectedCountry.phoneCode}$phoneNumber';
+        _verifyPhoneNumber(completePhoneNumber);
+      }
     }
-  }
   }
 
   FormFieldValidator<String> getValidatorForCountry(String phoneCode) {
@@ -307,7 +308,8 @@ class _GuestSignInPageState extends State<GuestLogIn> {
                                   true, // Needed for fillColor to take effect
                               fillColor:
                                   const Color(0xFF9a85a4).withOpacity(0.1),
-                                  errorText: _phoneNumberError, // Display the error message here
+                              errorText:
+                                  _phoneNumberError, // Display the error message here
                               enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(18),
                                   borderSide: BorderSide(
