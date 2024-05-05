@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:async'; // Import dart:async to use Timer
+import 'dart:async';
 
 class QRScanPage extends StatefulWidget {
   final String coordinatorUsername;
@@ -21,7 +21,7 @@ class _QRScanPageState extends State<QRScanPage> {
 
   String? displayMessage; // Changed to hold the display message directly
   Set<String> checkedInGuestIds =
-      Set(); // This set will track checked-in guests.
+      Set(); // This set will track checked-in guests
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
@@ -139,7 +139,7 @@ class _QRScanPageState extends State<QRScanPage> {
                 duration: 3); // Display this message for 10 seconds
 
             // Delay adding the guest ID to the set and updating Firestore
-            await Future.delayed(Duration(seconds: 10), () {
+            await Future.delayed(Duration(seconds: 5), () {
               checkedInGuestIds
                   .add(guestId); // Add the guest ID to the set after the delay
               updateFirestore(
