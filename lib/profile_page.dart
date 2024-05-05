@@ -186,7 +186,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 if (confirmLogout == true) {
                   await FirebaseAuth.instance.signOut();
                   Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => MyApp(), // Ensure WelcomePage is defined
+                    builder: (context) => WelcomePage(), // Ensure WelcomePage is defined
                   ));
                 }
               },
