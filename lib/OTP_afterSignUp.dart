@@ -220,7 +220,7 @@ class _OTP_afterSignUpState extends State<OTP_afterSignUp> {
         );
       }
     } on FirebaseAuthException catch (e) {
-      _showSnackbar('Failed to sign in: ${e.message}');
+      print('failed to sign up');
     }
   } //End
 
