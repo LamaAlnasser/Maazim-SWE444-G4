@@ -18,7 +18,7 @@ class _ChangePassState extends State<ChangePass> {
 
   String? errorMessage;
 
-  bool obscureCurrentPassword = false;
+  bool obscureCurrentPassword = true;
   final _formKey = GlobalKey<FormState>();
 
   @override
