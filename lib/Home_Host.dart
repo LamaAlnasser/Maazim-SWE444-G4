@@ -43,6 +43,7 @@ void _requestPermissions() {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
+                  backgroundColor:  Color.fromARGB(255, 255, 255, 255),
                   title: Text("Permission Required"),
                   content: Text(
                       "This app requires notification access to function properly."),
