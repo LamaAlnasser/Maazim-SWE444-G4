@@ -88,6 +88,10 @@ class _QRScanPageState extends State<QRScanPage> {
         textColor = Colors.red.shade800;
         backgroundColor = Colors.red.shade200;
         break;
+      case "Already checked in.":
+        textColor = Colors.orange.shade800;
+        backgroundColor = Colors.orange.shade200;
+        break;
       default:
         textColor = Colors.black87;
         backgroundColor = Colors.white24;
