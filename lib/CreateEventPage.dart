@@ -346,7 +346,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
       }).then((value) {
         _sendSMSInvitations(uniquePhoneNumbers.toList());
         _onEventCreatedSuccessfully();
-        scheduleEventReminder(selectedDateTime, _eventNameController.text);
       }).catchError((error) {
         setState(() {
           _errorMessage = 'Failed to create event: $error';
@@ -361,19 +360,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
     }
   }
 
-  void scheduleEventReminder(DateTime eventTime, String eventName) {
-    print("notification created");
-    AwesomeNotifications().createNotification(
-        content: NotificationContent(
-          id: 10,
-          channelKey: 'basic_channel',
-          title: 'Event Reminder',
-          body: 'Your event $eventName is starting soon!',
-        ),
-        schedule: NotificationCalendar.fromDate(
-            date: eventTime.subtract(Duration(hours: 1)), // 1 hour before event
-            preciseAlarm: true));
-  }
+  
 
   Future<bool> _checkEventConflict(DateTime selectedDateTime) async {
     final QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
