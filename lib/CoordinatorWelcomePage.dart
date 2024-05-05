@@ -180,97 +180,99 @@ class _cWelcomePageState extends State<cWelcomePage> {
               ),
             SizedBox(height: 50), // Space before logout button
 
-            // Logout Button
-            ElevatedButton(
-              onPressed: () async {
-                // Show the logout confirmation dialog
-                bool confirmLogout = await showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Center(
-                        child: Text(
+            // Logout Button start
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: ElevatedButton(
+                onPressed: () async {
+                  bool confirmLogout = await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        backgroundColor: Color.fromARGB(255, 255, 255, 255),
+                        title: Text(
                           "Logout",
                           style: TextStyle(
                               fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-                      ),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "Are you sure you want to log out?",
-                            textAlign: TextAlign.center,
+                        content: Text("Are you trying to log out?"),
+                        actions: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(false);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                shape: const StadiumBorder(),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 16),
+                                backgroundColor:
+                                    const Color(0xFF9a85a4).withOpacity(0.9),
+                              ),
+                              child: const Text('Cancel',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          Color.fromARGB(255, 255, 255, 255))),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(true);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                shape: const StadiumBorder(),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 16),
+                                backgroundColor:
+                                    const Color(0xFF9a85a4).withOpacity(0.9),
+                              ),
+                              child: const Text('OK',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          Color.fromARGB(255, 255, 255, 255))),
+                            ),
                           ),
                         ],
-                      ),
-                      actions: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(
-                                false); // Return false if user chooses "No"
-                          },
-                          style: ElevatedButton.styleFrom(
-                            shape: StadiumBorder(),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 16),
-                            backgroundColor: Color(0xFF9a85a4).withOpacity(0.9),
-                          ),
-                          child: Text(
-                            "Cancel",
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context)
-                                .pop(true); // Return true if user chooses "Yes"
-                          },
-                          style: ElevatedButton.styleFrom(
-                            shape: StadiumBorder(),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 16),
-                            backgroundColor: Color(0xFF9a85a4).withOpacity(0.9),
-                          ),
-                          child: Text(
-                            "OK",
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                );
-                // If the user confirms the logout, sign out and navigate to the main page
-                if (confirmLogout) {
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => MyApp()),
-                    (Route<dynamic> route) => false,
+                      );
+                    },
                   );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                shape: StadiumBorder(),
-                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                backgroundColor: Color(0xFF9a85a4).withOpacity(0.9),
-              ),
-              child: Text(
-                'Log Out',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+
+                  if (confirmLogout == true) {
+                    // Add your sign-out logic here
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) =>
+                          WelcomePage(), // Ensure WelcomePage is defined
+                    ));
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                        30), // Provides a rounded rectangle shape
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: const Color(0xFF9a85a4).withOpacity(0.9),
+                  minimumSize:
+                      Size(100, 30), // Ensures the button is not too small
+                ),
+                child: const Text(
+                  'Log Out',
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 255, 255, 255)),
                 ),
               ),
             ),
+            //Logout Button End
           ],
         ),
       ),
