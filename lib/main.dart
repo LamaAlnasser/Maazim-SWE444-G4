@@ -21,7 +21,7 @@ Future<void> main() async {
         channelKey: 'basic_channel',
         channelName: 'Basic notifications',
         channelDescription: 'Notification channel for basic tests',
-        defaultColor: Color(0xFF9D50DD),
+        defaultColor: Color(0xFF9a85a4),
         importance: NotificationImportance.High,
         ledColor: Colors.white,
         playSound: true,
