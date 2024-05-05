@@ -6,6 +6,10 @@ import 'package:maazim/layout.dart';
 import 'package:maazim/guestLogIn.dart';
 import 'package:maazim/main.dart';
 import 'package:maazim/signUp.dart';
+import 'package:maazim/entryCoordinatorPage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 class LogIn extends StatelessWidget {
   const LogIn({Key? key}) : super(key: key);
@@ -13,7 +17,7 @@ class LogIn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    body: LoginScreen(),
+      body: LoginScreen(),
     );
   }
 }
@@ -33,49 +37,86 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _errorMessage;
 
   Future<void> _login(BuildContext context) async {
-    try {
-      setState(() {
-        _errorMessage = null;
-        
-      });
+    setState(() {
+      _errorMessage = null;
+    });
 
-      if (_formKey.currentState != null && _formKey.currentState!.validate()) {
-        final email = _emailController.text.trim();
-        final password = _passwordController.text.trim();
-        if (email.isNotEmpty && password.isNotEmpty) {
+    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+
+      if (email.isEmpty || password.isEmpty) {
+        setState(() {
+          _errorMessage = 'Please enter both email and password.';
+        });
+        return;
+      }
+
+      // Check if the email is for a coordinator based on domain
+      if (email.endsWith('@Maazim.com')) {
+        // Coordinator login
+        final snapshot = await FirebaseFirestore.instance
+            .collection('coordinators')
+            .where('username', isEqualTo: email)
+            .get();
+
+        if (snapshot.docs.isEmpty) {
+          setState(() {
+            _errorMessage = 'No coordinator found with this email.';
+          });
+          return;
+        }
+        final userDoc = snapshot.docs.first;
+        final storedHashedPassword = userDoc['password'];
+        final inputHashedPassword =
+            sha256.convert(utf8.encode(password)).toString();
+        final emailPart =
+            email.split('@').first; // Get 'EC_Eeqh3PR9LgUlYVGLjxV0'
+        final coordinatorUsername =
+            emailPart.substring(3); // Remove the 'EC_' prefix
+
+        if (storedHashedPassword == inputHashedPassword) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => EntityCoordinatorPage(
+                    coordinatorUsername: coordinatorUsername)),
+          );
+        } else {
+          setState(() {
+            _errorMessage = 'Invalid password, please try again.';
+          });
+        }
+      } else {
+        // Guest login
+        try {
           await FirebaseAuth.instance.signInWithEmailAndPassword(
             email: email,
             password: password,
           );
 
-          // Check if user is authenticated
           if (FirebaseAuth.instance.currentUser != null) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => homePage()),
             );
           } else {
-            // Handle case where user is not authenticated
             setState(() {
-              _errorMessage = 'You have entered wrong email/password, please try again.';
+              _errorMessage =
+                  'You have entered wrong email/password, please try again.';
             });
           }
-        } /*else {
-          // Handle case where email or password is empty
-          setState(() {
-            _errorMessage = 'Please enter email and password.';
-          });
-        }*/
-      }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'invalid-credential') {
-        setState(() {
-          _errorMessage = 'You have entered wrong email/password, please try again.';
-        });
-      } else {
-        setState(() {
-          _errorMessage = e.message ?? 'An error occurred';
-        });
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+            setState(() {
+              _errorMessage = 'Invalid email or password.';
+            });
+          } else {
+            setState(() {
+              _errorMessage = e.message ?? 'An error occurred during login.';
+            });
+          }
+        }
       }
     }
   }
@@ -98,13 +139,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 20),
                     Text(
                       "Welcome Back",
-                      style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 10),
                     Text(
                       "Please enter your information to login",
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                      style: TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.normal),
                       textAlign: TextAlign.center,
                     ),
 
@@ -113,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
-                        cursorColor:Color(0xFF9a85a4) ,
+                        cursorColor: Color(0xFF9a85a4),
                         controller: _emailController,
                         decoration: InputDecoration(
                           labelText: "Email",
@@ -125,11 +168,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           fillColor: Color(0xFF9a85a4).withOpacity(0.1),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
+                            borderSide: BorderSide(
+                                color: Color(0xFF9a85a4).withOpacity(0.0)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                            borderSide: BorderSide(
+                                color: Color(0xFF9a85a4).withOpacity(0.6)),
                           ),
                           errorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
@@ -146,9 +191,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (value!.isEmpty) {
                             return 'Required email.';
                           }
-                           if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                      .hasMatch(value)) {
-                    return 'Please enter a valid email address.';
+                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                              .hasMatch(value)) {
+                            return 'Please enter a valid email address.';
                           }
                           return null;
                         },
@@ -160,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
-                        cursorColor:Color(0xFF9a85a4) ,
+                        cursorColor: Color(0xFF9a85a4),
                         controller: _passwordController,
                         decoration: InputDecoration(
                           labelText: "Password",
@@ -172,11 +217,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           fillColor: Color(0xFF9a85a4).withOpacity(0.1),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
+                            borderSide: BorderSide(
+                                color: Color(0xFF9a85a4).withOpacity(0.0)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+                            borderSide: BorderSide(
+                                color: Color(0xFF9a85a4).withOpacity(0.6)),
                           ),
                           errorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
@@ -187,13 +234,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderSide: BorderSide(color: Colors.red),
                           ),
                           filled: true,
-                          prefixIcon:  Icon(Icons.lock),
+                          prefixIcon: Icon(Icons.lock),
                         ),
                         obscureText: true,
                         validator: (value) {
                           if (value!.isEmpty) {
                             return 'Required password.';
-                          }    // Check if the entered value is a valid email address
+                          } // Check if the entered value is a valid email address
 
                           return null;
                         },
@@ -205,9 +252,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(height: 20),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
-                         child: Text(
+                        child: Text(
                           _errorMessage!,
-                          style: TextStyle(color: Color(0xFFAD331E), fontWeight: FontWeight.normal),
+                          style: TextStyle(
+                              color: Color(0xFFAD331E),
+                              fontWeight: FontWeight.normal),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -241,7 +290,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
+                          MaterialPageRoute(
+                              builder: (context) => const ForgotPasswordPage()),
                         );
                       },
                       child: const Text(
@@ -262,7 +312,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const SignUp()),
+                              MaterialPageRoute(
+                                  builder: (context) => const SignUp()),
                             );
                           },
                           child: const Text(
@@ -282,14 +333,15 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
 
           // Back Button
-         Positioned(
+          Positioned(
             bottom: 25.0,
             left: 15,
             child: ElevatedButton(
-               onPressed: () async {
+              onPressed: () async {
                 await FirebaseAuth.instance.signOut();
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => WelcomePage(), // Ensure WelcomePage is defined
+                  builder: (context) =>
+                      WelcomePage(), // Ensure WelcomePage is defined
                 ));
               },
               style: ElevatedButton.styleFrom(
