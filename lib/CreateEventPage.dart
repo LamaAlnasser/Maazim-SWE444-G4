@@ -263,7 +263,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
       if (uniquePhoneNumbers.length != numberOfInvitees) {
         setState(() {
           _errorMessage =
-              'Number of selected invitees does not match the specified number.';
+              'Number of selected invitees does not match the specified number of invitees.';
         });
         // Set a timer to clear the error message after 5 seconds
         Future.delayed(Duration(seconds: 5), () {
@@ -409,9 +409,15 @@ class _CreateEventPageState extends State<CreateEventPage> {
     String message = "You're invited to ${_eventNameController.text} on "
         "${_selectedDate.toIso8601String()}. \n Please visit the Maazim application to accept or reject (RSVP) the invitation";
     sendSMS(message: message, recipients: phoneNumbers).catchError((error) {
-      //ScaffoldMessenger.of(context).showSnackBar(
-      //SnackBar(content: Text('Failed to send invitations: $error')),
-      // );
+      setState(() {
+        _errorMessage = 'Could not send SMS';
+      });
+       // Set a timer to clear the error message after 5 seconds
+      Future.delayed(Duration(seconds: 5), () {
+        setState(() {
+          _errorMessage = ''; // Clear the error message
+        });
+      });
     });
   }
 
@@ -611,7 +617,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
       }
       setState(() {
         filteredContacts = tmp;
-        print("hoor");
+        print("Filterd the contacts list");
       });
     }
 
