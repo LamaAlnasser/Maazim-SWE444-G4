@@ -11,6 +11,9 @@ import 'package:country_picker/country_picker.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'CoordinatorCredentialsGenerator.dart';
+import 'package:sendgrid_mailer/sendgrid_mailer.dart';
+import 'package:intl/intl.dart';
 
 class Event {
   final String eventName;
@@ -126,36 +129,36 @@ class _CreateEventPageState extends State<CreateEventPage> {
               Text("This app requires contact access to function properly."),
           actions: <Widget>[
             ElevatedButton(
-                 style: ElevatedButton.styleFrom(
-                    shape: const StadiumBorder(),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 16),
-                    backgroundColor: const Color(0xFF9a85a4)
-                        .withOpacity(0.9), // Rounded corners
-                  ),
-                  child: const Text('cancel',
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255))),
+              style: ElevatedButton.styleFrom(
+                shape: const StadiumBorder(),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                backgroundColor:
+                    const Color(0xFF9a85a4).withOpacity(0.9), // Rounded corners
+              ),
+              child: const Text('cancel',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 255, 255, 255))),
               onPressed: () {
                 Navigator.of(context)
                     .pop(); // Dismiss the dialog but do nothing
               },
             ),
             ElevatedButton(
-                 style: ElevatedButton.styleFrom(
-                    shape: const StadiumBorder(),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 16),
-                    backgroundColor: const Color(0xFF9a85a4)
-                        .withOpacity(0.9), // Rounded corners
-                  ),
-                  child: const Text('Open Settings',
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255))),
+              style: ElevatedButton.styleFrom(
+                shape: const StadiumBorder(),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                backgroundColor:
+                    const Color(0xFF9a85a4).withOpacity(0.9), // Rounded corners
+              ),
+              child: const Text('Open Settings',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 255, 255, 255))),
               onPressed: () {
                 openAppSettings(); // Open app settings
               },
@@ -168,12 +171,14 @@ class _CreateEventPageState extends State<CreateEventPage> {
 
   @override
   void initState() {
-      AwesomeNotifications().setListeners(
-    onActionReceivedMethod: NotificationController.onActionReceivedMethod,
-    onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
-    onNotificationCreatedMethod: NotificationController.onNotificationCreatedMethod,
-    onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod
-  );
+    AwesomeNotifications().setListeners(
+        onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+        onNotificationDisplayedMethod:
+            NotificationController.onNotificationDisplayedMethod,
+        onNotificationCreatedMethod:
+            NotificationController.onNotificationCreatedMethod,
+        onDismissActionReceivedMethod:
+            NotificationController.onDismissActionReceivedMethod);
     super.initState();
     _eventNameController = TextEditingController();
     _eventAddressController = TextEditingController();
@@ -182,7 +187,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
     _inviterNameController = TextEditingController();
     _numberOfInviteesController = TextEditingController();
     _inviteesPhoneControllers = [TextEditingController()];
-    _searchController  = TextEditingController();
+    _searchController = TextEditingController();
     _checkPermissionsAndLoadContacts();
     // Fetch user data and autofill inviter name
     _fetchUserData();
@@ -295,7 +300,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
               actions: [
                 ElevatedButton(
                   onPressed: () => Navigator.of(context).pop(),
-                    style: ElevatedButton.styleFrom(
+                  style: ElevatedButton.styleFrom(
                     shape: const StadiumBorder(),
                     padding: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 16),
@@ -343,7 +348,50 @@ class _CreateEventPageState extends State<CreateEventPage> {
         'duration': newEvent.duration,
         'acceptedInvitees': [],
         'rejectedInvitees': [],
-      }).then((value) {
+      }).then((docRef) async {
+        //1. Generate coordinator credentials
+        // After the event document is successfully added, generate credentials
+        CoordinatorCredentialsGenerator generator =
+            CoordinatorCredentialsGenerator();
+        Map<String, String> credentials =
+            generator.generateCredentials(_eventNameController.text, docRef.id);
+        // Store the credentials in the 'coordinators' collection
+        await FirebaseFirestore.instance
+            .collection('coordinators')
+            .doc(docRef.id)
+            .set({
+          'eventId': docRef.id,
+          'CoordinatorUsername': credentials['username'],
+          'hashedPassword': credentials['hashedPassword'],
+          'Email': credentials['email'],
+        });
+        User? user = FirebaseAuth.instance.currentUser;
+        String userEmail = user?.email ?? 'No email found';
+        String coordinatorEmail =
+            credentials['email'] ?? ''; // Provide a default value
+        String coordinatorPassword =
+            credentials['password'] ?? ''; // Provide a default value
+        // Coordinator credentials saved, now send the email
+        sendEmailConfirmation(
+          toEmail: userEmail, // Retrieved from the FirebaseAuth user object
+          eventName: _eventNameController.text,
+          eventAddress: _eventAddressController.text,
+          eventDateTime: _selectedDate.add(Duration(
+              hours: _selectedTime.hour,
+              minutes: _selectedTime
+                  .minute)), // Converts selected date and time into a DateTime
+          eventType: _eventTypeController.text,
+          inviterName: _inviterNameController.text,
+          numberOfInvitees: int.tryParse(_numberOfInviteesController.text) ??
+              0, // Parses the number of invitees safely
+          eventDuration:
+              _eventDuration, // Already an integer, no need to convert to string
+          coordinatorEmail: coordinatorEmail,
+          // Generated username for the coordinator
+          coordinatorPassword: coordinatorPassword,
+          // Generated password for the coordinator
+        );
+        //2. Send SMS to  invitees
         _sendSMSInvitations(uniquePhoneNumbers.toList());
         _onEventCreatedSuccessfully();
       }).catchError((error) {
@@ -360,7 +408,59 @@ class _CreateEventPageState extends State<CreateEventPage> {
     }
   }
 
-  
+  Future<void> sendEmailConfirmation({
+    required String toEmail,
+    required String eventName,
+    required String eventAddress,
+    required DateTime eventDateTime,
+    required String eventType,
+    required String inviterName,
+    required int numberOfInvitees,
+    required int eventDuration,
+    required String coordinatorEmail,
+    required String coordinatorPassword,
+  }) async {
+    try {
+      final mailer = Mailer(
+          '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');
+      final toAddress = Address(toEmail);
+      final fromAddress = Address(
+          'MaazimTeam@outlook.com'); // Use your verified sender email here
+      final dateFormat = DateFormat('EEEE, MMMM d, yyyy');
+      final timeFormat = DateFormat('h:mm a');
+      final eventDate = dateFormat.format(eventDateTime);
+      final eventTime = timeFormat.format(eventDateTime);
+
+      final subject = 'Confirmation for "$eventName" Event';
+      final content = Content(
+          'text/plain',
+          'Dear $inviterName,\n\n'
+              'Great news - your event "$eventName" is all set to go! Below you\'ll find the key details for your event:\n\n'
+              'Event Type: $eventType\n'
+              'Date: $eventDate\n'
+              'Time: $eventTime\n'
+              'Duration: $eventDuration hour(s)\n'
+              'Location: $eventAddress\n'
+              'Guests: $numberOfInvitees attendees expected\n\n'
+              'Coordinator Access\n'
+              'To ensure smooth management of your event, please provide your entry coordinator with the credentials below:\n\n'
+              'Email: $coordinatorEmail\n'
+              'Password: $coordinatorPassword\n\n'
+              'Just a little heads-up: entry coordinators aren’t able to change their passwords once set. We ask that you keep these credentials safe and sound — they’re key to a smooth entry at your event!\n\n'
+              'We\'re excited to be a part of your special day and look forward to helping you create memorable experiences.\n\n'
+              'Warm regards,\n'
+              'The Maazim Team');
+
+      final personalization = Personalization([toAddress]);
+      final email =
+          Email([personalization], fromAddress, subject, content: [content]);
+
+      final response = await mailer.send(email);
+      //print("Email sent: ${response.message}");
+    } catch (e) {
+      print("Failed to send email: $e");
+    }
+  }
 
   Future<bool> _checkEventConflict(DateTime selectedDateTime) async {
     final QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
@@ -696,11 +796,16 @@ class _CreateEventPageState extends State<CreateEventPage> {
                               itemCount: filteredContacts.length,
                               itemBuilder: (BuildContext context, int index) {
                                 Contact contact = filteredContacts[index];
-                                print("Phones for contact: ${contact.displayName} are: ${contact.phones}");
+                                print(
+                                    "Phones for contact: ${contact.displayName} are: ${contact.phones}");
                                 return ListTile(
                                   key: ValueKey(contact.identifier),
                                   title: Text(contact.displayName ?? "No Name"),
-                                  subtitle: Text(contact.phones != null && contact.phones!.isNotEmpty ? contact.phones!.first.value ?? "No Number" : "No Number"),
+                                  subtitle: Text(contact.phones != null &&
+                                          contact.phones!.isNotEmpty
+                                      ? contact.phones!.first.value ??
+                                          "No Number"
+                                      : "No Number"),
                                   trailing: Checkbox(
                                     value: _selectedContacts.contains(contact),
                                     onChanged: (bool? value) {
