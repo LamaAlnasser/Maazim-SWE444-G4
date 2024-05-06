@@ -1,10 +1,26 @@
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:maazim/EditEventPage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart'; // Add this import to format the date and time
 import 'package:pie_chart/pie_chart.dart';
+import  'package:maazim/Event.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
+import 'package:maazim/Home_Host.dart';
+import 'package:maazim/EditEventPage.dart';
+
+import 'package:maazim/notification.dart';
+
+//import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
+import 'Home_Host.dart';
 
 
 class EventAttendancePage extends StatefulWidget {
@@ -20,8 +36,8 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
   late Future<DocumentSnapshot> eventDetailsFuture;
   
   get dataMap => null;
-  
-  get phoneNumber => null;
+    late Event? event;
+    
 
   @override
   void initState() {
@@ -30,29 +46,201 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
         .collection('events')
         .doc(widget.eventId)
         .get();
+        
   }
+  
 
-  /*Widget _buildLocationWidget(String address, {String? eventLocation}) {
-    bool canOpenMap = eventLocation != null && eventLocation.isNotEmpty;
-    return ListTile(
-      leading: Icon(Icons.location_on, color: Colors.blue),
-      title: Text(address),
-      subtitle: canOpenMap
-          ? Text('Tap to open maps', style: TextStyle(color: Colors.blue))
-          : null,
-      onTap: canOpenMap
-          ? () async {
-              if (await canLaunch(eventLocation)) {
-                await launch(eventLocation);
-              } else {
+void deleteEvent(BuildContext context, String eventId) {
+  // Show confirmation dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Confirm Deletion'),
+        content: Text('Are you sure you want to delete this event?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // Dismiss the dialog
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              // Call the function to delete the event
+              _deleteEvent(context, eventId);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Event updated successfully")));
+              Navigator.pop(context);
+              _sendNotificationsToInvitees(); // To send FCM notifications
+              _notifyLocalUpdate();
+            },
+            child: Text('Delete'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+  void _sendNotificationsToInvitees() async {
+  AwesomeNotifications().createNotification(
+    content: NotificationContent(
+      id: DateTime.now().microsecondsSinceEpoch.remainder(1000000),
+      channelKey: 'basic_channel',
+      title: '${event!.eventName} Updated!',
+      body: 'The event you are invited to has been Deleted. Please check the details.',
+      notificationLayout: NotificationLayout.Default,
+    ),
+    actionButtons: [
+      NotificationActionButton(
+        key: 'OPEN_EVENT',
+        label: 'View Event',
+      ),
+    ],
+    // The schedule parameter is optional, use it if you want to schedule the notification
+  );
+}
+
+void _notifyLocalUpdate() {
+  AwesomeNotifications().createNotification(
+    content: NotificationContent(
+      id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+      channelKey: 'basic_channel',
+      title: 'Event delete',
+      body: 'Your event has been deleted. Check out the latest details!',
+    ),
+  );
+}
+ 
+void _deleteEvent(BuildContext context, String eventId) {
+  // Delete the event from Firebase
+  FirebaseFirestore.instance.collection('events').doc(eventId).delete().then((_) {
+    // Show success message
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Success'),
+          content: Text('Event deleted successfully.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Close the success dialog
+       Navigator.push(
+    context,
+      MaterialPageRoute(builder: (context) => const homePage()),
+     );
+                // Navigate back to events page
+                // Show a snackbar to indicate successful deletion
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Could not launch maps link')),
+                  SnackBar(
+                    content: Text('Your deletion is completed.'),
+                    backgroundColor: Colors.green,
+                  ),
                 );
-              }
-            }
-          : null,
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
     );
-  }*/
+  }).catchError((error) {
+    // Show an error message using an alert dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text('Failed to delete event: $error'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  });
+}
+
+void navigateToEditEventPage(BuildContext context, String eventId) {
+Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => EditEventPage(eventId: eventId)),
+  );
+
+}
+/*
+void editEvent(BuildContext context, String eventId) async {
+  // Show a loading indicator
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return Center(child: CircularProgressIndicator());
+    },
+  );
+
+  Event? event = await fetchEventByIdFromFirestore(eventId);
+
+  // Dismiss the loading indicator
+  Navigator.pop(context);
+  if (event != null) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditEventPage(eventId: eventId), // Pass the entire event object
+      ),
+    );
+  } else {
+    // Handle the case where the event was not found
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Event not found.'))
+    );
+  }
+}
+
+
+
+Future<Event?> fetchEventByIdFromFirestore(String eventId) async {
+  CollectionReference eventsRef = FirebaseFirestore.instance.collection('events');
+
+  try {
+    DocumentSnapshot eventDoc = await eventsRef.doc(eventId).get();
+    if (eventDoc.exists && eventDoc.data() != null) {
+      Map<String, dynamic> data = eventDoc.data() as Map<String, dynamic>;
+      Event event = Event(
+        eventName: data['eventName'],
+        address: data['address'],
+        eventLocation: data['eventLocation'],
+        eventType: data['eventType'],
+        eventDate: (data['eventDateTime'] as Timestamp).toDate(),
+        eventTime: TimeOfDay.fromDateTime((data['eventDateTime'] as Timestamp).toDate()),
+        inviterName: data['inviterName'],
+        numberOfInvitees: data['numberOfInvitees'],
+        inviteesPhoneNumbers: List<String>.from(data['inviteesPhoneNumbers']),
+        duration: data['duration'],
+      );
+      return event;
+    }
+  } catch (e) {
+    print('Error fetching event: $e');
+    return null;
+  }
+  return null;
+}
+
+
+
+*/
+
+
+
   Future<String?> _getFullNameFromPhoneNumber(String phoneNumber) async {
   try {
     // Query Firestore to find the document where the phoneNumber field matches the given phoneNumber
@@ -80,6 +268,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
     return null;
   }
 }
+
   Widget _buildLocationWidget(String address, {String? eventLocation}) {
   bool canOpenMap = eventLocation != null && eventLocation.isNotEmpty;
   return Container(
@@ -110,7 +299,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
           size: 30,
         ),
       ),
-    ),
+    ), 
       title: Text(
        'Address'  ,
         style: TextStyle(
@@ -545,7 +734,8 @@ Container(
     ],
         ),
       ),
-      SizedBox(height: 10), // Add some space between title and ExpansionTiles
+        Container( height: 2,color: Color(0xFF9a85a4)),SizedBox(height: 5),
+     // Add some space between title and ExpansionTiles
 
 ExpansionTile(
 title: Text('Accepted Attendees (${acceptedInvitees.length})'),
@@ -657,11 +847,12 @@ ExpansionTile(
       ),
     ],
         ),
-      ),
+      ),      Container( height: 2,color: Color(0xFF9a85a4)),
+
       // Placeholder for attendance chart can be added here
 
  Container(
-  
+ 
   height: 150,
   child: PieChart(
     dataMap: dataMap,
@@ -684,15 +875,69 @@ ExpansionTile(
  
     ],
   ),
+), 
+   SizedBox(height: 10),
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceAround, // Adjust as needed
+  children: [
+    Container(
+      width: 170,
+      height: 40,
+      child: ElevatedButton(
+        onPressed: () {
+             // Navigate to the EditEventPage when the button is pressed
+        //editEvent(context ,widget.eventId);
+          navigateToEditEventPage(context,widget.eventId);
+        },
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.edit, color: Colors.white), // Edit icon
+            SizedBox(width: 5),
+            Text('Edit Event', style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white, backgroundColor: Colors.blue,
+        ),
+      ),
+    ),
+    Container(
+    width: 170,
+      height: 40,
+      child: ElevatedButton(
+        onPressed: () {
+         deleteEvent(context, widget.eventId); 
+          // Add your delete button logic here
+        },
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.delete, color: Colors.white), // Delete icon
+            SizedBox(width: 5),
+            Text('Delete Event', style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white, backgroundColor: Colors.red,
+        ),
+      ),
+    ),
+  ],
 ),
+  
+   ],
 
 
-            ],
-          );
+);
+
+          
         },
       ),
-    );
+    ); 
+                  
   }
+  
 
   // This helper function computes the list of pending invitees.
   List<String> _calculatePendingInvitees(Map<String, dynamic> eventData) {
@@ -707,6 +952,8 @@ ExpansionTile(
             !accepted.contains(phoneNumber) && !rejected.contains(phoneNumber))
         .toList();
   }
+  
 
 
 }
+
