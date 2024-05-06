@@ -82,7 +82,18 @@ void deleteEvent(BuildContext context, String eventId) {
     },
   );
 }
-
+void _deleteEntryCoordinator(String eventId) {
+  print('Attempting to delete coordinator with ID: $eventId');
+  FirebaseFirestore.instance
+      .collection('coordinators')
+      .doc(eventId)
+      .delete()
+      .then((_) {
+        print('Entry coordinator deleted successfully');
+      }).catchError((error) {
+        print('Failed to delete entry coordinator: $error');
+      });
+}
   void _sendNotificationsToInvitees() async {
   AwesomeNotifications().createNotification(
     content: NotificationContent(
@@ -881,7 +892,7 @@ Row(
   mainAxisAlignment: MainAxisAlignment.spaceAround, // Adjust as needed
   children: [
     Container(
-      width: 170,
+      width: 150,
       height: 40,
       child: ElevatedButton(
         onPressed: () {
@@ -894,7 +905,7 @@ Row(
           children: [
             Icon(Icons.edit, color: Colors.white), // Edit icon
             SizedBox(width: 5),
-            Text('Edit Event', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text('Edit ', style: TextStyle(fontWeight: FontWeight.bold)),
           ],
         ),
         style: ElevatedButton.styleFrom(
@@ -903,7 +914,7 @@ Row(
       ),
     ),
     Container(
-    width: 170,
+    width: 150,
       height: 40,
       child: ElevatedButton(
         onPressed: () {
@@ -915,7 +926,7 @@ Row(
           children: [
             Icon(Icons.delete, color: Colors.white), // Delete icon
             SizedBox(width: 5),
-            Text('Delete Event', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text('Delete', style: TextStyle(fontWeight: FontWeight.bold)),
           ],
         ),
         style: ElevatedButton.styleFrom(
