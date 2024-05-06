@@ -22,12 +22,13 @@ class _MyInvitationsPageState extends State<MyInvitationsPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-            Padding(
+          Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
             child: Text(
               'My Invitations',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-            ),),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -101,12 +102,14 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
 
   @override
   void initState() {
-          AwesomeNotifications().setListeners(
-    onActionReceivedMethod: NotificationController.onActionReceivedMethod,
-    onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
-    onNotificationCreatedMethod: NotificationController.onNotificationCreatedMethod,
-    onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod
-  );
+    AwesomeNotifications().setListeners(
+        onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+        onNotificationDisplayedMethod:
+            NotificationController.onNotificationDisplayedMethod,
+        onNotificationCreatedMethod:
+            NotificationController.onNotificationCreatedMethod,
+        onDismissActionReceivedMethod:
+            NotificationController.onDismissActionReceivedMethod);
     super.initState();
     getCurrentUserPhoneNumber().then((phone) {
       if (phone != null && mounted) {
@@ -194,7 +197,7 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
         // Compare endTime with the current time
         if (endTime.isAfter(DateTime.now())) {
           invitations.add(invitation);
-          scheduleReminder(invitation);  // Schedule the reminder
+          scheduleReminder(invitation); // Schedule the reminder
         }
       }
 
@@ -221,24 +224,26 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
   }
 
   Future<void> scheduleReminder(Map<String, dynamic> invitation) async {
-  DateTime eventDateTime = (invitation['eventDateTime'] as Timestamp).toDate();
-  DateTime reminderTime = eventDateTime.subtract(Duration(days: 2));
+    DateTime eventDateTime =
+        (invitation['eventDateTime'] as Timestamp).toDate();
+    DateTime reminderTime = eventDateTime.subtract(Duration(days: 2));
 
-  AwesomeNotifications().createNotification(
-    content: NotificationContent(
-      id: DateTime.now().millisecondsSinceEpoch.remainder(100000), // Unique ID for the notification
-      channelKey: 'basic_channel',
-      title: 'Reminder: ${invitation['eventName']}',
-      body: 'Your event is in two days. Don\'t forget to attend it!',
-      payload: {'invitationId': '123'},
-      notificationLayout: NotificationLayout.Default,
-      displayOnForeground: true,
-      displayOnBackground: true,
-    ),
-    schedule: NotificationCalendar.fromDate(date: reminderTime),
-  );
-}
-
+    AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: DateTime.now()
+            .millisecondsSinceEpoch
+            .remainder(100000), // Unique ID for the notification
+        channelKey: 'basic_channel',
+        title: 'Reminder: ${invitation['eventName']}',
+        body: 'Your event is in two days. Don\'t forget to attend it!',
+        payload: {'invitationId': '123'},
+        notificationLayout: NotificationLayout.Default,
+        displayOnForeground: true,
+        displayOnBackground: true,
+      ),
+      schedule: NotificationCalendar.fromDate(date: reminderTime),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -452,14 +457,15 @@ class _PastInvitationsState extends State<PastInvitations> {
 
   @override
   void initState() {
-    
     super.initState();
-              AwesomeNotifications().setListeners(
-    onActionReceivedMethod: NotificationController.onActionReceivedMethod,
-    onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
-    onNotificationCreatedMethod: NotificationController.onNotificationCreatedMethod,
-    onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod
-  );
+    AwesomeNotifications().setListeners(
+        onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+        onNotificationDisplayedMethod:
+            NotificationController.onNotificationDisplayedMethod,
+        onNotificationCreatedMethod:
+            NotificationController.onNotificationCreatedMethod,
+        onDismissActionReceivedMethod:
+            NotificationController.onDismissActionReceivedMethod);
     getCurrentUserPhoneNumber().then((phone) {
       // Make sure to check if the widget is still mounted before calling setState
       if (phone != null && mounted) {
@@ -750,7 +756,8 @@ class InvitationDetailPage extends StatefulWidget {
   const InvitationDetailPage({
     Key? key,
     required this.invitation,
-    required this.phoneNumber, String? invitationId, // Modify the constructor to require a phoneNumber
+    required this.phoneNumber,
+    String? invitationId, // Modify the constructor to require a phoneNumber
   }) : super(key: key);
 
   @override
@@ -791,41 +798,42 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                 await launch(uri.toString());
               } else {
                 // Display error message for invalid map link
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(
-              'Invalid Map Link',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            content:
-                Text('Please provide a valid Google Maps or iOS Maps link.'),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text(
+                        'Invalid Map Link',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      content: Text(
+                          'Please provide a valid Google Maps or iOS Maps link.'),
+                      actions: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              shape: const StadiumBorder(),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 16),
+                              backgroundColor: const Color(0xFF9a85a4)
+                                  .withOpacity(0.9), // Rounded corners
+                            ),
+                            child: const Text('OK',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color.fromARGB(255, 255, 255, 255))),
+                          ),
+                        ),
+                      ],
+                    );
                   },
-                  style: ElevatedButton.styleFrom(
-                    shape: const StadiumBorder(),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 16),
-                    backgroundColor: const Color(0xFF9a85a4)
-                        .withOpacity(0.9), // Rounded corners
-                  ),
-                  child: const Text('OK',
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255))),
-                ),
-              ),
-            ],
-          );
-        },
-      );
+                );
               }
             },
             child: Padding(
@@ -868,6 +876,14 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
     String formattedDate = DateFormat('EEEE, MMMM d, yyyy').format(eventDate);
     String formattedTime = DateFormat('h:mm a')
         .format(eventDate); // Formats to a 12-hour format with AM/PM
+
+//Added
+    DateTime eventDateTime =
+        (widget.invitation['eventDateTime'] as Timestamp).toDate();
+    int duration = widget.invitation['duration']; //'duration' is in hours
+    DateTime endTime = eventDateTime.add(Duration(hours: duration));
+    DateTime now = DateTime.now();
+    //till here
 
     double fem = MediaQuery.of(context).size.width / 400;
     return Scaffold(
@@ -988,7 +1004,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                         fontWeight: FontWeight.w700),
                   ),
                 ),
-                if (!hasAccepted && !hasRejected) ...[
+                if (!hasAccepted && !hasRejected && now.isBefore(endTime)) ...[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -1167,52 +1183,53 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              backgroundColor:  Color.fromARGB(255, 255, 255, 255),
-              title:
-                  Text('Confirm\nYour Response',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+              backgroundColor: Color.fromARGB(255, 255, 255, 255),
+              title: Text(
+                'Confirm\nYour Response',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               content: Text(
-                  'Are you sure you want to ${isAccepted ? 'accept' : 'reject'} this invitation?',
-                ),
+                'Are you sure you want to ${isAccepted ? 'accept' : 'reject'} this invitation?',
+              ),
               actions: <Widget>[
                 Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: const StadiumBorder(),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 16),
-                    backgroundColor: const Color(0xFF9a85a4)
-                        .withOpacity(0.9), // Rounded corners
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: const StadiumBorder(),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 16),
+                      backgroundColor: const Color(0xFF9a85a4)
+                          .withOpacity(0.9), // Rounded corners
+                    ),
+                    child: const Text('Cancel',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 255, 255, 255))),
                   ),
-                  child: const Text('Cancel',
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255))),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                child: ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  style: ElevatedButton.styleFrom(
-                    shape: const StadiumBorder(),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 16),
-                    backgroundColor: const Color(0xFF9a85a4)
-                        .withOpacity(0.9), // Rounded corners
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    style: ElevatedButton.styleFrom(
+                      shape: const StadiumBorder(),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 16),
+                      backgroundColor: const Color(0xFF9a85a4)
+                          .withOpacity(0.9), // Rounded corners
+                    ),
+                    child: Text(isAccepted ? 'Accept' : 'Reject',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 255, 255, 255))),
                   ),
-                  child: Text(isAccepted ? 'Accept' : 'Reject',
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255))),
                 ),
-              ),
               ],
             );
           },
