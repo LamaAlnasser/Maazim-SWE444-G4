@@ -14,31 +14,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'CoordinatorCredentialsGenerator.dart';
 import 'package:sendgrid_mailer/sendgrid_mailer.dart';
 import 'package:intl/intl.dart';
-
-class Event {
-  final String eventName;
-  final String address; // New property for address
-  final String eventLocation;
-  final String eventType;
-  final DateTime eventDate;
-  final TimeOfDay eventTime;
-  final String inviterName;
-  final int numberOfInvitees;
-  final List<String> inviteesPhoneNumbers;
-  final int duration; // Duration of the event in hours
-  Event({
-    required this.eventName,
-    required this.address,
-    required this.eventLocation,
-    required this.eventType,
-    required this.eventDate,
-    required this.eventTime,
-    required this.inviterName,
-    required this.numberOfInvitees,
-    required this.inviteesPhoneNumbers,
-    required this.duration,
-  });
-}
+import 'package:maazim/Event.dart';
 
 class CreateEventPage extends StatefulWidget {
   const CreateEventPage({Key? key}) : super(key: key);
@@ -248,8 +224,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
           dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255), // background color
              textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(
-              primary: Colors.white, // Text color
-              backgroundColor:  Color(0xFF9a85a4),
+              foregroundColor: Colors.white, backgroundColor:  Color(0xFF9a85a4),
               padding: EdgeInsets.symmetric(horizontal: 10), // Button background color
               shape: RoundedRectangleBorder( // Button shape
                 borderRadius: BorderRadius.circular(18),
@@ -284,8 +259,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
           dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255),
           textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(
-              primary: Colors.white, // Text color for buttons
-              backgroundColor: Color(0xFF9a85a4), 
+              foregroundColor: Colors.white, backgroundColor: Color(0xFF9a85a4), 
               padding: EdgeInsets.symmetric(horizontal: 10),// Button background color
               shape: RoundedRectangleBorder( // Button shape
                 borderRadius: BorderRadius.circular(18),
