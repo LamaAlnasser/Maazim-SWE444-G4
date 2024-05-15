@@ -858,11 +858,16 @@ content: Column(
 
 Future<void> deleteEventsForUser(String userID) async {
   try {
-    QuerySnapshot eventsSnapshot = await FirebaseFirestore.instance.collection('Event').where('userID', isEqualTo: userID).get();
-    for (QueryDocumentSnapshot eventDoc in eventsSnapshot.docs) {
-      await eventDoc.reference.delete();
+    QuerySnapshot eventsSnapshot = await FirebaseFirestore.instance.collection('events').where('userId', isEqualTo: userID).get();
+    if (eventsSnapshot.size > 0) {
+      // If there are events associated with the user
+      for (QueryDocumentSnapshot eventDoc in eventsSnapshot.docs) {
+        await eventDoc.reference.delete();
+      }
+      print('Events deleted successfully for user ID: $userID');
+    } else {
+      print('No events found for user ID: $userID');
     }
-    print('Events deleted successfully for user ID: $userID');
   } catch (error) {
     print('Error deleting events: $error');
   }
