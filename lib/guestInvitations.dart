@@ -767,19 +767,20 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
   late bool hasAccepted;
   late bool hasRejected;
   late bool changed = false;
-
   Widget _buildLocationWidget(String address,
       {String? eventLocation, double fem = 1.0}) {
     List<Widget> locationWidgets = [];
 
     // Always add the address.
     locationWidgets.add(
-      Text(
-        address,
-        style: TextStyle(
-            fontSize: 18 * fem,
-            color: Color(0xff9a85a4),
-            fontWeight: FontWeight.w700),
+      Center(
+        child: Text(
+          address,
+          style: TextStyle(
+              fontSize: 18 * fem,
+              color: Color(0xff9a85a4),
+              fontWeight: FontWeight.w700),
+        ),
       ),
     );
 
@@ -791,23 +792,61 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
 
       if (isUrl && uri != null) {
         locationWidgets.add(
-          GestureDetector(
-            onTap: () async {
-              if (await canLaunch(uri.toString())) {
-                await launch(uri.toString());
-              } else {
-                //ScaffoldMessenger.of(context).showSnackBar(
-                // SnackBar(content: Text('Could not launch location link')),
-                // );
-              }
-            },
-            child: Padding(
-              padding: EdgeInsets.only(top: 8.0),
-              child: CircleAvatar(
-                radius: 25 * fem,
-                backgroundColor: Color(0xFF9a85a4),
-                child: Icon(Icons.location_on,
-                    size: 24 * fem, color: Colors.white),
+          Center(
+            // Center the GestureDetector
+            child: GestureDetector(
+              onTap: () async {
+                if (await canLaunch(uri.toString())) {
+                  await launch(uri.toString());
+                } else {
+                  // Display error message for invalid map link
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text(
+                          'Invalid Map Link',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        content: Text(
+                            'Please provide a valid Google Maps or iOS Maps link.'),
+                        actions: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                shape: const StadiumBorder(),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 16),
+                                backgroundColor: const Color(0xFF9a85a4)
+                                    .withOpacity(0.9), // Rounded corners
+                              ),
+                              child: const Text('OK',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          Color.fromARGB(255, 255, 255, 255))),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              },
+              child: Padding(
+                padding: EdgeInsets.only(top: 8.0),
+                child: CircleAvatar(
+                  radius: 25 * fem,
+                  backgroundColor: Color(0xFF9a85a4),
+                  child: Icon(Icons.location_on,
+                      size: 24 * fem, color: Colors.white),
+                ),
               ),
             ),
           ),
