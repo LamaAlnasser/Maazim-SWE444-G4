@@ -198,6 +198,15 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
         // Compare endTime with the current time
         if (endTime.isAfter(DateTime.now())) {
           invitations.add(invitation);
+                      // Check if notification has already been scheduled
+            if (invitation['notificationScheduled'] == false) {
+              scheduleReminder(invitation);
+              // Update Firestore to indicate that a notification has been scheduled
+              firestore
+                  .collection('events')
+                  .doc(invitation['id'])
+                  .update({'notificationScheduled': true});
+            }
         }
       }
 
