@@ -375,7 +375,7 @@ class AccountDeletionService {
       print('Error sending notification to $userID: $error');
     }
   }*/
-
+/*
 static Future<void> deleteEventsForUser(String userID) async {
   try {
     QuerySnapshot eventsSnapshot = await FirebaseFirestore.instance
@@ -427,6 +427,56 @@ static Future<void> sendNotification(String phoneNumber, String eventName) async
     ],
     );
     print('Notification sent successfully for event deletion $eventName,$phoneNumber');
+  } catch (e) {
+    print('Error sending notification for event deletion: $e');
+  }
+}*/
+
+static Future<void> deleteEventsForUser(String userID) async {
+  try {
+    QuerySnapshot eventsSnapshot = await FirebaseFirestore.instance
+        .collection('events')
+        .where('userId', isEqualTo: userID)
+        .get();
+
+    for (QueryDocumentSnapshot eventDoc in eventsSnapshot.docs) {
+      // Get event details
+      Map<String, dynamic> eventData = eventDoc.data() as Map<String, dynamic>;
+
+      // Check if the event is upcoming
+      Timestamp eventTimestamp = eventData['eventDateTime'];
+      DateTime eventDateTime = eventTimestamp.toDate();
+      if (eventDateTime.isAfter(DateTime.now())) {
+        // Get invitees' phone numbers
+        List<dynamic> inviteesPhoneNumbers = eventData['inviteesPhoneNumbers'];
+
+        // Send notification to each invitee
+        for (var phoneNumber in inviteesPhoneNumbers) {
+          await sendNotification(phoneNumber, eventData['eventName']);
+        }
+      }
+
+      // Delete the event
+      await eventDoc.reference.delete();
+    }
+    print('Events deleted successfully for user ID: $userID');
+  } catch (error) {
+    print('Error deleting events: $error');
+  }
+}
+
+static Future<void> sendNotification(String phoneNumber, String eventName) async {
+  print('Sending notification for event deletion');
+  try {
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 0,
+        channelKey: 'basic_channel',
+        title: 'Event Deleted',
+        body: 'The event $eventName has been deleted.',
+      ),
+    );
+    print('Notification sent successfully for event deletion');
   } catch (e) {
     print('Error sending notification for event deletion: $e');
   }
