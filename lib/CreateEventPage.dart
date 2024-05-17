@@ -377,6 +377,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
         'duration': newEvent.duration,
         'acceptedInvitees': [],
         'rejectedInvitees': [],
+        'notificationScheduled': false, // Add this line
       }).then((docRef) async {
         //1. Generate coordinator credentials
         // After the event document is successfully added, generate credentials
@@ -597,6 +598,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
     if (_validatePhoneNumber(cleanedNumber) &&
         !_selectedContacts.any((contact) =>
             contact.phones?.first.value?.trim() == cleanedNumber)) {
+                print('$cleanedNumber');
       Contact newContact = Contact(
         displayName: "Custom Number",
         phones: [Item(label: "mobile", value: cleanedNumber)],
@@ -895,7 +897,17 @@ class _CreateEventPageState extends State<CreateEventPage> {
 
   String _cleanPhoneNumber(String phoneNumber) {
     // Remove non-digits from the phone number, keeping "+" for international format
-    return phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+    String cleanedNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+
+  // Extract the country code
+  String countryCode = '+${selectedCountry.phoneCode}';
+
+  // Remove the country code if present
+  if (cleanedNumber.startsWith(countryCode)) {
+    cleanedNumber = cleanedNumber.substring(countryCode.length);
+  }
+
+  return cleanedNumber;
   }
 
   void _openLocation() async {
