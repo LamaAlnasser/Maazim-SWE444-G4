@@ -130,12 +130,14 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
 
   @override
   void initState() {
-              AwesomeNotifications().setListeners(
-    onActionReceivedMethod: NotificationController.onActionReceivedMethod,
-    onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
-    onNotificationCreatedMethod: NotificationController.onNotificationCreatedMethod,
-    onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod
-  );
+    AwesomeNotifications().setListeners(
+        onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+        onNotificationDisplayedMethod:
+            NotificationController.onNotificationDisplayedMethod,
+        onNotificationCreatedMethod:
+            NotificationController.onNotificationCreatedMethod,
+        onDismissActionReceivedMethod:
+            NotificationController.onDismissActionReceivedMethod);
     super.initState();
     eventsFuture = getHostedEvents();
   }
@@ -165,7 +167,15 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
           // Only add to upcoming events if the current time is before the event end time
           if (endTime.isAfter(now.toDate())) {
             events.add(event);
-            scheduleReminder(event);
+            // Check if notification has already been scheduled
+            if (event['notificationScheduled'] == false) {
+              scheduleReminder(event);
+              // Update Firestore to indicate that a notification has been scheduled
+              firestore
+                  .collection('events')
+                  .doc(event['id'])
+                  .update({'notificationScheduled': true});
+            }
           }
         }
       } else {
@@ -196,6 +206,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
       ),
       schedule: NotificationCalendar.fromDate(date: reminderTime),
     );
+    print("notification created");
   }
 
   @override
@@ -386,12 +397,14 @@ class _PastEventsState extends State<PastEvents> {
 
   @override
   void initState() {
-              AwesomeNotifications().setListeners(
-    onActionReceivedMethod: NotificationController.onActionReceivedMethod,
-    onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
-    onNotificationCreatedMethod: NotificationController.onNotificationCreatedMethod,
-    onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod
-  );
+    AwesomeNotifications().setListeners(
+        onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+        onNotificationDisplayedMethod:
+            NotificationController.onNotificationDisplayedMethod,
+        onNotificationCreatedMethod:
+            NotificationController.onNotificationCreatedMethod,
+        onDismissActionReceivedMethod:
+            NotificationController.onDismissActionReceivedMethod);
     super.initState();
     eventsFuture = getPastEvents();
   }
