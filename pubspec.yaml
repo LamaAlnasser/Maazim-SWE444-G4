@@ -56,6 +56,8 @@ dependencies:
   awesome_notifications: ^0.9.3+1
   flutter_launcher_icons: ^0.13.1
   qr_code_scanner: ^1.0.1
+  animated_splash_screen: ^1.3.0
+  lottie: ^2.7.0
   
 flutter_launcher_icons:
   android: "launcher_icon"
@@ -111,6 +113,8 @@ flutter:
     - assets/lavender.png
     - assets/launcher2.png
     - assets/QRCode.png
+    - assets/Maazim-Splash.json
+    
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
