@@ -7,7 +7,9 @@ import 'package:maazim/signUp.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:maazim/layout.dart';
-
+import 'package:maazim/splashScreen.dart';
+import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:lottie/lottie.dart';
 
 Future<void> main() async {
    WidgetsFlutterBinding
@@ -45,10 +47,41 @@ class MyApp extends StatelessWidget {
         navigatorKey: NotificationController.navigatorKey, // Use the static GlobalKey
       title: 'Maazim',
       debugShowCheckedModeBanner: false,
-      home: WelcomePage(),
+      home: SplashScreen(),
     );
   }
 }
+
+/*
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSplashScreen(
+      splash: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Center(
+            child: LottieBuilder.asset(
+              "assets/Maazim-Splash.json",
+              width: 300, // Adjust size if necessary
+              height: 300, // Adjust size if necessary
+              fit: BoxFit.cover,
+              onLoaded: (composition) {
+                // Optionally, adjust animation speed or other properties
+              },
+            ),
+          ),
+        ],
+      ),
+      nextScreen: WelcomePage(),
+      splashIconSize: 400, // Adjust to match the Lottie animation size
+        //duration: 1500,Set duration to 1 second
+      splashTransition: SplashTransition.fadeTransition,
+    );
+  }
+}*/
 
 class WelcomePage extends StatelessWidget {
   @override
