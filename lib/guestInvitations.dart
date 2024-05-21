@@ -198,15 +198,15 @@ class _UpcomingInvitationsState extends State<UpcomingInvitations> {
         // Compare endTime with the current time
         if (endTime.isAfter(DateTime.now())) {
           invitations.add(invitation);
-                      // Check if notification has already been scheduled
-            if (invitation['notificationScheduled'] == false) {
-              scheduleReminder(invitation);
-              // Update Firestore to indicate that a notification has been scheduled
-              firestore
-                  .collection('events')
-                  .doc(invitation['id'])
-                  .update({'notificationScheduled': true});
-            }
+          // Check if notification has already been scheduled
+          if (invitation['notificationScheduled'] == false) {
+            scheduleReminder(invitation);
+            // Update Firestore to indicate that a notification has been scheduled
+            firestore
+                .collection('events')
+                .doc(invitation['id'])
+                .update({'notificationScheduled': true});
+          }
         }
       }
 
@@ -755,8 +755,8 @@ class _PastInvitationsState extends State<PastInvitations> {
     );
   }
 }
-//Until here  past invitations
 
+//Until here  past invitations
 // After tap on the invitation card [Event details+ accept or reject an invitation]
 class InvitationDetailPage extends StatefulWidget {
   final Map<String, dynamic> invitation;
@@ -776,98 +776,6 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
   late bool hasAccepted;
   late bool hasRejected;
   late bool changed = false;
-  Widget _buildLocationWidget(String address,
-      {String? eventLocation, double fem = 1.0}) {
-    List<Widget> locationWidgets = [];
-
-    // Always add the address.
-    locationWidgets.add(
-      Center(
-        child: Text(
-          address,
-          style: TextStyle(
-              fontSize: 18 * fem,
-              color: Color(0xff9a85a4),
-              fontWeight: FontWeight.w700),
-        ),
-      ),
-    );
-
-    // If there is an eventLocation link, try to parse it and add a clickable icon.
-    if (eventLocation?.isNotEmpty == true) {
-      Uri? uri = Uri.tryParse(eventLocation!);
-      bool isUrl =
-          uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
-
-      if (isUrl && uri != null) {
-        locationWidgets.add(
-          Center(
-            // Center the GestureDetector
-            child: GestureDetector(
-              onTap: () async {
-                if (await canLaunch(uri.toString())) {
-                  await launch(uri.toString());
-                } else {
-                  // Display error message for invalid map link
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text(
-                          'Invalid Map Link',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        content: Text(
-                            'Please provide a valid Google Maps or iOS Maps link.'),
-                        actions: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                shape: const StadiumBorder(),
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 16),
-                                backgroundColor: const Color(0xFF9a85a4)
-                                    .withOpacity(0.9), // Rounded corners
-                              ),
-                              child: const Text('OK',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          Color.fromARGB(255, 255, 255, 255))),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
-              },
-              child: Padding(
-                padding: EdgeInsets.only(top: 8.0),
-                child: CircleAvatar(
-                  radius: 25 * fem,
-                  backgroundColor: Color(0xFF9a85a4),
-                  child: Icon(Icons.location_on,
-                      size: 24 * fem, color: Colors.white),
-                ),
-              ),
-            ),
-          ),
-        );
-      }
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: locationWidgets,
-    );
-  }
 
   @override
   void initState() {
@@ -889,132 +797,177 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
     String formattedDate = DateFormat('EEEE, MMMM d, yyyy').format(eventDate);
     String formattedTime = DateFormat('h:mm a')
         .format(eventDate); // Formats to a 12-hour format with AM/PM
-//Added
+    String inviterName = widget.invitation['inviterName'];
+    String eventType = widget.invitation['eventType'];
+    String eventImage =
+        getEventImage(eventType); // Function to get the image path
+
+    //Display Accept&Reject buttons only with upcoming
     DateTime eventDateTime =
         (widget.invitation['eventDateTime'] as Timestamp).toDate();
     int duration = widget.invitation['duration']; //'duration' is in hours
     DateTime endTime = eventDateTime.add(Duration(hours: duration));
     DateTime now = DateTime.now();
-    //till here
+
     double fem = MediaQuery.of(context).size.width / 400;
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            // This will pop the current route and pass the 'changed' variable back to the previous screen
+            Navigator.pop(context, changed);
+          },
+        ),
+        title: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+          child: Row(
+            mainAxisSize:
+                MainAxisSize.min, // Keep the children of the Row centered
+            children: [
+              Image.asset(
+                'assets/Logo.PNG', // Your image asset path
+                height: 30, // Adjust the height as needed
+              ),
+              const SizedBox(width: 8), // Space between the image and the title
+              const Text(
+                'Maazim',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+        centerTitle: true,
+        elevation: 0,
+      ),
       body: Stack(
         children: [
           SingleChildScrollView(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 30 * fem),
+                  height: 240.0,
                   decoration: BoxDecoration(
-                    color: Color(0xff9a85a4),
-                    borderRadius: BorderRadius.only(
-                      bottomRight: Radius.circular(50 * fem),
-                      bottomLeft: Radius.circular(50 * fem),
+                    image: DecorationImage(
+                      image: AssetImage(eventImage),
+                      fit: BoxFit.cover,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0x33656cee),
-                        offset: Offset(0, 2),
-                        blurRadius: 15,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(height: 28 * fem),
-                      Container(
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image:
-                                AssetImage('assets/images/boarder/white.png'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        child: SizedBox(
-                          height: MediaQuery.of(context).padding.top + 12 * fem,
-                        ),
-                      ),
-                      SizedBox(height: 10 * fem),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 30), // Add symmetric horizontal padding
-                        child: Text(
-                          widget.invitation['eventName'],
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 30 * fem,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 4 * fem),
-                      Text(
-                        widget.invitation['eventType'],
-                        style: TextStyle(
-                            fontSize: 22 * fem,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white),
-                      ),
-                      SizedBox(height: 0 * fem),
-                    ],
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      top: 35 * fem,
-                      left: 16,
-                      right: 16), // Added horizontal padding
-                  child: Text(
-                    "${widget.invitation['inviterName']} \nInvites you to ${widget.invitation['eventName']}!",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 20 * fem,
-                      color: Color(0xff9a85a4),
-                      fontWeight: FontWeight.w700,
-                    ),
+                ListTile(
+                  title: Padding(
+                    padding: const EdgeInsets.only(left: 20.0, top: 9),
+                    child: hasRejected
+                        ? Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  widget.invitation['eventName'],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  "Rejected",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : Text(
+                            widget.invitation['eventName'],
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                  ),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: Text("Invited by $inviterName"),
                   ),
                 ),
 
-                Padding(
-                  padding: EdgeInsets.only(top: 30 * fem),
-                  child: _buildDateInformationRow(eventDate),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 30 * fem),
-                  child: Text(
-                    "At $formattedTime",
+                ListTile(
+                  contentPadding: EdgeInsets.only(
+                    left: 25.0,
+                    top: 5,
+                  ),
+                  leading: Icon(
+                    Icons.calendar_today,
+                    size: 25.0, // Smaller icon size
+                  ),
+                  title: Text(
+                    "Date & Time",
                     style: TextStyle(
-                        fontSize: 20 * fem,
-                        color: Color(0xff9a85a4),
-                        fontWeight: FontWeight.w700),
+                      fontSize: 14.0, // Smaller font size
+                    ),
+                  ),
+                  subtitle: Text(
+                    formattedDate + ', ' + formattedTime,
+                    style: TextStyle(
+                      fontSize: 12.0, // Smaller font size
+                    ),
                   ),
                 ),
-                //Location:
-                // Location Display Handling
-                Padding(
-                  padding: EdgeInsets.only(top: 6 * fem),
-                  child: _buildLocationWidget(
+                //Location
+                ListTile(
+                  contentPadding: EdgeInsets.only(left: 25.0),
+                  leading: Icon(
+                    Icons.location_on,
+                    size: 25.0,
+                  ),
+                  title: Text(
+                    "Location",
+                    style: TextStyle(
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  subtitle: Text(
                     widget.invitation['address'],
-                    eventLocation: widget.invitation['eventLocation']
-                        as String?, // Make sure to safely cast this as it is optional
-                    fem: fem,
-                  ),
-                ),
-                //end location
-                Padding(
-                  padding: EdgeInsets.only(top: 20 * fem),
-                  child: Text(
-                    "Looking Forward!",
                     style: TextStyle(
-                        fontSize: 20 * fem,
-                        color: Color(0xff9a85a4),
-                        fontWeight: FontWeight.w700),
+                      fontSize: 12.0,
+                    ),
                   ),
+                  trailing: widget.invitation['eventLocation'] != null &&
+                          widget.invitation['eventLocation'].isNotEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.only(
+                              right: 15), // Adjust the padding as needed
+                          child: IconButton(
+                            icon: Icon(Icons.map),
+                            onPressed: () async {
+                              var url = widget.invitation['eventLocation'];
+                              if (await canLaunch(url)) {
+                                await launch(url);
+                              } else {
+                                throw 'Could not launch $url';
+                              }
+                            },
+                            color: _getLabelColor(
+                                eventType), // Set the icon color to match your theme
+                          ),
+                        )
+                      : null,
                 ),
+
+                Divider(),
+                _buildAdditionalDetails(),
+                Divider(),
+
+                //Buttons in UI
                 if (!hasAccepted && !hasRejected && now.isBefore(endTime)) ...[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1032,25 +985,95 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
               ],
             ),
           ),
-          Positioned(
-            top: 50 *
-                fem, // Adjust as needed to place it at the desired position from the bottom
-            left: 20 *
-                fem, // Adjust as needed to place it at the desired position from the left
-            child: IconButton(
-              icon: Icon(Icons.arrow_back,
-                  color: Colors.black), // Customize as needed
-              onPressed: () {
-                //back to?
-                Navigator.pop(context, changed);
-              },
-            ),
-          ),
         ],
       ),
     );
   }
 
+  // Helper function to select the appropriate image based on the event type
+  String getEventImage(String eventType) {
+    switch (eventType.toLowerCase()) {
+      case 'conference':
+        return 'assets/party_event.jpg'; // Path to your conference event image in assets
+      case 'wedding':
+        return 'assets/wedding_event.jpg'; // Path to your wedding event image in assets
+      case 'graduation':
+        return 'assets/graduation_event.jpg'; // Path to your graduation event image in assets
+      case 'exhibition':
+        return 'assets/party_event.jpg'; // Path to your exhibition event image in assets
+      case 'birthday':
+        return 'assets/party_event.jpg'; // Path to your birthday event image in assets
+      case 'party':
+        return 'assets/party_event.jpg'; // Path to your party event image in assets
+      default:
+        return 'assets/party_event.jpg'; // Path to a default image in case the event type does not match
+    }
+  }
+
+// Helper function to select the label color based on the event type
+  Color _getLabelColor(String eventType) {
+    switch (eventType.toLowerCase()) {
+      //colors just for now going to change them
+      case 'conference':
+        return Colors.blue; // Blue for conferences
+      case 'wedding':
+        return Color(0xFFB4C18F); // Specific green shade for weddings
+      case 'graduation':
+        return Color(0xFFFF8D73); // Specific coral shade for graduations
+      case 'exhibition':
+        return Colors.purple; // Purple for exhibitions
+      case 'birthday':
+        return Color(0xFFF4A2A4); // Specific light pink shade for parties
+      case 'party':
+        return Color(0xFFF4A2A4); // Specific light pink shade for parties
+      default:
+        return Colors.grey; // Grey for other or unknown event types
+    }
+  }
+
+// Builds a widget displaying detailed information with dynamic color based on the event type
+  Widget _buildAdditionalDetails() {
+    Color labelColor = _getLabelColor(widget.invitation[
+        'eventType']); // Determine the color once based on the event type
+
+    return Container(
+      padding: EdgeInsets.all(8.0),
+      child: Row(
+        children: <Widget>[
+          _buildDetailExpanded(
+              'Event Type', widget.invitation['eventType'], labelColor),
+          Container(
+            height: 24,
+            child: VerticalDivider(color: Theme.of(context).dividerColor),
+          ),
+          _buildDetailExpanded('Dress Code',
+              widget.invitation['dressCode'] ?? 'None', labelColor),
+          Container(
+            height: 24,
+            child: VerticalDivider(color: Theme.of(context).dividerColor),
+          ),
+          _buildDetailExpanded(
+              'Theme', widget.invitation['theme'] ?? 'None', labelColor),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailExpanded(String label, String value, Color labelColor) {
+    return Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Text(label,
+              style: TextStyle(color: labelColor, fontWeight: FontWeight.bold)),
+          Text(value, style: TextStyle(fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+
+  //Buttons for reject/accept
   Widget _responseButton(bool isAccepted, double fem) {
     return Padding(
       padding: EdgeInsets.only(
@@ -1078,6 +1101,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
     );
   }
 
+//Logic and QR code style
   Widget _responseStatus() {
     String eventID = widget.invitation['id'];
     String guestIdentifier = widget.phoneNumber;
@@ -1089,138 +1113,100 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
     int duration = widget.invitation['duration']; //'duration' is in hours
     DateTime endTime = eventDateTime.add(Duration(hours: duration));
     DateTime now = DateTime.now();
+    Color labelColor = _getLabelColor(widget.invitation[
+        'eventType']); // Determine the color once based on the event type
 
     if (hasAccepted && now.isBefore(endTime)) {
       // Event date is in the future, display QR code
       return Column(
         children: [
-          Text(
-            "You have accepted this invitation.",
-            style: TextStyle(
-                color: Colors.green, fontSize: 16, fontWeight: FontWeight.w700),
-          ),
-          SizedBox(height: 10), // Space between text and QR code
-          Text(
-            "Scan this QR code at the event entrance.",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                color: Colors.black, fontSize: 14, fontWeight: FontWeight.w700),
-          ),
-          SizedBox(height: 11), // Space between instruction text and QR code
-          QrImageView(
-            data: qrData,
-            version: QrVersions.auto,
-            size: 150.0,
-            eyeStyle: const QrEyeStyle(
-              eyeShape: QrEyeShape.square, // Set the eye shape to square
-              color: Color.fromARGB(
-                  255, 255, 255, 255), // Set the color of the QR code eyes
+          //SizedBox(height: 0), // Space between text and QR code
+          // Text(
+          //   "",
+          //   textAlign: TextAlign.center,
+          //   style: TextStyle(
+          //       color: Colors.black, fontSize: 14, fontWeight: FontWeight.w700),
+          // ),
+          //  SizedBox(height: 11), // Space between instruction text and QR code
+          Center(
+            // Center the QR code horizontally
+            child: QrImageView(
+              data: qrData,
+              version: QrVersions.auto,
+              size: 150.0,
+              eyeStyle: const QrEyeStyle(
+                eyeShape: QrEyeShape.square, // Set the eye shape to square
+                color: Color.fromARGB(
+                    255, 255, 255, 255), // Set the color of the QR code eyes
+              ),
+              dataModuleStyle: const QrDataModuleStyle(
+                dataModuleShape: QrDataModuleShape
+                    .square, // Set the data module shape to square
+                color: Color.fromARGB(255, 255, 255,
+                    255), // Set the color of the QR code data modules
+              ),
+              backgroundColor: labelColor, // Set the background color
             ),
-            dataModuleStyle: const QrDataModuleStyle(
-              dataModuleShape: QrDataModuleShape
-                  .square, // Set the data module shape to square
-              color: Color.fromARGB(255, 255, 255,
-                  255), // Set the color of the QR code data modules
-            ),
-            backgroundColor: Color(0xff9a85a4), // Set the background color
-          ),
-          // Other UI elements as needed
+          ), // Other UI elements as needed
         ],
       );
     } else if (hasRejected) {
-      return Text(
-        "You have rejected this invitation.",
+      return Center(
+          // Center the text horizontally
+          child: Text(
+        " ",
         style: TextStyle(
             color: Colors.red, fontSize: 16, fontWeight: FontWeight.w700),
-      );
+      ));
     } else if (hasAccepted &&
         (now.isAfter(endTime) || now.isAtSameMomentAs(endTime))) {
       // Event date is in the past, do not display QR code
-      return Text(
+      return Center(
+          // Center the text horizontally
+          child: Text(
         "You have accepted this invitation.",
         style: TextStyle(
             color: Colors.green, fontSize: 16, fontWeight: FontWeight.w700),
-      );
+      ));
     }
 
     return SizedBox
         .shrink(); // Returns an empty widget for better conditional rendering
   }
 
-  Widget _buildDateInformationRow(DateTime eventDate) {
-    final dayOfWeek = DateFormat('EEEE').format(eventDate);
-    final day = DateFormat('d').format(eventDate);
-    final monthYear = DateFormat('MMM yyyy').format(eventDate);
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          dayOfWeek,
-          style: TextStyle(
-            fontSize: 23,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        _verticalDivider(),
-        Text(day,
-            style: TextStyle(
-              fontSize: 23,
-              fontWeight: FontWeight.w700,
-            )),
-        _verticalDivider(),
-        Text(monthYear,
-            style: TextStyle(
-              fontSize: 23,
-              fontWeight: FontWeight.w700,
-            )),
-      ],
-    );
-  }
-
-  Widget _verticalDivider() {
-    return Container(
-      height: 27,
-      child: VerticalDivider(
-        color: Colors.black,
-        thickness: 2,
-      ),
-    );
-  }
-
+//Logic
   Future<void> respondToInvitation(bool isAccepted) async {
     // Confirmation dialog
     bool confirm = await showDialog<bool>(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              backgroundColor: Color.fromARGB(255, 255, 255, 255),
+              backgroundColor: Colors.white,
               title: Text(
-                'Confirm\nYour Response',
+                'Confirm Your Response',
+                textAlign: TextAlign.left,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               content: Text(
                 'Are you sure you want to ${isAccepted ? 'accept' : 'reject'} this invitation?',
+                textAlign: TextAlign.left,
               ),
               actions: <Widget>[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
+                    onPressed: () => Navigator.of(context).pop(false),
                     style: ElevatedButton.styleFrom(
-                      shape: const StadiumBorder(),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 16),
-                      backgroundColor: const Color(0xFF9a85a4)
-                          .withOpacity(0.9), // Rounded corners
+                      shape: StadiumBorder(),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                      backgroundColor: Color(0xFF9a85a4).withOpacity(0.9),
                     ),
                     child: const Text('Cancel',
                         style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 255, 255, 255))),
+                            color: Colors.white)),
                   ),
                 ),
                 Padding(
@@ -1228,17 +1214,16 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
                   child: ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(true),
                     style: ElevatedButton.styleFrom(
-                      shape: const StadiumBorder(),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 16),
-                      backgroundColor: const Color(0xFF9a85a4)
-                          .withOpacity(0.9), // Rounded corners
+                      shape: StadiumBorder(),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                      backgroundColor: Color(0xFF9a85a4).withOpacity(0.9),
                     ),
                     child: Text(isAccepted ? 'Accept' : 'Reject',
                         style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 255, 255, 255))),
+                            color: Colors.white)),
                   ),
                 ),
               ],
