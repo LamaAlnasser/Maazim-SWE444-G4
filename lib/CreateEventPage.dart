@@ -50,6 +50,26 @@ class _CreateEventPageState extends State<CreateEventPage> {
     'Other'
   ]; // Example event types
 
+  String? _selectedDressCode; // For storing the selected dress code
+
+  final List<String> _dressCodeOptions = [
+    'Casual',
+    'Business Attire',
+    'National Dress',
+    'Formal',
+    'Themed Dress ',
+    'Other',
+  ];
+
+  String? _selectedTheme; // For storing the selected theme
+  final List<String> _themeOptions = [
+    'Traditional',
+    'Modern',
+    'Outdoor',
+    'Festive',
+    'Other',
+  ];
+
   Country selectedCountry = Country(
       phoneCode: "966",
       countryCode: "SA",
@@ -100,9 +120,11 @@ class _CreateEventPageState extends State<CreateEventPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor:  Color.fromARGB(255, 255, 255, 255),
-          title: Text("Permission Required", 
-               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+          backgroundColor: Color.fromARGB(255, 255, 255, 255),
+          title: Text(
+            "Permission Required",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           content:
               Text("This app requires contact access to function properly."),
           actions: <Widget>[
@@ -166,7 +188,10 @@ class _CreateEventPageState extends State<CreateEventPage> {
     _numberOfInviteesController = TextEditingController();
     _inviteesPhoneControllers = [TextEditingController()];
     _searchController = TextEditingController();
-     _selectedEventType = _eventTypes.first; // Set an initial value
+    _selectedEventType = _eventTypes.first; // Set an initial value
+    _selectedDressCode =
+        _dressCodeOptions.first; // Initial value for dress code
+    _selectedTheme = _themeOptions.first; // Initial value for theme
     _checkPermissionsAndLoadContacts();
     // Fetch user data and autofill inviter name
     _fetchUserData();
@@ -212,29 +237,33 @@ class _CreateEventPageState extends State<CreateEventPage> {
       initialDate: _selectedDate,
       firstDate: DateTime.now(),
       lastDate: DateTime(2101),
-       builder: (BuildContext context, Widget? child) {
-      return Theme(
-        data: ThemeData.light().copyWith(
-          colorScheme: ColorScheme.light(
-            primary: Color(0xFF9a85a4), // header background color
-            onPrimary: Colors.white, // header text color
-            surface: Color.fromARGB(255, 255, 255, 255), // background color
-            onSurface: Colors.black, // body text color
-          ),
-          dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255), // background color
-             textButtonTheme: TextButtonThemeData(
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white, backgroundColor:  Color(0xFF9a85a4),
-              padding: EdgeInsets.symmetric(horizontal: 10), // Button background color
-              shape: RoundedRectangleBorder( // Button shape
-                borderRadius: BorderRadius.circular(18),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Color(0xFF9a85a4), // header background color
+              onPrimary: Colors.white, // header text color
+              surface: Color.fromARGB(255, 255, 255, 255), // background color
+              onSurface: Colors.black, // body text color
+            ),
+            dialogBackgroundColor:
+                Color.fromARGB(255, 255, 255, 255), // background color
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Color(0xFF9a85a4),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 10), // Button background color
+                shape: RoundedRectangleBorder(
+                  // Button shape
+                  borderRadius: BorderRadius.circular(18),
+                ),
               ),
             ),
           ),
-        ),
-        child: child!,
-      );
-    },
+          child: child!,
+        );
+      },
     );
     if (picked != null && picked != _selectedDate)
       setState(() {
@@ -243,34 +272,36 @@ class _CreateEventPageState extends State<CreateEventPage> {
   }
 
   Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked =
-        await showTimePicker(
-          context: context, 
-          initialTime: _selectedTime,
-           builder: (BuildContext context, Widget? child) {
-      return Theme(
-        data: ThemeData.dark().copyWith(
-          colorScheme: ColorScheme.dark(
-            primary: Color(0xFF9a85a4),
-            onPrimary: Colors.white,
-            surface: Color.fromARGB(255, 255, 255, 255),
-            onSurface: Color.fromARGB(255, 0, 0, 0),
-          ),
-          dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255),
-          textButtonTheme: TextButtonThemeData(
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white, backgroundColor: Color(0xFF9a85a4), 
-              padding: EdgeInsets.symmetric(horizontal: 10),// Button background color
-              shape: RoundedRectangleBorder( // Button shape
-                borderRadius: BorderRadius.circular(18),
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime,
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: ColorScheme.dark(
+              primary: Color(0xFF9a85a4),
+              onPrimary: Colors.white,
+              surface: Color.fromARGB(255, 255, 255, 255),
+              onSurface: Color.fromARGB(255, 0, 0, 0),
+            ),
+            dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Color(0xFF9a85a4),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 10), // Button background color
+                shape: RoundedRectangleBorder(
+                  // Button shape
+                  borderRadius: BorderRadius.circular(18),
+                ),
               ),
             ),
           ),
-        ),
-        child: child!,
-      );
-    },
-  );
+          child: child!,
+        );
+      },
+    );
     if (picked != null && picked != _selectedTime)
       setState(() {
         _selectedTime = picked;
@@ -322,8 +353,10 @@ class _CreateEventPageState extends State<CreateEventPage> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Event Conflict', 
-               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+              title: Text(
+                'Event Conflict',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               content: Text(
                   'An event already exists at the selected date and time.'),
               actions: [
@@ -351,17 +384,19 @@ class _CreateEventPageState extends State<CreateEventPage> {
 
       // No conflicts, proceed with event creation
       Event newEvent = Event(
-        eventName: _eventNameController.text,
-        address: _eventAddressController.text,
-        eventLocation: _eventLocationController.text,
-        eventType: _selectedEventType.toString(),
-        eventDate: _selectedDate,
-        eventTime: _selectedTime,
-        inviterName: _inviterNameController.text,
-        numberOfInvitees: numberOfInvitees,
-        inviteesPhoneNumbers: uniquePhoneNumbers.toList(),
-        duration: _eventDuration,
-      );
+          eventName: _eventNameController.text,
+          address: _eventAddressController.text,
+          eventLocation: _eventLocationController.text,
+          eventType: _selectedEventType.toString(),
+          eventDate: _selectedDate,
+          eventTime: _selectedTime,
+          inviterName: _inviterNameController.text,
+          numberOfInvitees: numberOfInvitees,
+          inviteesPhoneNumbers: uniquePhoneNumbers.toList(),
+          duration: _eventDuration,
+          dressCode: _selectedDressCode!, // Use the selected dress code
+          theme: _selectedTheme! // Use the selected theme
+          );
 
       // Add event to Firestore
       FirebaseFirestore.instance.collection('events').add({
@@ -375,6 +410,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
         'numberOfInvitees': newEvent.numberOfInvitees,
         'inviteesPhoneNumbers': newEvent.inviteesPhoneNumbers,
         'duration': newEvent.duration,
+        'dressCode': newEvent.dressCode, // Add the dress code property
+        'theme': newEvent.theme, // Add the theme property
         'acceptedInvitees': [],
         'rejectedInvitees': [],
         'notificationScheduled': false, // Add this line
@@ -542,7 +579,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
       setState(() {
         _errorMessage = 'Could not send SMS';
       });
-       // Set a timer to clear the error message after 5 seconds
+      // Set a timer to clear the error message after 5 seconds
       Future.delayed(Duration(seconds: 5), () {
         setState(() {
           _errorMessage = ''; // Clear the error message
@@ -598,7 +635,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
     if (_validatePhoneNumber(cleanedNumber) &&
         !_selectedContacts.any((contact) =>
             contact.phones?.first.value?.trim() == cleanedNumber)) {
-                print('$cleanedNumber');
+      print('$cleanedNumber');
       Contact newContact = Contact(
         displayName: "Custom Number",
         phones: [Item(label: "mobile", value: cleanedNumber)],
@@ -769,8 +806,11 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
-                      child: Text('Select Contacts',
-               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                      child: Text(
+                        'Select Contacts',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(24.0),
@@ -899,15 +939,15 @@ class _CreateEventPageState extends State<CreateEventPage> {
     // Remove non-digits from the phone number, keeping "+" for international format
     String cleanedNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
 
-  // Extract the country code
-  String countryCode = '+${selectedCountry.phoneCode}';
+    // Extract the country code
+    String countryCode = '+${selectedCountry.phoneCode}';
 
-  // Remove the country code if present
-  if (cleanedNumber.startsWith(countryCode)) {
-    cleanedNumber = cleanedNumber.substring(countryCode.length);
-  }
+    // Remove the country code if present
+    if (cleanedNumber.startsWith(countryCode)) {
+      cleanedNumber = cleanedNumber.substring(countryCode.length);
+    }
 
-  return cleanedNumber;
+    return cleanedNumber;
   }
 
   void _openLocation() async {
@@ -924,7 +964,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            backgroundColor:  Color.fromARGB(255, 255, 255, 255),
+            backgroundColor: Color.fromARGB(255, 255, 255, 255),
             title: Text(
               'Invalid Map Link',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -1051,6 +1091,189 @@ class _CreateEventPageState extends State<CreateEventPage> {
           }
           return null;
         },
+      ),
+    );
+  }
+
+//Theme drop down menu
+  Widget _buildThemeDropdown() {
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(8, 0, 5, 0),
+        child: DropdownButtonFormField2<String>(
+          isExpanded:
+              true, // Ensuring the dropdown fits within the parent widget
+          decoration: InputDecoration(
+            labelText: 'Event Theme',
+            labelStyle: TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+            errorStyle: TextStyle(fontSize: 10),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide.none,
+            ),
+            fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: Colors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: Colors.red),
+            ),
+            filled: true,
+          ),
+          value: _selectedTheme,
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedTheme = newValue;
+            });
+          },
+          items: _themeOptions.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: Color.fromARGB(255, 0, 0, 0),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                width: MediaQuery.of(context)
+                    .size
+                    .width, // Use dynamic width based on the device
+              ),
+            );
+          }).toList(),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            width: 330,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              color: Color.fromARGB(255, 233, 228, 237),
+            ),
+            elevation: 16,
+            scrollbarTheme: ScrollbarThemeData(
+              radius: Radius.circular(40),
+              thickness: MaterialStateProperty.all<double>(6),
+              thumbVisibility: MaterialStateProperty.all<bool>(true),
+            ),
+          ),
+          menuItemStyleData: MenuItemStyleData(
+            height: 50,
+            padding: EdgeInsets.only(left: 14, right: 14),
+            overlayColor: MaterialStateProperty.all(Color(0xFF9a85a4)),
+          ),
+          validator: (value) {
+            if (value == null) {
+              return 'Please select a theme';
+            }
+            return null;
+          },
+        ),
+      ),
+    );
+  }
+
+//Dress code drop down menu
+  Widget _buildDressCodeDropdown() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(5, 0, 6, 0),
+        child: DropdownButtonFormField2<String>(
+          isExpanded:
+              true, // Ensuring the dropdown fits within the parent widget
+          decoration: InputDecoration(
+            labelText: 'Dress Code',
+            labelStyle: TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+            errorStyle: TextStyle(fontSize: 10),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide.none,
+            ),
+            fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: Colors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: Colors.red),
+            ),
+            filled: true,
+          ),
+          value: _selectedDressCode,
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedDressCode = newValue;
+            });
+          },
+          items:
+              _dressCodeOptions.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: Color.fromARGB(255, 0, 0, 0),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                width: MediaQuery.of(context)
+                    .size
+                    .width, // Use dynamic width based on the device
+              ),
+            );
+          }).toList(),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            width: 330,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              color: Color.fromARGB(255, 233, 228, 237),
+            ),
+            elevation: 16,
+            scrollbarTheme: ScrollbarThemeData(
+              radius: Radius.circular(40),
+              thickness: MaterialStateProperty.all<double>(6),
+              thumbVisibility: MaterialStateProperty.all<bool>(true),
+            ),
+          ),
+          menuItemStyleData: MenuItemStyleData(
+            height: 50,
+            padding: EdgeInsets.only(left: 14, right: 14),
+            overlayColor: MaterialStateProperty.all(Color(0xFF9a85a4)),
+          ),
+          validator: (value) {
+            if (value == null) {
+              return 'Please select a dress code';
+            }
+            return null;
+          },
+        ),
       ),
     );
   }
@@ -1191,6 +1414,23 @@ class _CreateEventPageState extends State<CreateEventPage> {
               ),
               const SizedBox(height: 10),
               _buildEventTypeDropdown(), // Insert the dropdown widget
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Flexible(
+                    flex:
+                        3, // Adjust flex factor if needed to manage space distribution
+                    child: _buildThemeDropdown(),
+                  ),
+                  const SizedBox(
+                      width: 10), // Add some space between the dropdowns
+                  Flexible(
+                    flex:
+                        3, // Adjust flex factor if needed to manage space distribution
+                    child: _buildDressCodeDropdown(),
+                  ),
+                ],
+              ),
               const SizedBox(height: 10),
               Row(
                 children: [
