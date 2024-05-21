@@ -56,7 +56,8 @@ dependencies:
   awesome_notifications: ^0.9.3+1
   flutter_launcher_icons: ^0.13.1
   qr_code_scanner: ^1.0.1
-  
+  device_calendar: ^4.3.2
+
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
@@ -111,6 +112,10 @@ flutter:
     - assets/lavender.png
     - assets/launcher2.png
     - assets/QRCode.png
+    - assets/party_event.jpg
+    - assets/wedding_event.jpg
+    - assets/graduation_event.jpg
+    
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
