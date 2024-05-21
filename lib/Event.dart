@@ -12,8 +12,6 @@ import 'package:contacts_service/contacts_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
-
-
 class Event {
   final String eventName;
   final String address; // New property for address
@@ -25,6 +23,8 @@ class Event {
   final int numberOfInvitees;
   final List<String> inviteesPhoneNumbers;
   final int duration; // Duration of the event in hours
+  final String dressCode; // New property for dress code
+  final String theme; // New property for theme
   Event({
     required this.eventName,
     required this.address,
@@ -36,10 +36,12 @@ class Event {
     required this.numberOfInvitees,
     required this.inviteesPhoneNumbers,
     required this.duration,
+    required this.dressCode, // Initialize in constructor
+    required this.theme, // Initialize in constructor
   });
 
   String? get eventId => null;
-factory Event.fromSnapshot(DocumentSnapshot snapshot) {
+  factory Event.fromSnapshot(DocumentSnapshot snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
 
     return Event(
@@ -48,13 +50,15 @@ factory Event.fromSnapshot(DocumentSnapshot snapshot) {
       eventLocation: data['eventLocation'] ?? '',
       eventType: data['eventType'] ?? '',
       eventDate: (data['eventDateTime'] as Timestamp).toDate(),
-      eventTime: TimeOfDay.fromDateTime((data['eventDateTime'] as Timestamp).toDate()),
+      eventTime:
+          TimeOfDay.fromDateTime((data['eventDateTime'] as Timestamp).toDate()),
       inviterName: data['inviterName'] ?? '',
       numberOfInvitees: data['numberOfInvitees'] ?? 0,
-      inviteesPhoneNumbers: List<String>.from(data['inviteesPhoneNumbers'] ?? []),
+      inviteesPhoneNumbers:
+          List<String>.from(data['inviteesPhoneNumbers'] ?? []),
       duration: data['duration'] ?? 1,
-
+      dressCode: data['dressCode'] ?? 'Casual',
+      theme: data['theme'] ?? 'Standard',
     );
   }
-
 }
