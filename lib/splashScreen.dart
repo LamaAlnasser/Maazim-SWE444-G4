@@ -13,7 +13,7 @@ class SplashScreen extends StatelessWidget {
     Column(
       children: [
         Center(
-          child:LottieBuilder.asset("assets/Maazim-Splash.json")
+          child:LottieBuilder.asset("assets/Maazim-Splash2.json")
             ,)])
     
     , nextScreen:  WelcomePage(),
