@@ -7,6 +7,7 @@ import 'package:maazim/signUp.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:maazim/layout.dart';
+import 'package:maazim/splashScreen.dart';
 
 
 Future<void> main() async {
@@ -45,7 +46,7 @@ class MyApp extends StatelessWidget {
         navigatorKey: NotificationController.navigatorKey, // Use the static GlobalKey
       title: 'Maazim',
       debugShowCheckedModeBanner: false,
-      home: WelcomePage(),
+      home: SplashScreen(),
     );
   }
 }
