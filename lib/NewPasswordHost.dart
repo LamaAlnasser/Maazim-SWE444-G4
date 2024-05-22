@@ -233,7 +233,10 @@ final _formKey = GlobalKey<FormState>();
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                     Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                );
                   },
                   style: ElevatedButton.styleFrom(
                     shape: const StadiumBorder(),
