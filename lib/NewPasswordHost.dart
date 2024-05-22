@@ -235,7 +235,7 @@ final _formKey = GlobalKey<FormState>();
                   onPressed: () {
                      Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                  MaterialPageRoute(builder: (context) => homePage()),
                 );
                   },
                   style: ElevatedButton.styleFrom(
