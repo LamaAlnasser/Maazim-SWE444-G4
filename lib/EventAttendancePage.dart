@@ -75,7 +75,11 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                       color: Color.fromARGB(255, 255, 255, 255))),
               onPressed: () async {
                 await _deleteEvent(context, eventId);
-                Navigator.of(context).pop();
+               Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const homePage()),
+                            );
               },
             ),
           ],
