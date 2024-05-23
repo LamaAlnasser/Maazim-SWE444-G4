@@ -451,7 +451,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                         ),
                       ],
                     ),
-                  ),  SizedBox(width: 20),
+                  ),  SizedBox(width: 25),
                   Container(
                     padding: EdgeInsets.all(15.0),
                     decoration: BoxDecoration(
