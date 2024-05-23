@@ -450,10 +450,10 @@ static Future<void> deleteEventsForUser(String userID) async {
         // Get invitees' phone numbers
         List<dynamic> inviteesPhoneNumbers = eventData['inviteesPhoneNumbers'];
 
-        // Send notification to each invitee
+        /*Send notification to each invitee
         for (var phoneNumber in inviteesPhoneNumbers) {
           await sendNotification(phoneNumber, eventData['eventName']);
-        }
+        }*/
       }
 
       // Delete the event
@@ -465,6 +465,7 @@ static Future<void> deleteEventsForUser(String userID) async {
   }
 }
 
+/*
 static Future<void> sendNotification(String phoneNumber, String eventName) async {
   print('Sending notification for event deletion');
   try {
@@ -480,6 +481,6 @@ static Future<void> sendNotification(String phoneNumber, String eventName) async
   } catch (e) {
     print('Error sending notification for event deletion: $e');
   }
-}
+}*/
 
 }

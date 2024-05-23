@@ -120,6 +120,8 @@ flutter:
     - assets/Maazim-Splash.json
     - assets/Maazim-Splash2.json
     - assets/conference_event.jpg
+    - assets/exhibition_event.jpg
+
     
 
   # An image asset can refer to one or more resolution-specific "variants", see
