@@ -39,19 +39,44 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Deletion'),
+          title: Text('Confirm Deletion',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
           content: Text('Are you sure you want to delete this event?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Cancel'),
+          actions: <Widget>[
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: const StadiumBorder(),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                backgroundColor:
+                    const Color(0xFF9a85a4).withOpacity(0.9), // Rounded corners
+              ),
+              child: const Text('Cancel',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 255, 255, 255))),
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(); // Dismiss the dialog but do nothing
+              },
             ),
-            TextButton(
+             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: const StadiumBorder(),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                backgroundColor:
+                    const Color.fromRGBO(244, 67, 54, 1) // Rounded corners
+              ),
+              child: const Text('Delete',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 255, 255, 255))),
               onPressed: () async {
                 await _deleteEvent(context, eventId);
                 Navigator.of(context).pop();
               },
-              child: Text('Delete'),
             ),
           ],
         );
@@ -75,13 +100,27 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Error'),
+            title: Text('Error', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
             content: Text('Failed to delete event: $error'),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('OK'),
+              ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: const StadiumBorder(),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                backgroundColor:
+                    const Color(0xFF9a85a4).withOpacity(0.9), // Rounded corners
               ),
+              child: const Text('OK',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 255, 255, 255))),
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(); // Dismiss the dialog but do nothing
+              },
+            ),
             ],
           );
         },
