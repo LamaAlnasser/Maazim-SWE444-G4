@@ -411,47 +411,65 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
           // Check if the event is in the past
           bool isPastEvent = dateAndTime != null && dateAndTime.isBefore(DateTime.now());
 
-          return ListView(
-            padding: EdgeInsets.all(30.20),
+           return ListView(
+            padding: EdgeInsets.all(30),
             children: [
               // Date and Time at the beginning
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Row(
                 children: [
-                  Container(
+                  Container( width: 90,
+                    padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
                     decoration: BoxDecoration(
-                      color:  Color.fromARGB(171, 224, 214, 230),
+                      color: Color.fromARGB(171, 224, 214, 230), // Adjust the color to match the image
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: EdgeInsets.all(2),
                     child: Column(
                       children: [
                         Text(
-                          formattedDate,
+                          DateFormat('MMM').format(dateAndTime), // Display month in short format (e.g., "May")
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 20,
+                            fontSize: 15,
+                            color: Color(0xFF9a85a4),
+                          ),
+                        ),
+                        Text(
+                          DateFormat('dd').format(dateAndTime), // Display day
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 30,
+                            color: Color(0xFF9a85a4), // Adjust the text color to white
+                          ),
+                        ),
+                        Text(
+                          DateFormat('yyyy').format(dateAndTime), // Display year
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Color(0xFF9a85a4), // Adjust the text color to white
                           ),
                         ),
                       ],
                     ),
-                  ),
+                  ),  SizedBox(width: 14),
                   Container(
+                    padding: EdgeInsets.all(12.0),
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(171, 224, 214, 230),
+                      color: Color.fromARGB(171, 224, 214, 230), // Adjust the color to match the image
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: EdgeInsets.all(10),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          formattedTime,
+                          DateFormat('EEEE').format(dateAndTime) + ' at ' + DateFormat('h:mm a').format(dateAndTime),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
+                            color: Color.fromARGB(221, 40, 40, 40), // Adjust the text color to white
                           ),
                         ),
-                        SizedBox(height: 2),
+                        SizedBox(height: 3), // Add spacing between text and button
                         TextButton.icon(
                           onPressed: () {
                             // Placeholder for adding to calendar
@@ -777,50 +795,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                   ),
                 ),
               ),
-              SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(171, 224, 214, 230),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: ListTile(
-                  title: Text(
-                    'Date and Time',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 17,
-                    ),
-                  ),
-                  subtitle: Text(formattedDate + ' at ' + formattedTime,
-                    style: TextStyle(
-                      fontSize: 15,
-                    ),
-                  ),
-                  leading: Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(0xFF9a85a4),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.access_time,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+             
               SizedBox(height: 10),
               _buildLocationWidget(
                 eventData['address'] ?? 'N/A',
