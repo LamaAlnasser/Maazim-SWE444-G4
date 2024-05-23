@@ -840,6 +840,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
         centerTitle: true,
         elevation: 0,
       ),
+      backgroundColor: Colors.white, // Set the background color to white
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -994,7 +995,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
   String getEventImage(String eventType) {
     switch (eventType.toLowerCase()) {
       case 'conference':
-        return 'assets/party_event.jpg'; // Path to your conference event image in assets
+        return 'assets/conference_event.jpg'; // Path to your conference event image in assets
       case 'wedding':
         return 'assets/wedding_event.jpg'; // Path to your wedding event image in assets
       case 'graduation':
@@ -1015,19 +1016,19 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
     switch (eventType.toLowerCase()) {
       //colors just for now going to change them
       case 'conference':
-        return Colors.blue; // Blue for conferences
+        return Color(0xFFD9C8C7);
       case 'wedding':
-        return Color(0xFFB4C18F); // Specific green shade for weddings
+        return Color(0xFFB4C18F);
       case 'graduation':
-        return Color(0xFFFF8D73); // Specific coral shade for graduations
+        return Color(0xFFFB8ACBA);
       case 'exhibition':
-        return Colors.purple; // Purple for exhibitions
+        return Colors.purple;
       case 'birthday':
-        return Color(0xFFF4A2A4); // Specific light pink shade for parties
+        return Color(0xFFF4A2A4);
       case 'party':
-        return Color(0xFFF4A2A4); // Specific light pink shade for parties
+        return Color(0xFFFADC0AB);
       default:
-        return Colors.grey; // Grey for other or unknown event types
+        return Colors.grey;
     }
   }
 
