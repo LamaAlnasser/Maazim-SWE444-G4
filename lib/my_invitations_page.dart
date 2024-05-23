@@ -1020,7 +1020,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
       case 'conference':
         return Color(0xFFD9C8C7);
       case 'wedding':
-        return Color(0xFFB4C18F);
+        return Color(0xFFDBD6CF);
       case 'graduation':
         return Color(0xFFFB8ACBA);
       case 'exhibition':
