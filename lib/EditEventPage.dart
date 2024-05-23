@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:maazim/Home_Host.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_sms/flutter_sms.dart';
 import 'package:country_picker/country_picker.dart';
@@ -1481,7 +1482,11 @@ class _EditEventPageState extends State<EditEventPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 5),
                       child: ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed:() { Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const homePage()),
+                            );},
                         style: ElevatedButton.styleFrom(
                           shape: const StadiumBorder(),
                           padding: const EdgeInsets.symmetric(
