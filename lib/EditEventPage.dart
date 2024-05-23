@@ -22,7 +22,7 @@ class EditEventPage extends StatefulWidget {
 
 class _EditEventPageState extends State<EditEventPage> {
   final _formKey = GlobalKey<FormState>();
-  late Event event;
+  late MaazimEvent event;
   bool _isLoading = true;
 
   late TextEditingController _eventNameController;
@@ -93,7 +93,7 @@ class _EditEventPageState extends State<EditEventPage> {
         .get();
 
     if (eventSnapshot.exists) {
-      event = Event.fromSnapshot(eventSnapshot);
+      event = MaazimEvent.fromSnapshot(eventSnapshot);
       _initializeForm();
     } else {
       print("Event not found");
@@ -106,7 +106,8 @@ class _EditEventPageState extends State<EditEventPage> {
     _eventAddressController = TextEditingController(text: event.address);
     _eventLocationController = TextEditingController(text: event.eventLocation);
     _inviterNameController = TextEditingController(text: event.inviterName);
-    _numberOfInviteesController = TextEditingController(text: event.numberOfInvitees.toString());
+    _numberOfInviteesController =
+        TextEditingController(text: event.numberOfInvitees.toString());
     _phoneController = TextEditingController();
     _selectedDate = event.eventDate;
     _selectedTime = event.eventTime;
@@ -144,9 +145,11 @@ class _EditEventPageState extends State<EditEventPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor:  Color.fromARGB(255, 255, 255, 255),
-          title: Text("Permission Required", 
-               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+          backgroundColor: Color.fromARGB(255, 255, 255, 255),
+          title: Text(
+            "Permission Required",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           content:
               Text("This app requires contact access to function properly."),
           actions: <Widget>[
@@ -198,28 +201,32 @@ class _EditEventPageState extends State<EditEventPage> {
       firstDate: DateTime.now(),
       lastDate: DateTime(2101),
       builder: (BuildContext context, Widget? child) {
-      return Theme(
-        data: ThemeData.light().copyWith(
-          colorScheme: ColorScheme.light(
-            primary: Color(0xFF9a85a4), // header background color
-            onPrimary: Colors.white, // header text color
-            surface: Color.fromARGB(255, 255, 255, 255), // background color
-            onSurface: Colors.black, // body text color
-          ),
-          dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255), // background color
-             textButtonTheme: TextButtonThemeData(
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white, backgroundColor:  Color(0xFF9a85a4),
-              padding: EdgeInsets.symmetric(horizontal: 10), // Button background color
-              shape: RoundedRectangleBorder( // Button shape
-                borderRadius: BorderRadius.circular(18),
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Color(0xFF9a85a4), // header background color
+              onPrimary: Colors.white, // header text color
+              surface: Color.fromARGB(255, 255, 255, 255), // background color
+              onSurface: Colors.black, // body text color
+            ),
+            dialogBackgroundColor:
+                Color.fromARGB(255, 255, 255, 255), // background color
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Color(0xFF9a85a4),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 10), // Button background color
+                shape: RoundedRectangleBorder(
+                  // Button shape
+                  borderRadius: BorderRadius.circular(18),
+                ),
               ),
             ),
           ),
-        ),
-        child: child!,
-      );
-    },
+          child: child!,
+        );
+      },
     );
     if (picked != null && picked != _selectedDate)
       setState(() {
@@ -228,34 +235,36 @@ class _EditEventPageState extends State<EditEventPage> {
   }
 
   void _selectTime(BuildContext context) async {
-    final TimeOfDay? picked =
-        await showTimePicker(
-          context: context, 
-          initialTime: _selectedTime,
-           builder: (BuildContext context, Widget? child) {
-      return Theme(
-        data: ThemeData.dark().copyWith(
-          colorScheme: ColorScheme.dark(
-            primary: Color(0xFF9a85a4),
-            onPrimary: Colors.white,
-            surface: Color.fromARGB(255, 255, 255, 255),
-            onSurface: Color.fromARGB(255, 0, 0, 0),
-          ),
-          dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255),
-          textButtonTheme: TextButtonThemeData(
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white, backgroundColor: Color(0xFF9a85a4), 
-              padding: EdgeInsets.symmetric(horizontal: 10),// Button background color
-              shape: RoundedRectangleBorder( // Button shape
-                borderRadius: BorderRadius.circular(18),
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime,
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: ColorScheme.dark(
+              primary: Color(0xFF9a85a4),
+              onPrimary: Colors.white,
+              surface: Color.fromARGB(255, 255, 255, 255),
+              onSurface: Color.fromARGB(255, 0, 0, 0),
+            ),
+            dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Color(0xFF9a85a4),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 10), // Button background color
+                shape: RoundedRectangleBorder(
+                  // Button shape
+                  borderRadius: BorderRadius.circular(18),
+                ),
               ),
             ),
           ),
-        ),
-        child: child!,
-      );
-    },
-  );
+          child: child!,
+        );
+      },
+    );
     if (picked != null && picked != _selectedTime && _isFutureTime(picked))
       setState(() {
         _selectedTime = picked;
@@ -264,16 +273,20 @@ class _EditEventPageState extends State<EditEventPage> {
 
   bool _isFutureTime(TimeOfDay time) {
     final now = TimeOfDay.now();
-    return time.hour > now.hour || (time.hour == now.hour && time.minute > now.minute);
+    return time.hour > now.hour ||
+        (time.hour == now.hour && time.minute > now.minute);
   }
 
   Future<void> _updateEvent() async {
     if (_formKey.currentState!.validate()) {
       final int currentNumberOfInvitees = event.numberOfInvitees;
-      final int newNumberOfInvitees = int.tryParse(_numberOfInviteesController.text) ?? currentNumberOfInvitees;
+      final int newNumberOfInvitees =
+          int.tryParse(_numberOfInviteesController.text) ??
+              currentNumberOfInvitees;
       if (newNumberOfInvitees < currentNumberOfInvitees) {
         setState(() {
-          _errorMessage = 'Number of invitees cannot be less than the current number of invitees.';
+          _errorMessage =
+              'Number of invitees cannot be less than the current number of invitees.';
         });
         Future.delayed(Duration(seconds: 5), () {
           setState(() {
@@ -283,9 +296,11 @@ class _EditEventPageState extends State<EditEventPage> {
         return;
       }
 
-      if (newNumberOfInvitees != _inviteesPhoneNumbers.length + _newPhoneNumbers.length) {
+      if (newNumberOfInvitees !=
+          _inviteesPhoneNumbers.length + _newPhoneNumbers.length) {
         setState(() {
-          _errorMessage = 'Number of invitees must match the count of phone numbers added.';
+          _errorMessage =
+              'Number of invitees must match the count of phone numbers added.';
         });
         Future.delayed(Duration(seconds: 5), () {
           setState(() {
@@ -309,8 +324,10 @@ class _EditEventPageState extends State<EditEventPage> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Event Conflict', 
-               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+              title: Text(
+                'Event Conflict',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               content: Text(
                   'An event already exists at the selected date and time.'),
               actions: [
@@ -337,7 +354,10 @@ class _EditEventPageState extends State<EditEventPage> {
       }
 
       try {
-        await FirebaseFirestore.instance.collection('events').doc(widget.eventId).update({
+        await FirebaseFirestore.instance
+            .collection('events')
+            .doc(widget.eventId)
+            .update({
           'eventName': _eventNameController.text,
           'address': _eventAddressController.text,
           'eventLocation': _eventLocationController.text,
@@ -351,7 +371,7 @@ class _EditEventPageState extends State<EditEventPage> {
           'theme': _selectedTheme,
         });
 
-       // _sendNotificationsToInvitees();
+        // _sendNotificationsToInvitees();
         _notifyLocalUpdate();
         Navigator.pop(context);
       } catch (e) {
@@ -441,14 +461,16 @@ class _EditEventPageState extends State<EditEventPage> {
               ),
             );
           } else {
-            String phoneNumber = _newPhoneNumbers[index - _inviteesPhoneNumbers.length];
+            String phoneNumber =
+                _newPhoneNumbers[index - _inviteesPhoneNumbers.length];
             return ListTile(
               title: Text(phoneNumber),
               trailing: IconButton(
                 icon: Icon(Icons.delete),
                 onPressed: () {
                   setState(() {
-                    _newPhoneNumbers.removeAt(index - _inviteesPhoneNumbers.length);
+                    _newPhoneNumbers
+                        .removeAt(index - _inviteesPhoneNumbers.length);
                   });
                 },
               ),
@@ -476,13 +498,13 @@ class _EditEventPageState extends State<EditEventPage> {
           fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide(
-                color: const Color(0xFF9a85a4).withOpacity(0.0)),
+            borderSide:
+                BorderSide(color: const Color(0xFF9a85a4).withOpacity(0.0)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide(
-                color: const Color(0xFF9a85a4).withOpacity(0.6)),
+            borderSide:
+                BorderSide(color: const Color(0xFF9a85a4).withOpacity(0.6)),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(18),
@@ -570,8 +592,7 @@ class _EditEventPageState extends State<EditEventPage> {
           return DropdownMenuItem<String>(
             value: value,
             child: Container(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 5),
+              padding: EdgeInsets.symmetric(horizontal: 5),
               child: Text(
                 value,
                 style: const TextStyle(
@@ -656,8 +677,7 @@ class _EditEventPageState extends State<EditEventPage> {
           return DropdownMenuItem<String>(
             value: value,
             child: Container(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 5),
+              padding: EdgeInsets.symmetric(horizontal: 5),
               child: Text(
                 value,
                 style: const TextStyle(
@@ -716,7 +736,7 @@ class _EditEventPageState extends State<EditEventPage> {
         value: _selectedTheme,
         dropdownStyleData: DropdownStyleData(
           maxHeight: 200,
-            width: 330,
+          width: 330,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
             color: Color.fromARGB(255, 233, 228, 237),
@@ -730,7 +750,7 @@ class _EditEventPageState extends State<EditEventPage> {
         ),
         menuItemStyleData: const MenuItemStyleData(
             height: 50,
-             padding: EdgeInsets.only(left: 14, right: 14),
+            padding: EdgeInsets.only(left: 14, right: 14),
             overlayColor: MaterialStatePropertyAll(const Color(0xFF9a85a4))),
         onChanged: (String? newValue) {
           setState(() {
@@ -804,7 +824,7 @@ class _EditEventPageState extends State<EditEventPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            backgroundColor:  Color.fromARGB(255, 255, 255, 255),
+            backgroundColor: Color.fromARGB(255, 255, 255, 255),
             title: Text(
               'Invalid Map Link',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -822,8 +842,7 @@ class _EditEventPageState extends State<EditEventPage> {
                     shape: const StadiumBorder(),
                     padding: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 16),
-                    backgroundColor: const Color(0xFF9a85a4)
-                        .withOpacity(0.9),
+                    backgroundColor: const Color(0xFF9a85a4).withOpacity(0.9),
                   ),
                   child: const Text('OK',
                       style: TextStyle(
@@ -888,7 +907,8 @@ class _EditEventPageState extends State<EditEventPage> {
                   controller: _inviterNameController,
                   decoration: InputDecoration(
                     labelText: 'Name of Inviter',
-                    labelStyle: const TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                    labelStyle:
+                        const TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
                     errorStyle: const TextStyle(fontSize: 10),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
@@ -936,7 +956,8 @@ class _EditEventPageState extends State<EditEventPage> {
                   controller: _eventNameController,
                   decoration: InputDecoration(
                     labelText: 'Event Name',
-                    labelStyle: const TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                    labelStyle:
+                        const TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
                     errorStyle: const TextStyle(fontSize: 10),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
@@ -977,7 +998,7 @@ class _EditEventPageState extends State<EditEventPage> {
               const SizedBox(height: 10),
               _buildEventTypeDropdown(),
               const SizedBox(height: 10),
-               Row(
+              Row(
                 children: [
                   Flexible(
                     flex:
@@ -1005,25 +1026,30 @@ class _EditEventPageState extends State<EditEventPage> {
                         child: AbsorbPointer(
                           child: TextFormField(
                             controller: TextEditingController(
-                                text: '${_selectedDate.year}-${_selectedDate.month}-${_selectedDate.day}'),
+                                text:
+                                    '${_selectedDate.year}-${_selectedDate.month}-${_selectedDate.day}'),
                             decoration: InputDecoration(
                               labelText: 'Event Date',
-                              labelStyle: const TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                              labelStyle: const TextStyle(
+                                  color: Color(0xFF9a85a4), fontSize: 14),
                               errorStyle: const TextStyle(fontSize: 10),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(18),
                                 borderSide: BorderSide.none,
                               ),
-                              fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
+                              fillColor:
+                                  const Color(0xFF9a85a4).withOpacity(0.1),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(18),
                                 borderSide: BorderSide(
-                                    color: const Color(0xFF9a85a4).withOpacity(0.0)),
+                                    color: const Color(0xFF9a85a4)
+                                        .withOpacity(0.0)),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(18),
                                 borderSide: BorderSide(
-                                    color: const Color(0xFF9a85a4).withOpacity(0.6)),
+                                    color: const Color(0xFF9a85a4)
+                                        .withOpacity(0.6)),
                               ),
                               errorBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(18),
@@ -1055,25 +1081,30 @@ class _EditEventPageState extends State<EditEventPage> {
                         child: AbsorbPointer(
                           child: TextFormField(
                             controller: TextEditingController(
-                                text: '${_selectedTime.hour}:${_selectedTime.minute}'),
+                                text:
+                                    '${_selectedTime.hour}:${_selectedTime.minute}'),
                             decoration: InputDecoration(
                               labelText: 'Event Time',
-                              labelStyle: const TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                              labelStyle: const TextStyle(
+                                  color: Color(0xFF9a85a4), fontSize: 14),
                               errorStyle: const TextStyle(fontSize: 10),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(18),
                                 borderSide: BorderSide.none,
                               ),
-                              fillColor: const Color(0xFF9a85a4).withOpacity(0.1),
+                              fillColor:
+                                  const Color(0xFF9a85a4).withOpacity(0.1),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(18),
                                 borderSide: BorderSide(
-                                    color: const Color(0xFF9a85a4).withOpacity(0.0)),
+                                    color: const Color(0xFF9a85a4)
+                                        .withOpacity(0.0)),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(18),
                                 borderSide: BorderSide(
-                                    color: const Color(0xFF9a85a4).withOpacity(0.6)),
+                                    color: const Color(0xFF9a85a4)
+                                        .withOpacity(0.6)),
                               ),
                               errorBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(18),
@@ -1266,7 +1297,8 @@ class _EditEventPageState extends State<EditEventPage> {
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: 'Number of Invitees',
-                    labelStyle: const TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                    labelStyle:
+                        const TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
                     errorStyle: const TextStyle(fontSize: 10),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
@@ -1295,9 +1327,12 @@ class _EditEventPageState extends State<EditEventPage> {
                   ),
                   onChanged: (value) {
                     final count = int.tryParse(value) ?? 1;
-                    if (count != _inviteesPhoneNumbers.length + _newPhoneNumbers.length) {
+                    if (count !=
+                        _inviteesPhoneNumbers.length +
+                            _newPhoneNumbers.length) {
                       setState(() {
-                        _errorMessage = 'Number of invitees must match the count of phone numbers added.';
+                        _errorMessage =
+                            'Number of invitees must match the count of phone numbers added.';
                       });
                       Future.delayed(Duration(seconds: 5), () {
                         setState(() {
@@ -1324,7 +1359,6 @@ class _EditEventPageState extends State<EditEventPage> {
                 padding: const EdgeInsets.fromLTRB(8, 0, 5, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                
                 ),
               ),
               _buildContactList(),
@@ -1384,8 +1418,10 @@ class _EditEventPageState extends State<EditEventPage> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
-                      child: Text('Select Contacts',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      child: Text(
+                        'Select Contacts',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Padding(
@@ -1394,7 +1430,8 @@ class _EditEventPageState extends State<EditEventPage> {
                         controller: _searchController,
                         decoration: InputDecoration(
                           labelText: 'Search',
-                          labelStyle: const TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                          labelStyle: const TextStyle(
+                              color: Color(0xFF9a85a4), fontSize: 14),
                           errorStyle: const TextStyle(fontSize: 10),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
@@ -1404,12 +1441,14 @@ class _EditEventPageState extends State<EditEventPage> {
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
                             borderSide: BorderSide(
-                                color: const Color(0xFF9a85a4).withOpacity(0.0)),
+                                color:
+                                    const Color(0xFF9a85a4).withOpacity(0.0)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
                             borderSide: BorderSide(
-                                color: const Color(0xFF9a85a4).withOpacity(0.6)),
+                                color:
+                                    const Color(0xFF9a85a4).withOpacity(0.6)),
                           ),
                           errorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
@@ -1445,29 +1484,35 @@ class _EditEventPageState extends State<EditEventPage> {
                               key: ValueKey(contact.identifier),
                               title: Text(contact.displayName ?? "No Name"),
                               subtitle: Text(contact.phones != null &&
-                                  contact.phones!.isNotEmpty
+                                      contact.phones!.isNotEmpty
                                   ? contact.phones!.first.value ?? "No Number"
                                   : "No Number"),
                               trailing: Checkbox(
-                                value: _inviteesPhoneNumbers.contains(contact.phones?.first.value) ||
-                                    _newPhoneNumbers.contains(contact.phones?.first.value),
+                                value: _inviteesPhoneNumbers.contains(
+                                        contact.phones?.first.value) ||
+                                    _newPhoneNumbers
+                                        .contains(contact.phones?.first.value),
                                 onChanged: (bool? value) {
                                   if (value == true) {
                                     if (_canAddMoreContacts()) {
-                                      _addPhoneNumber(contact.phones?.first.value ?? "");
+                                      _addPhoneNumber(
+                                          contact.phones?.first.value ?? "");
                                     } else {
                                       setState(() {
-                                        _errorMessage = 'You have reached the maximum number of invitees';
+                                        _errorMessage =
+                                            'You have reached the maximum number of invitees';
                                       });
                                       Future.delayed(Duration(seconds: 5), () {
                                         setState(() {
-                                          _errorMessage = ''; // Clear the error message
+                                          _errorMessage =
+                                              ''; // Clear the error message
                                         });
                                       });
                                     }
                                   } else {
                                     setState(() {
-                                      _newPhoneNumbers.remove(contact.phones?.first.value);
+                                      _newPhoneNumbers
+                                          .remove(contact.phones?.first.value);
                                     });
                                   }
                                 },

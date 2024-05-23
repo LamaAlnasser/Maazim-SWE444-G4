@@ -12,7 +12,7 @@ import 'package:contacts_service/contacts_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
-class Event {
+class MaazimEvent {
   final String eventName;
   final String address; // New property for address
   final String eventLocation;
@@ -22,10 +22,10 @@ class Event {
   final String inviterName;
   final int numberOfInvitees;
   final List<String> inviteesPhoneNumbers;
-  final int duration; // Duration of the event in hours
-  final String dressCode; // New property for dress code
-  final String theme; // New property for theme
-  Event({
+  final int duration;
+  final String dressCode;
+  final String theme;
+  MaazimEvent({
     required this.eventName,
     required this.address,
     required this.eventLocation,
@@ -41,10 +41,10 @@ class Event {
   });
 
   String? get eventId => null;
-  factory Event.fromSnapshot(DocumentSnapshot snapshot) {
+  factory MaazimEvent.fromSnapshot(DocumentSnapshot snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
 
-    return Event(
+    return MaazimEvent(
       eventName: data['eventName'] ?? '',
       address: data['address'] ?? '',
       eventLocation: data['eventLocation'] ?? '',

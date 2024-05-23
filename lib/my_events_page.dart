@@ -340,317 +340,317 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                             ),
                           ),
                         ),
-                        Positioned(
-                          right: 28,
-                          bottom: 10,
-                          child: Container(
-                            child: IconButton(
-                              icon: Stack(
-                                alignment: Alignment.center,
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.event, // Calendar icon as the base
-                                    color: index.isEven
-                                        ? Color.fromARGB(255, 154, 133, 164)
-                                        : Color.fromARGB(255, 84, 73, 89),
-                                    size:
-                                        30, // Appropriate size for the calendar icon
-                                  ),
-                                  Positioned(
-                                    top:
-                                        0, // Positioning the circle with the plus sign
-                                    right: 0,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors
-                                            .white, // Background color of the circle
-                                        shape: BoxShape
-                                            .circle, // Making the background a circle
-                                      ),
-                                      child: Icon(
-                                        Icons.add, // Plus icon
-                                        color: index.isEven
-                                            ? Color.fromARGB(255, 154, 133, 164)
-                                            : Color.fromARGB(255, 84, 73,
-                                                89), // Matching icon color for visibility
-                                        size:
-                                            15, // Smaller size for the plus sign
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              onPressed: () {
-                                // Show the confirmation dialog
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      backgroundColor:
-                                          Color.fromARGB(255, 255, 255, 255),
-                                      title: Text(
-                                        'Add to Calendar',
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      content: Text(
-                                        'Do you want to add "${eventName}" event to your calendar?',
-                                      ),
-                                      actions: <Widget>[
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 5),
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.of(context)
-                                                  .pop(); // Close the dialog
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              shape: const StadiumBorder(),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 16),
-                                              backgroundColor: const Color(
-                                                      0xFF9a85a4)
-                                                  .withOpacity(
-                                                      0.9), // Rounded corners
-                                            ),
-                                            child: const Text('Cancel',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Color.fromARGB(
-                                                        255, 255, 255, 255))),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 5),
-                                          child: ElevatedButton(
-                                            onPressed: () async {
-                                              Navigator.of(context)
-                                                  .pop(); // Close the dialog
+                        // Positioned(
+                        //   right: 28,
+                        //   bottom: 10,
+                        //   child: Container(
+                        //     child: IconButton(
+                        //       icon: Stack(
+                        //         alignment: Alignment.center,
+                        //         children: <Widget>[
+                        //           Icon(
+                        //             Icons.event, // Calendar icon as the base
+                        //             color: index.isEven
+                        //                 ? Color.fromARGB(255, 154, 133, 164)
+                        //                 : Color.fromARGB(255, 84, 73, 89),
+                        //             size:
+                        //                 30, // Appropriate size for the calendar icon
+                        //           ),
+                        //           Positioned(
+                        //             top:
+                        //                 0, // Positioning the circle with the plus sign
+                        //             right: 0,
+                        //             child: Container(
+                        //               decoration: BoxDecoration(
+                        //                 color: Colors
+                        //                     .white, // Background color of the circle
+                        //                 shape: BoxShape
+                        //                     .circle, // Making the background a circle
+                        //               ),
+                        //               child: Icon(
+                        //                 Icons.add, // Plus icon
+                        //                 color: index.isEven
+                        //                     ? Color.fromARGB(255, 154, 133, 164)
+                        //                     : Color.fromARGB(255, 84, 73,
+                        //                         89), // Matching icon color for visibility
+                        //                 size:
+                        //                     15, // Smaller size for the plus sign
+                        //               ),
+                        //             ),
+                        //           ),
+                        //         ],
+                        //       ),
+                        //       onPressed: () {
+                        //         // Show the confirmation dialog
+                        //         showDialog(
+                        //           context: context,
+                        //           builder: (BuildContext context) {
+                        //             return AlertDialog(
+                        //               backgroundColor:
+                        //                   Color.fromARGB(255, 255, 255, 255),
+                        //               title: Text(
+                        //                 'Add to Calendar',
+                        //                 style: TextStyle(
+                        //                     fontSize: 20,
+                        //                     fontWeight: FontWeight.bold),
+                        //               ),
+                        //               content: Text(
+                        //                 'Do you want to add "${eventName}" event to your calendar?',
+                        //               ),
+                        //               actions: <Widget>[
+                        //                 Padding(
+                        //                   padding: const EdgeInsets.symmetric(
+                        //                       horizontal: 5),
+                        //                   child: ElevatedButton(
+                        //                     onPressed: () {
+                        //                       Navigator.of(context)
+                        //                           .pop(); // Close the dialog
+                        //                     },
+                        //                     style: ElevatedButton.styleFrom(
+                        //                       shape: const StadiumBorder(),
+                        //                       padding:
+                        //                           const EdgeInsets.symmetric(
+                        //                               vertical: 10,
+                        //                               horizontal: 16),
+                        //                       backgroundColor: const Color(
+                        //                               0xFF9a85a4)
+                        //                           .withOpacity(
+                        //                               0.9), // Rounded corners
+                        //                     ),
+                        //                     child: const Text('Cancel',
+                        //                         style: TextStyle(
+                        //                             fontSize: 12,
+                        //                             fontWeight: FontWeight.bold,
+                        //                             color: Color.fromARGB(
+                        //                                 255, 255, 255, 255))),
+                        //                   ),
+                        //                 ),
+                        //                 Padding(
+                        //                   padding: const EdgeInsets.symmetric(
+                        //                       horizontal: 5),
+                        //                   child: ElevatedButton(
+                        //                     onPressed: () async {
+                        //                       Navigator.of(context)
+                        //                           .pop(); // Close the dialog
 
-                                              // Use a parent context that is still valid
-                                              final parentContext =
-                                                  scaffoldKey.currentContext!;
-                                              // Prepare event data to pass to the addToCalendar method
-                                              Map<String, dynamic> eventData = {
-                                                'id': event[
-                                                    'id'], // Assuming 'id' is necessary
-                                                'eventName': event['eventName'],
-                                                'eventDateTime':
-                                                    event['eventDateTime'],
-                                                'duration': event['duration'],
-                                                // Include other necessary event fields
-                                              };
-                                              // Call addToCalendar method
-                                              bool eventAdded =
-                                                  await addToCalendar(
-                                                      eventData, parentContext);
-                                              if (eventAdded) {
-                                                showDialog(
-                                                  context: parentContext,
-                                                  builder:
-                                                      (BuildContext context) {
-                                                    return AlertDialog(
-                                                      backgroundColor:
-                                                          Color.fromARGB(255,
-                                                              255, 255, 255),
-                                                      title: Text(
-                                                        'Success',
-                                                        style: TextStyle(
-                                                            fontSize: 20,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                      content: Text(
-                                                          "Event has been added to your calendar."),
-                                                      actions: <Widget>[
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  horizontal:
-                                                                      5),
-                                                          child: ElevatedButton(
-                                                            onPressed: () {
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop(); // Close the dialog
-                                                            },
-                                                            style:
-                                                                ElevatedButton
-                                                                    .styleFrom(
-                                                              shape:
-                                                                  const StadiumBorder(),
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .symmetric(
-                                                                      vertical:
-                                                                          10,
-                                                                      horizontal:
-                                                                          16),
-                                                              backgroundColor: const Color(
-                                                                      0xFF9a85a4)
-                                                                  .withOpacity(
-                                                                      0.9), // Rounded corners
-                                                            ),
-                                                            child: const Text(
-                                                                'OK',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    color: Color
-                                                                        .fromARGB(
-                                                                            255,
-                                                                            255,
-                                                                            255,
-                                                                            255))),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    );
-                                                  },
-                                                );
-                                              } else {
-                                                showDialog(
-                                                  context: parentContext,
-                                                  builder:
-                                                      (BuildContext context) {
-                                                    return AlertDialog(
-                                                      backgroundColor:
-                                                          Color.fromARGB(255,
-                                                              255, 255, 255),
-                                                      title: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Stack(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            children: [
-                                                              Icon(
-                                                                Icons.circle,
-                                                                color: Colors
-                                                                    .red
-                                                                    .withOpacity(
-                                                                        0.2),
-                                                                size: 40,
-                                                              ),
-                                                              Text(
-                                                                "!",
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: Colors
-                                                                      .red,
-                                                                  fontSize: 24,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          const SizedBox(
-                                                              width: 8),
-                                                          Text(
-                                                            'Error',
-                                                            style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      content: Text(
-                                                          "Event already exists in the calendar."),
-                                                      actions: <Widget>[
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  horizontal:
-                                                                      5),
-                                                          child: ElevatedButton(
-                                                            onPressed: () {
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop(); // Close the dialog
-                                                            },
-                                                            style:
-                                                                ElevatedButton
-                                                                    .styleFrom(
-                                                              shape:
-                                                                  const StadiumBorder(),
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .symmetric(
-                                                                      vertical:
-                                                                          10,
-                                                                      horizontal:
-                                                                          16),
-                                                              backgroundColor: const Color(
-                                                                      0xFF9a85a4)
-                                                                  .withOpacity(
-                                                                      0.9), // Rounded corners
-                                                            ),
-                                                            child: const Text(
-                                                                'OK',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    color: Color
-                                                                        .fromARGB(
-                                                                            255,
-                                                                            255,
-                                                                            255,
-                                                                            255))),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    );
-                                                  },
-                                                );
-                                              }
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              shape: const StadiumBorder(),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 16),
-                                              backgroundColor: const Color(
-                                                      0xFF9a85a4)
-                                                  .withOpacity(
-                                                      0.9), // Rounded corners
-                                            ),
-                                            child: const Text('Yes',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Color.fromARGB(
-                                                        255, 255, 255, 255))),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ),
+                        //                       // Use a parent context that is still valid
+                        //                       final parentContext =
+                        //                           scaffoldKey.currentContext!;
+                        //                       // Prepare event data to pass to the addToCalendar method
+                        //                       Map<String, dynamic> eventData = {
+                        //                         'id': event[
+                        //                             'id'], // Assuming 'id' is necessary
+                        //                         'eventName': event['eventName'],
+                        //                         'eventDateTime':
+                        //                             event['eventDateTime'],
+                        //                         'duration': event['duration'],
+                        //                         // Include other necessary event fields
+                        //                       };
+                        //                       // Call addToCalendar method
+                        //                       bool eventAdded =
+                        //                           await addToCalendar(
+                        //                               eventData, parentContext);
+                        //                       if (eventAdded) {
+                        //                         showDialog(
+                        //                           context: parentContext,
+                        //                           builder:
+                        //                               (BuildContext context) {
+                        //                             return AlertDialog(
+                        //                               backgroundColor:
+                        //                                   Color.fromARGB(255,
+                        //                                       255, 255, 255),
+                        //                               title: Text(
+                        //                                 'Success',
+                        //                                 style: TextStyle(
+                        //                                     fontSize: 20,
+                        //                                     fontWeight:
+                        //                                         FontWeight
+                        //                                             .bold),
+                        //                               ),
+                        //                               content: Text(
+                        //                                   "Event has been added to your calendar."),
+                        //                               actions: <Widget>[
+                        //                                 Padding(
+                        //                                   padding:
+                        //                                       const EdgeInsets
+                        //                                           .symmetric(
+                        //                                           horizontal:
+                        //                                               5),
+                        //                                   child: ElevatedButton(
+                        //                                     onPressed: () {
+                        //                                       Navigator.of(
+                        //                                               context)
+                        //                                           .pop(); // Close the dialog
+                        //                                     },
+                        //                                     style:
+                        //                                         ElevatedButton
+                        //                                             .styleFrom(
+                        //                                       shape:
+                        //                                           const StadiumBorder(),
+                        //                                       padding:
+                        //                                           const EdgeInsets
+                        //                                               .symmetric(
+                        //                                               vertical:
+                        //                                                   10,
+                        //                                               horizontal:
+                        //                                                   16),
+                        //                                       backgroundColor: const Color(
+                        //                                               0xFF9a85a4)
+                        //                                           .withOpacity(
+                        //                                               0.9), // Rounded corners
+                        //                                     ),
+                        //                                     child: const Text(
+                        //                                         'OK',
+                        //                                         style: TextStyle(
+                        //                                             fontSize:
+                        //                                                 12,
+                        //                                             fontWeight:
+                        //                                                 FontWeight
+                        //                                                     .bold,
+                        //                                             color: Color
+                        //                                                 .fromARGB(
+                        //                                                     255,
+                        //                                                     255,
+                        //                                                     255,
+                        //                                                     255))),
+                        //                                   ),
+                        //                                 ),
+                        //                               ],
+                        //                             );
+                        //                           },
+                        //                         );
+                        //                       } else {
+                        //                         showDialog(
+                        //                           context: parentContext,
+                        //                           builder:
+                        //                               (BuildContext context) {
+                        //                             return AlertDialog(
+                        //                               backgroundColor:
+                        //                                   Color.fromARGB(255,
+                        //                                       255, 255, 255),
+                        //                               title: Row(
+                        //                                 mainAxisAlignment:
+                        //                                     MainAxisAlignment
+                        //                                         .start,
+                        //                                 children: [
+                        //                                   Stack(
+                        //                                     alignment: Alignment
+                        //                                         .center,
+                        //                                     children: [
+                        //                                       Icon(
+                        //                                         Icons.circle,
+                        //                                         color: Colors
+                        //                                             .red
+                        //                                             .withOpacity(
+                        //                                                 0.2),
+                        //                                         size: 40,
+                        //                                       ),
+                        //                                       Text(
+                        //                                         "!",
+                        //                                         style:
+                        //                                             TextStyle(
+                        //                                           color: Colors
+                        //                                               .red,
+                        //                                           fontSize: 24,
+                        //                                           fontWeight:
+                        //                                               FontWeight
+                        //                                                   .bold,
+                        //                                         ),
+                        //                                       ),
+                        //                                     ],
+                        //                                   ),
+                        //                                   const SizedBox(
+                        //                                       width: 8),
+                        //                                   Text(
+                        //                                     'Error',
+                        //                                     style: TextStyle(
+                        //                                         fontWeight:
+                        //                                             FontWeight
+                        //                                                 .bold),
+                        //                                   ),
+                        //                                 ],
+                        //                               ),
+                        //                               content: Text(
+                        //                                   "Event already exists in the calendar."),
+                        //                               actions: <Widget>[
+                        //                                 Padding(
+                        //                                   padding:
+                        //                                       const EdgeInsets
+                        //                                           .symmetric(
+                        //                                           horizontal:
+                        //                                               5),
+                        //                                   child: ElevatedButton(
+                        //                                     onPressed: () {
+                        //                                       Navigator.of(
+                        //                                               context)
+                        //                                           .pop(); // Close the dialog
+                        //                                     },
+                        //                                     style:
+                        //                                         ElevatedButton
+                        //                                             .styleFrom(
+                        //                                       shape:
+                        //                                           const StadiumBorder(),
+                        //                                       padding:
+                        //                                           const EdgeInsets
+                        //                                               .symmetric(
+                        //                                               vertical:
+                        //                                                   10,
+                        //                                               horizontal:
+                        //                                                   16),
+                        //                                       backgroundColor: const Color(
+                        //                                               0xFF9a85a4)
+                        //                                           .withOpacity(
+                        //                                               0.9), // Rounded corners
+                        //                                     ),
+                        //                                     child: const Text(
+                        //                                         'OK',
+                        //                                         style: TextStyle(
+                        //                                             fontSize:
+                        //                                                 12,
+                        //                                             fontWeight:
+                        //                                                 FontWeight
+                        //                                                     .bold,
+                        //                                             color: Color
+                        //                                                 .fromARGB(
+                        //                                                     255,
+                        //                                                     255,
+                        //                                                     255,
+                        //                                                     255))),
+                        //                                   ),
+                        //                                 ),
+                        //                               ],
+                        //                             );
+                        //                           },
+                        //                         );
+                        //                       }
+                        //                     },
+                        //                     style: ElevatedButton.styleFrom(
+                        //                       shape: const StadiumBorder(),
+                        //                       padding:
+                        //                           const EdgeInsets.symmetric(
+                        //                               vertical: 10,
+                        //                               horizontal: 16),
+                        //                       backgroundColor: const Color(
+                        //                               0xFF9a85a4)
+                        //                           .withOpacity(
+                        //                               0.9), // Rounded corners
+                        //                     ),
+                        //                     child: const Text('Yes',
+                        //                         style: TextStyle(
+                        //                             fontSize: 12,
+                        //                             fontWeight: FontWeight.bold,
+                        //                             color: Color.fromARGB(
+                        //                                 255, 255, 255, 255))),
+                        //                   ),
+                        //                 ),
+                        //               ],
+                        //             );
+                        //           },
+                        //         );
+                        //       },
+                        //     ),
+                        //   ),
+                        //),
                       ],
                     ),
                     padding: EdgeInsets.fromLTRB(0, 0, 0, 23),

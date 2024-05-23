@@ -12,6 +12,13 @@ import 'package:maazim/notification.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:device_calendar/device_calendar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:collection/collection.dart';
+
 class EventAttendancePage extends StatefulWidget {
   final String eventId;
 
@@ -23,7 +30,8 @@ class EventAttendancePage extends StatefulWidget {
 
 class _EventAttendancePageState extends State<EventAttendancePage> {
   late Future<DocumentSnapshot> eventDetailsFuture;
-  late Event? event;
+  late MaazimEvent? event;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -39,7 +47,10 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Deletion',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+          title: Text(
+            'Confirm Deletion',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           content: Text('Are you sure you want to delete this event?'),
           actions: <Widget>[
             ElevatedButton(
@@ -60,14 +71,14 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                     .pop(); // Dismiss the dialog but do nothing
               },
             ),
-             ElevatedButton(
+            ElevatedButton(
               style: ElevatedButton.styleFrom(
-                shape: const StadiumBorder(),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                backgroundColor:
-                    const Color.fromRGBO(244, 67, 54, 1) // Rounded corners
-              ),
+                  shape: const StadiumBorder(),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                  backgroundColor:
+                      const Color.fromRGBO(244, 67, 54, 1) // Rounded corners
+                  ),
               child: const Text('Delete',
                   style: TextStyle(
                       fontSize: 12,
@@ -75,11 +86,10 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                       color: Color.fromARGB(255, 255, 255, 255))),
               onPressed: () async {
                 await _deleteEvent(context, eventId);
-               Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const homePage()),
-                            );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const homePage()),
+                );
               },
             ),
           ],
@@ -90,7 +100,10 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
 
   Future<void> _deleteEvent(BuildContext context, String eventId) async {
     try {
-      await FirebaseFirestore.instance.collection('events').doc(eventId).delete();
+      await FirebaseFirestore.instance
+          .collection('events')
+          .doc(eventId)
+          .delete();
       await _deleteEntryCoordinator(eventId);
       await _sendNotificationsToInvitees(eventId);
       _notifyLocalUpdate();
@@ -104,27 +117,30 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Error', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+            title: Text(
+              'Error',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             content: Text('Failed to delete event: $error'),
             actions: [
               ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: const StadiumBorder(),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                backgroundColor:
-                    const Color(0xFF9a85a4).withOpacity(0.9), // Rounded corners
+                style: ElevatedButton.styleFrom(
+                  shape: const StadiumBorder(),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                  backgroundColor: const Color(0xFF9a85a4)
+                      .withOpacity(0.9), // Rounded corners
+                ),
+                child: const Text('OK',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 255, 255, 255))),
+                onPressed: () {
+                  Navigator.of(context)
+                      .pop(); // Dismiss the dialog but do nothing
+                },
               ),
-              child: const Text('OK',
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 255, 255, 255))),
-              onPressed: () {
-                Navigator.of(context)
-                    .pop(); // Dismiss the dialog but do nothing
-              },
-            ),
             ],
           );
         },
@@ -134,7 +150,10 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
 
   Future<void> _deleteEntryCoordinator(String eventId) async {
     try {
-      await FirebaseFirestore.instance.collection('coordinators').doc(eventId).delete();
+      await FirebaseFirestore.instance
+          .collection('coordinators')
+          .doc(eventId)
+          .delete();
     } catch (error) {
       print('Failed to delete entry coordinator: $error');
     }
@@ -152,7 +171,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
         return;
       }
 
-      Event event = Event.fromSnapshot(eventSnapshot);
+      MaazimEvent event = MaazimEvent.fromSnapshot(eventSnapshot);
 
       for (String phoneNumber in event.inviteesPhoneNumbers) {
         QuerySnapshot userSnapshot = await FirebaseFirestore.instance
@@ -179,7 +198,8 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
     }
   }
 
-  Future<void> _sendFCMNotification(String deviceToken, Event event) async {
+  Future<void> _sendFCMNotification(
+      String deviceToken, MaazimEvent event) async {
     final String serverToken = 'YOUR_SERVER_KEY';
 
     final response = await http.post(
@@ -193,7 +213,8 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
           'to': deviceToken,
           'notification': <String, dynamic>{
             'title': '${event.eventName} Deleted!',
-            'body': 'The event you were invited to has been deleted. Please check the details.',
+            'body':
+                'The event you were invited to has been deleted. Please check the details.',
             'click_action': 'FLUTTER_NOTIFICATION_CLICK',
           },
           'data': <String, dynamic>{
@@ -212,11 +233,12 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
 
   Future<String?> getDeviceTokenFromPhoneNumber(String phoneNumber) async {
     try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('phoneNumber', isEqualTo: phoneNumber)
-          .limit(1)
-          .get();
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .where('phoneNumber', isEqualTo: phoneNumber)
+              .limit(1)
+              .get();
 
       if (querySnapshot.docs.isNotEmpty) {
         return querySnapshot.docs.first.data()['deviceToken'] as String?;
@@ -338,11 +360,12 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
 
   Future<String?> _getFullNameFromPhoneNumber(String phoneNumber) async {
     try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('phoneNumber', isEqualTo: phoneNumber)
-          .limit(1)
-          .get();
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .where('phoneNumber', isEqualTo: phoneNumber)
+              .limit(1)
+              .get();
 
       if (querySnapshot.docs.isNotEmpty) {
         String firstName = querySnapshot.docs.first.data()['firstName'];
@@ -359,7 +382,9 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
 
   @override
   Widget build(BuildContext context) {
+    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: Text('Event Details'),
         actions: [
@@ -404,7 +429,8 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
           Map<String, double> dataMap = {
             'Accepted Invitees': acceptedInvitees.length.toDouble(),
             'Rejected Invitees': rejectedInvitees.length.toDouble(),
-            'Pending Invitees': _calculatePendingInvitees(eventData).length.toDouble(),
+            'Pending Invitees':
+                _calculatePendingInvitees(eventData).length.toDouble(),
           };
           Map<String, Color> colorMap = {
             'Accepted Invitees': Colors.green,
@@ -413,24 +439,30 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
           };
 
           // Check if the event is in the past
-          bool isPastEvent = dateAndTime != null && dateAndTime.isBefore(DateTime.now());
+          bool isPastEvent =
+              dateAndTime != null && dateAndTime.isBefore(DateTime.now());
+          String eventName = eventData['eventName'];
 
-           return ListView(
+          return ListView(
             padding: EdgeInsets.all(30),
             children: [
               // Date and Time at the beginning
-                Row( 
+              Row(
                 children: [
-                  Container( width: 90,
-                    padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+                  Container(
+                    width: 90,
+                    padding:
+                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(171, 224, 214, 230), // Adjust the color to match the image
+                      color: Color.fromARGB(171, 224, 214,
+                          230), // Adjust the color to match the image
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
                       children: [
                         Text(
-                          DateFormat('MMM').format(dateAndTime), // Display month in short format (e.g., "May")
+                          DateFormat('MMM').format(
+                              dateAndTime), // Display month in short format (e.g., "May")
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
@@ -442,44 +474,294 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 30,
-                            color: Color(0xFF9a85a4), // Adjust the text color to white
+                            color: Color(
+                                0xFF9a85a4), // Adjust the text color to white
                           ),
                         ),
                         Text(
-                          DateFormat('yyyy').format(dateAndTime), // Display year
+                          DateFormat('yyyy')
+                              .format(dateAndTime), // Display year
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
-                            color: Color(0xFF9a85a4), // Adjust the text color to white
+                            color: Color(
+                                0xFF9a85a4), // Adjust the text color to white
                           ),
                         ),
                       ],
                     ),
-                  ),  SizedBox(width: 25),
+                  ),
+                  SizedBox(width: 25),
                   Container(
                     padding: EdgeInsets.all(15.0),
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(171, 224, 214, 230), // Adjust the color to match the image
+                      color: Color.fromARGB(171, 224, 214,
+                          230), // Adjust the color to match the image
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          DateFormat('EEEE').format(dateAndTime) + ' at ' + DateFormat('h:mm a').format(dateAndTime),
+                          DateFormat('EEEE').format(dateAndTime) +
+                              ' at ' +
+                              DateFormat('h:mm a').format(dateAndTime),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 17,
-                            color: Color.fromARGB(221, 40, 40, 40), // Adjust the text color to white
+                            color: Color.fromARGB(221, 40, 40,
+                                40), // Adjust the text color to white
                           ),
                         ),
-                        SizedBox(height: 3), // Add spacing between text and button
+                        SizedBox(
+                            height: 3), // Add spacing between text and button
                         TextButton.icon(
                           onPressed: () {
-                            // Placeholder for adding to calendar
+                            // Show the confirmation dialog
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  backgroundColor:
+                                      Color.fromARGB(255, 255, 255, 255),
+                                  title: Text(
+                                    'Add to Calendar',
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  content: Text(
+                                    'Do you want to add "${eventName}" event to your calendar?',
+                                  ),
+                                  actions: <Widget>[
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 5),
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.of(context)
+                                              .pop(); // Close the dialog
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          shape: const StadiumBorder(),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 10, horizontal: 16),
+                                          backgroundColor:
+                                              const Color(0xFF9a85a4)
+                                                  .withOpacity(
+                                                      0.9), // Rounded corners
+                                        ),
+                                        child: const Text('Cancel',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color.fromARGB(
+                                                    255, 255, 255, 255))),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 5),
+                                      child: ElevatedButton(
+                                        onPressed: () async {
+                                          Navigator.of(context)
+                                              .pop(); // Close the dialog
+
+                                          // Use a parent context that is still valid
+                                          final parentContext =
+                                              scaffoldKey.currentContext!;
+                                          // Prepare event data to pass to the addToCalendar method
+                                          Map<String, dynamic> eventDataToSend =
+                                              {
+                                            'eventName': eventData['eventName'],
+                                            'eventDateTime':
+                                                eventData['eventDateTime'],
+                                            'duration': eventData['duration'],
+                                            // Include other necessary event fields
+                                          };
+                                          // Call addToCalendar method
+                                          bool eventAdded = await addToCalendar(
+                                              eventDataToSend, parentContext);
+                                          if (eventAdded) {
+                                            showDialog(
+                                              context: parentContext,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  backgroundColor:
+                                                      Color.fromARGB(
+                                                          255, 255, 255, 255),
+                                                  title: Text(
+                                                    'Success',
+                                                    style: TextStyle(
+                                                        fontSize: 20,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  content: Text(
+                                                      "Event has been added to your calendar."),
+                                                  actions: <Widget>[
+                                                    Padding(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 5),
+                                                      child: ElevatedButton(
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop(); // Close the dialog
+                                                        },
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          shape:
+                                                              const StadiumBorder(),
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  vertical: 10,
+                                                                  horizontal:
+                                                                      16),
+                                                          backgroundColor:
+                                                              const Color(
+                                                                      0xFF9a85a4)
+                                                                  .withOpacity(
+                                                                      0.9), // Rounded corners
+                                                        ),
+                                                        child: const Text('OK',
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Color
+                                                                    .fromARGB(
+                                                                        255,
+                                                                        255,
+                                                                        255,
+                                                                        255))),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          } else {
+                                            showDialog(
+                                              context: parentContext,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  backgroundColor:
+                                                      Color.fromARGB(
+                                                          255, 255, 255, 255),
+                                                  title: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    children: [
+                                                      Stack(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        children: [
+                                                          Icon(
+                                                            Icons.circle,
+                                                            color: Colors.red
+                                                                .withOpacity(
+                                                                    0.2),
+                                                            size: 40,
+                                                          ),
+                                                          Text(
+                                                            "!",
+                                                            style: TextStyle(
+                                                              color: Colors.red,
+                                                              fontSize: 24,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(width: 8),
+                                                      Text(
+                                                        'Error',
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  content: Text(
+                                                      "Event already exists in the calendar."),
+                                                  actions: <Widget>[
+                                                    Padding(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 5),
+                                                      child: ElevatedButton(
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop(); // Close the dialog
+                                                        },
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          shape:
+                                                              const StadiumBorder(),
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  vertical: 10,
+                                                                  horizontal:
+                                                                      16),
+                                                          backgroundColor:
+                                                              const Color(
+                                                                      0xFF9a85a4)
+                                                                  .withOpacity(
+                                                                      0.9), // Rounded corners
+                                                        ),
+                                                        child: const Text('OK',
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Color
+                                                                    .fromARGB(
+                                                                        255,
+                                                                        255,
+                                                                        255,
+                                                                        255))),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          shape: const StadiumBorder(),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 10, horizontal: 16),
+                                          backgroundColor:
+                                              const Color(0xFF9a85a4)
+                                                  .withOpacity(
+                                                      0.9), // Rounded corners
+                                        ),
+                                        child: const Text('Yes',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color.fromARGB(
+                                                    255, 255, 255, 255))),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
                           },
-                          icon: Icon(Icons.calendar_today, color: Color(0xFF9a85a4)),
-                          label: Text('Add to calendar', style: TextStyle(color: Color(0xFF9a85a4))),
+                          icon: Icon(Icons.calendar_today,
+                              color: Color(0xFF9a85a4)),
+                          label: Text('Add to calendar',
+                              style: TextStyle(color: Color(0xFF9a85a4))),
                         ),
                       ],
                     ),
@@ -635,7 +917,8 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                       fontSize: 17,
                     ),
                   ),
-                  subtitle: Text('${eventData['numberOfInvitees'] ?? 'N/A'}',
+                  subtitle: Text(
+                    '${eventData['numberOfInvitees'] ?? 'N/A'}',
                     style: TextStyle(
                       fontSize: 15,
                     ),
@@ -679,7 +962,8 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                       fontSize: 17,
                     ),
                   ),
-                  subtitle: Text(_formatDuration(eventData['duration'] ?? 0),
+                  subtitle: Text(
+                    _formatDuration(eventData['duration'] ?? 0),
                     style: TextStyle(
                       fontSize: 15,
                     ),
@@ -799,7 +1083,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                   ),
                 ),
               ),
-             
+
               SizedBox(height: 10),
               _buildLocationWidget(
                 eventData['address'] ?? 'N/A',
@@ -860,15 +1144,19 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                           Container(height: 2, color: Color(0xFF9a85a4)),
                           SizedBox(height: 5),
                           ExpansionTile(
-                            title: Text('Accepted Attendees (${acceptedInvitees.length})'),
-                            leading: Icon(Icons.check_circle, color: Colors.green),
+                            title: Text(
+                                'Accepted Attendees (${acceptedInvitees.length})'),
+                            leading:
+                                Icon(Icons.check_circle, color: Colors.green),
                             children: [
                               FutureBuilder<List<String?>>(
                                 future: Future.wait(
-                                  acceptedInvitees.map((phoneNumber) => _getFullNameFromPhoneNumber(phoneNumber)),
+                                  acceptedInvitees.map((phoneNumber) =>
+                                      _getFullNameFromPhoneNumber(phoneNumber)),
                                 ),
                                 builder: (context, snapshot) {
-                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
                                     return CircularProgressIndicator();
                                   }
                                   if (snapshot.hasError) {
@@ -876,10 +1164,13 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                                   }
                                   List<String?> fullNames = snapshot.data ?? [];
                                   List<Widget> listTiles = [];
-                                  for (int i = 0; i < acceptedInvitees.length; i++) {
+                                  for (int i = 0;
+                                      i < acceptedInvitees.length;
+                                      i++) {
                                     listTiles.add(
                                       ListTile(
-                                        title: Text('${acceptedInvitees[i]} (${fullNames[i] ?? 'Unknown'})'),
+                                        title: Text(
+                                            '${acceptedInvitees[i]} (${fullNames[i] ?? 'Unknown'})'),
                                       ),
                                     );
                                   }
@@ -889,15 +1180,18 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                             ],
                           ),
                           ExpansionTile(
-                            title: Text('Rejected Attendees (${rejectedInvitees.length})'),
+                            title: Text(
+                                'Rejected Attendees (${rejectedInvitees.length})'),
                             leading: Icon(Icons.cancel, color: Colors.red),
                             children: [
                               FutureBuilder<List<String?>>(
                                 future: Future.wait(
-                                  rejectedInvitees.map((phoneNumber) => _getFullNameFromPhoneNumber(phoneNumber)),
+                                  rejectedInvitees.map((phoneNumber) =>
+                                      _getFullNameFromPhoneNumber(phoneNumber)),
                                 ),
                                 builder: (context, snapshot) {
-                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
                                     return CircularProgressIndicator();
                                   }
                                   if (snapshot.hasError) {
@@ -905,10 +1199,13 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                                   }
                                   List<String?> fullNames = snapshot.data ?? [];
                                   List<Widget> listTiles = [];
-                                  for (int i = 0; i < rejectedInvitees.length; i++) {
+                                  for (int i = 0;
+                                      i < rejectedInvitees.length;
+                                      i++) {
                                     listTiles.add(
                                       ListTile(
-                                        title: Text('${rejectedInvitees[i]} (${fullNames[i] ?? 'Unknown'})'),
+                                        title: Text(
+                                            '${rejectedInvitees[i]} (${fullNames[i] ?? 'Unknown'})'),
                                       ),
                                     );
                                   }
@@ -918,15 +1215,21 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                             ],
                           ),
                           ExpansionTile(
-                            title: Text('Pending Attendees (${_calculatePendingInvitees(eventData).length})'),
-                            leading: Icon(Icons.access_time, color: Colors.orange),
+                            title: Text(
+                                'Pending Attendees (${_calculatePendingInvitees(eventData).length})'),
+                            leading:
+                                Icon(Icons.access_time, color: Colors.orange),
                             children: [
                               FutureBuilder<List<String?>>(
                                 future: Future.wait(
-                                  _calculatePendingInvitees(eventData).map((phoneNumber) => _getFullNameFromPhoneNumber(phoneNumber)),
+                                  _calculatePendingInvitees(eventData).map(
+                                      (phoneNumber) =>
+                                          _getFullNameFromPhoneNumber(
+                                              phoneNumber)),
                                 ),
                                 builder: (context, snapshot) {
-                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
                                     return CircularProgressIndicator();
                                   }
                                   if (snapshot.hasError) {
@@ -934,10 +1237,15 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                                   }
                                   List<String?> fullNames = snapshot.data ?? [];
                                   List<Widget> listTiles = [];
-                                  for (int i = 0; i < _calculatePendingInvitees(eventData).length; i++) {
+                                  for (int i = 0;
+                                      i <
+                                          _calculatePendingInvitees(eventData)
+                                              .length;
+                                      i++) {
                                     listTiles.add(
                                       ListTile(
-                                        title: Text('${_calculatePendingInvitees(eventData)[i]} (${fullNames[i] ?? 'Unknown'})'),
+                                        title: Text(
+                                            '${_calculatePendingInvitees(eventData)[i]} (${fullNames[i] ?? 'Unknown'})'),
                                       ),
                                     );
                                   }
@@ -1001,11 +1309,13 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                           children: [
                             Icon(Icons.edit, color: Colors.white),
                             SizedBox(width: 5),
-                            Text('Edit', style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text('Edit',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
                           ],
                         ),
                         style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white, backgroundColor: Color(0xFF9a85a4).withOpacity(0.9),
+                          foregroundColor: Colors.white,
+                          backgroundColor: Color(0xFF9a85a4).withOpacity(0.9),
                         ),
                       ),
                     ),
@@ -1019,11 +1329,183 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
   }
 
   List<String> _calculatePendingInvitees(Map<String, dynamic> eventData) {
-    var allInvitees = List<String>.from(eventData['inviteesPhoneNumbers'] as List? ?? []);
-    var accepted = Set<String>.from(eventData['acceptedInvitees'] as List? ?? []);
-    var rejected = Set<String>.from(eventData['rejectedInvitees'] as List? ?? []);
+    var allInvitees =
+        List<String>.from(eventData['inviteesPhoneNumbers'] as List? ?? []);
+    var accepted =
+        Set<String>.from(eventData['acceptedInvitees'] as List? ?? []);
+    var rejected =
+        Set<String>.from(eventData['rejectedInvitees'] as List? ?? []);
     return allInvitees
-        .where((phoneNumber) => !accepted.contains(phoneNumber) && !rejected.contains(phoneNumber))
+        .where((phoneNumber) =>
+            !accepted.contains(phoneNumber) && !rejected.contains(phoneNumber))
         .toList();
+  }
+
+  static final DeviceCalendarPlugin _deviceCalendarPlugin =
+      DeviceCalendarPlugin();
+
+  // Retrieve and show available calendars
+  static Future<List<Calendar>> retrieveCalendars() async {
+    try {
+      var result = await _deviceCalendarPlugin.retrieveCalendars();
+      print('Retrieved calendars successfully');
+      if (result.isSuccess && result.data != null) {
+        print('Number of calendars found: ${result.data!.length}');
+        return result.data!;
+      }
+      print('No calendars found or access not granted');
+      return [];
+    } catch (e) {
+      print('Error retrieving calendars: $e');
+      return [];
+    }
+  }
+
+  // Function to present user with a choice of calendars
+  static Future<String?> selectCalendar(BuildContext context) async {
+    List<Calendar> calendars = await retrieveCalendars();
+    if (calendars.isEmpty) {
+      print('No calendars available to select');
+      return null;
+    }
+
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Color.fromARGB(255, 255, 255, 255),
+          title: Text(
+            'Choose a Calendar',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: calendars.map((calendar) {
+                return SimpleDialogOption(
+                  onPressed: () {
+                    // Only proceed if ID is not null
+                    if (calendar.id != null) {
+                      Navigator.pop(context, calendar.id);
+                    } else {
+                      print("Selected calendar ID is null, cannot proceed.");
+                    }
+                  },
+                  child: Text(calendar.name ?? 'Unnamed Calendar'),
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Method to check if the event already exists in the calendar
+  static Future<bool> isEventAlreadyInCalendar(
+      String calendarId, Map<String, dynamic> event) async {
+    final tz.TZDateTime startOriginal = tz.TZDateTime.from(
+        (event['eventDateTime'] as Timestamp).toDate(), tz.getLocation('UTC'));
+    final tz.TZDateTime start = tz.TZDateTime(
+        startOriginal.location,
+        startOriginal.year,
+        startOriginal.month,
+        startOriginal.day,
+        startOriginal.hour,
+        startOriginal.minute); // Strip seconds and milliseconds
+
+    final int duration = event['duration'];
+    final tz.TZDateTime end = start.add(Duration(hours: duration));
+
+    print('Checking if event already exists in calendar...');
+    print(
+        'Event details - Title: ${event['eventName']}, Start: $start, End: $end');
+
+    var retrieveEventsParams = RetrieveEventsParams(
+      startDate: start,
+      endDate: end,
+    );
+
+    var result = await _deviceCalendarPlugin.retrieveEvents(
+        calendarId, retrieveEventsParams);
+
+    if (result.isSuccess && result.data != null) {
+      for (var existingEvent in result.data!) {
+        tz.TZDateTime existingStart = tz.TZDateTime(
+            existingEvent.start!.location,
+            existingEvent.start!.year,
+            existingEvent.start!.month,
+            existingEvent.start!.day,
+            existingEvent.start!.hour,
+            existingEvent.start!.minute);
+        tz.TZDateTime existingEnd = tz.TZDateTime(
+            existingEvent.end!.location,
+            existingEvent.end!.year,
+            existingEvent.end!.month,
+            existingEvent.end!.day,
+            existingEvent.end!.hour,
+            existingEvent.end!.minute);
+
+        if (existingEvent.title == event['eventName'] &&
+            existingStart.isAtSameMomentAs(start) &&
+            existingEnd.isAtSameMomentAs(end)) {
+          print('Event already exists in the calendar');
+          return true;
+        }
+      }
+    }
+
+    print('Event does not exist in the calendar');
+    return false;
+  }
+
+  // Method to add an event to the chosen calendar
+  static Future<bool> addToCalendar(
+      Map<String, dynamic> event, BuildContext context) async {
+    print('Attempting to add event to calendar...');
+    var permissionsGranted = await _deviceCalendarPlugin.hasPermissions();
+    if (!permissionsGranted.isSuccess || !permissionsGranted.data!) {
+      print('Permissions not granted. Requesting permissions...');
+      permissionsGranted = await _deviceCalendarPlugin.requestPermissions();
+      if (!permissionsGranted.isSuccess || !permissionsGranted.data!) {
+        print('Permissions denied');
+        return false;
+      }
+    }
+    print('Permissions granted');
+
+    String? calendarId = await selectCalendar(context);
+    if (calendarId == null) {
+      print("No calendar selected to add events");
+      return false;
+    }
+
+    // Check if the event already exists
+    bool eventExists = await isEventAlreadyInCalendar(calendarId, event);
+    if (eventExists) {
+      print('Event already exists in the calendar');
+      return false;
+    }
+
+    print('Calendar selected, adding event');
+    final tz.TZDateTime start = tz.TZDateTime.from(
+        (event['eventDateTime'] as Timestamp).toDate(), tz.getLocation('UTC'));
+    final tz.TZDateTime end =
+        start.add(Duration(hours: event['duration'] ?? 2));
+
+    final Event calendarEvent = Event(
+      calendarId,
+      title: event['eventName'],
+      start: start,
+      end: end,
+    );
+
+    try {
+      await _deviceCalendarPlugin.createOrUpdateEvent(calendarEvent);
+      print('Event added/updated successfully');
+      return true;
+    } catch (e) {
+      print('Error creating/updating event: $e');
+      return false;
+    }
   }
 }
