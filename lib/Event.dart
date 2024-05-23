@@ -22,9 +22,9 @@ class MaazimEvent {
   final String inviterName;
   final int numberOfInvitees;
   final List<String> inviteesPhoneNumbers;
-  final int duration; // Duration of the event in hours
-  final String dressCode; // New property for dress code
-  final String theme; // New property for theme
+  final int duration;
+  final String dressCode;
+  final String theme;
   MaazimEvent({
     required this.eventName,
     required this.address,
