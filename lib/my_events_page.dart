@@ -369,8 +369,10 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                                       ),
                                       child: Icon(
                                         Icons.add, // Plus icon
-                                        color: Color.fromARGB(255, 154, 133,
-                                            164), // Matching icon color for visibility
+                                        color: index.isEven
+                                            ? Color.fromARGB(255, 154, 133, 164)
+                                            : Color.fromARGB(255, 84, 73,
+                                                89), // Matching icon color for visibility
                                         size:
                                             15, // Smaller size for the plus sign
                                       ),
