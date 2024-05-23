@@ -1005,7 +1005,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
       case 'exhibition':
         return 'assets/exhibition_event.jpg'; // Path to your exhibition event image in assets
       case 'birthday':
-        return 'assets/party_event.jpg'; // Path to your birthday event image in assets
+        return 'assets/birthday_event.jpg'; // Path to your birthday event image in assets
       case 'party':
         return 'assets/party_event.jpg'; // Path to your party event image in assets
       default:
@@ -1026,7 +1026,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
       case 'exhibition':
         return Color(0xFFF8D9E9C);
       case 'birthday':
-        return Color(0xFFF4A2A4);
+        return Color(0xFFF7FC8AB);
       case 'party':
         return Color(0xFFFADC0AB);
       default:
