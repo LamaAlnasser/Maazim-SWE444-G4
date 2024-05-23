@@ -54,6 +54,7 @@ class SignUpContent extends StatefulWidget {
 
   @override
   State<SignUpContent> createState() => _SignUpContentState();
+  
 }
 
 class _SignUpContentState extends State<SignUpContent> {
@@ -66,6 +67,19 @@ class _SignUpContentState extends State<SignUpContent> {
   final _formKey = GlobalKey<FormState>();
   bool showError = false; // Add a boolean to track error visibility
   String errorMessage = ''; // Add a string to store the error message
+
+  bool _obscureText =
+      true; // Define the _obscureText variable and initialize it to true
+
+  // Getter method for _obscureText
+  bool get obscureText => _obscureText;
+
+  // Setter method for _obscureText
+  set obscureText(bool value) {
+    setState(() {
+      _obscureText = value;
+    });
+  }
 
   void registration() async {
     if (_formKey.currentState!.validate()) {
@@ -351,41 +365,55 @@ class _SignUpContentState extends State<SignUpContent> {
 
                   return null;
                 },
-                controller: passwordController,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  labelStyle: TextStyle(color: Color(0xFF9a85a4)),
-                  // errorStyle: TextStyle(fontSize: 10),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
-                  fillColor: Color(0xFF9a85a4).withOpacity(0.1),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide:
-                        BorderSide(color: Color(0xFF9a85a4).withOpacity(0.0)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide:
-                        BorderSide(color: Color(0xFF9a85a4).withOpacity(0.6)),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide(color: Colors.red),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide(color: Colors.red),
-                  ),
-                  filled: true,
-                  prefixIcon: Icon(Icons.lock),
-                ),
-                obscureText: true,
-                onChanged: (value) => setState(() => password = value),
-              ),
-            ),
+                 controller: passwordController,
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                          labelStyle: TextStyle(color: Color(0xFF9a85a4)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          fillColor: Color(0xFF9a85a4).withOpacity(0.1),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(
+                                color: Color(0xFF9a85a4).withOpacity(0.0)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(
+                                color: Color(0xFF9a85a4).withOpacity(0.6)),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                          filled: true,
+                          prefixIcon: Icon(Icons.lock),
+                          suffixIcon: IconButton(
+  onPressed: () {
+    setState(() {
+      _obscureText = !_obscureText; // Toggle the visibility of the password
+    });
+  },
+  icon: Icon(
+    _obscureText ? Icons.visibility_off : Icons.visibility,
+    // Use Icons.visibility when password is obscured (_obscureText is true)
+    // Use Icons.visibility_off when password is visible (_obscureText is false)
+    color: Colors.grey, // Adjust the color of the icon if needed
+  ),
+),
+
+                        ),
+                        obscureText:
+                            _obscureText, // Use the _obscureText variable to determine whether to obscure the text
+
+                      ),
+                    ),
 
             SizedBox(height: 10.0),
 
