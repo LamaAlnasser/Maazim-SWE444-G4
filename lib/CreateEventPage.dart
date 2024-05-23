@@ -383,7 +383,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
       }
 
       // No conflicts, proceed with event creation
-      Event newEvent = Event(
+      MaazimEvent newEvent = MaazimEvent(
           eventName: _eventNameController.text,
           address: _eventAddressController.text,
           eventLocation: _eventLocationController.text,
