@@ -353,11 +353,7 @@ class _EditEventPageState extends State<EditEventPage> {
 
        // _sendNotificationsToInvitees();
         _notifyLocalUpdate();
-        { Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const homePage()),
-                            );};
+        Navigator.pop(context);
       } catch (e) {
         print('Failed to update event: $e');
       }
