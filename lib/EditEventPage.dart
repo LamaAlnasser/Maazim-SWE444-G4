@@ -353,7 +353,11 @@ class _EditEventPageState extends State<EditEventPage> {
 
        // _sendNotificationsToInvitees();
         _notifyLocalUpdate();
-        Navigator.pop(context);
+        { Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const homePage()),
+                            );};
       } catch (e) {
         print('Failed to update event: $e');
       }
@@ -1482,11 +1486,7 @@ class _EditEventPageState extends State<EditEventPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 5),
                       child: ElevatedButton(
-                        onPressed:() { Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const homePage()),
-                            );},
+                        onPressed: () => Navigator.of(context).pop(),
                         style: ElevatedButton.styleFrom(
                           shape: const StadiumBorder(),
                           padding: const EdgeInsets.symmetric(
