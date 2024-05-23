@@ -839,6 +839,8 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
         ),
         centerTitle: true,
         elevation: 0,
+        backgroundColor:
+            Colors.white, // Set the app bar background color to white
       ),
       backgroundColor: Colors.white, // Set the background color to white
       body: Stack(
@@ -1001,7 +1003,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
       case 'graduation':
         return 'assets/graduation_event.jpg'; // Path to your graduation event image in assets
       case 'exhibition':
-        return 'assets/party_event.jpg'; // Path to your exhibition event image in assets
+        return 'assets/exhibition_event.jpg'; // Path to your exhibition event image in assets
       case 'birthday':
         return 'assets/party_event.jpg'; // Path to your birthday event image in assets
       case 'party':
@@ -1022,7 +1024,7 @@ class _InvitationDetailPageState extends State<InvitationDetailPage> {
       case 'graduation':
         return Color(0xFFFB8ACBA);
       case 'exhibition':
-        return Colors.purple;
+        return Color(0xFFF8D9E9C);
       case 'birthday':
         return Color(0xFFF4A2A4);
       case 'party':
