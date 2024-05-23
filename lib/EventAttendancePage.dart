@@ -1026,7 +1026,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                           ],
                         ),
                         style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white, backgroundColor: Color.fromARGB(255, 185, 178, 189),
+                          foregroundColor: Colors.white, backgroundColor: Color(0xFF9a85a4).withOpacity(0.9),
                         ),
                       ),
                     ),
