@@ -451,9 +451,9 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                         ),
                       ],
                     ),
-                  ),  SizedBox(width: 17),
+                  ),  SizedBox(width: 20),
                   Container(
-                    padding: EdgeInsets.all(12.0),
+                    padding: EdgeInsets.all(15.0),
                     decoration: BoxDecoration(
                       color: Color.fromARGB(171, 224, 214, 230), // Adjust the color to match the image
                       borderRadius: BorderRadius.circular(12),
@@ -465,7 +465,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                           DateFormat('EEEE').format(dateAndTime) + ' at ' + DateFormat('h:mm a').format(dateAndTime),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 19,
+                            fontSize: 17,
                             color: Color.fromARGB(221, 40, 40, 40), // Adjust the text color to white
                           ),
                         ),
