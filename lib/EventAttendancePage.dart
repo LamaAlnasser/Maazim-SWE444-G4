@@ -415,7 +415,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
             padding: EdgeInsets.all(30),
             children: [
               // Date and Time at the beginning
-                Row(
+                Row( 
                 children: [
                   Container( width: 90,
                     padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
@@ -451,7 +451,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                         ),
                       ],
                     ),
-                  ),  SizedBox(width: 14),
+                  ),  SizedBox(width: 17),
                   Container(
                     padding: EdgeInsets.all(12.0),
                     decoration: BoxDecoration(
@@ -465,7 +465,7 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                           DateFormat('EEEE').format(dateAndTime) + ' at ' + DateFormat('h:mm a').format(dateAndTime),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 20,
+                            fontSize: 19,
                             color: Color.fromARGB(221, 40, 40, 40), // Adjust the text color to white
                           ),
                         ),
