@@ -596,7 +596,7 @@ class _EditEventPageState extends State<EditEventPage> {
 
   Widget _buildDressCodeDropdown() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(8, 0, 5, 0),
+      padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
       child: DropdownButtonFormField2<String>(
         decoration: InputDecoration(
           labelText: 'Dress Code',
@@ -666,7 +666,6 @@ class _EditEventPageState extends State<EditEventPage> {
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
-              width: 150,
             ),
           );
         }).toList(),
@@ -682,7 +681,7 @@ class _EditEventPageState extends State<EditEventPage> {
 
   Widget _buildThemeDropdown() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(8, 0, 5, 0),
+      padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
       child: DropdownButtonFormField2<String>(
         decoration: InputDecoration(
           labelText: 'Theme',
@@ -716,7 +715,7 @@ class _EditEventPageState extends State<EditEventPage> {
         value: _selectedTheme,
         dropdownStyleData: DropdownStyleData(
           maxHeight: 200,
-          width: 330,
+            width: 330,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
             color: Color.fromARGB(255, 233, 228, 237),
@@ -730,7 +729,7 @@ class _EditEventPageState extends State<EditEventPage> {
         ),
         menuItemStyleData: const MenuItemStyleData(
             height: 50,
-            padding: EdgeInsets.only(left: 14, right: 14),
+             padding: EdgeInsets.only(left: 14, right: 14),
             overlayColor: MaterialStatePropertyAll(const Color(0xFF9a85a4))),
         onChanged: (String? newValue) {
           setState(() {
@@ -741,8 +740,6 @@ class _EditEventPageState extends State<EditEventPage> {
           return DropdownMenuItem<String>(
             value: value,
             child: Container(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 5),
               child: Text(
                 value,
                 style: const TextStyle(
@@ -752,7 +749,6 @@ class _EditEventPageState extends State<EditEventPage> {
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
-              width: 150,
             ),
           );
         }).toList(),
@@ -980,9 +976,22 @@ class _EditEventPageState extends State<EditEventPage> {
               const SizedBox(height: 10),
               _buildEventTypeDropdown(),
               const SizedBox(height: 10),
-              _buildDressCodeDropdown(),
-              const SizedBox(height: 10),
-              _buildThemeDropdown(),
+               Row(
+                children: [
+                  Flexible(
+                    flex:
+                        3, // Adjust flex factor if needed to manage space distribution
+                    child: _buildThemeDropdown(),
+                  ),
+                  const SizedBox(
+                      width: 10), // Add some space between the dropdowns
+                  Flexible(
+                    flex:
+                        3, // Adjust flex factor if needed to manage space distribution
+                    child: _buildDressCodeDropdown(),
+                  ),
+                ],
+              ),
               const SizedBox(height: 10),
               Row(
                 children: [
