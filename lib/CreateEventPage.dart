@@ -1099,7 +1099,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
   Widget _buildThemeDropdown() {
     return Expanded(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(8, 0, 5, 0),
+        padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
         child: DropdownButtonFormField2<String>(
           isExpanded:
               true, // Ensuring the dropdown fits within the parent widget
@@ -1190,7 +1190,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
   Widget _buildDressCodeDropdown() {
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(5, 0, 6, 0),
+        padding: const EdgeInsets.fromLTRB(0, 0, 6, 0),
         child: DropdownButtonFormField2<String>(
           isExpanded:
               true, // Ensuring the dropdown fits within the parent widget
