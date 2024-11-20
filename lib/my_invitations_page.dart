@@ -516,10 +516,8 @@ class _PastInvitationsState extends State<PastInvitations> {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     List<Map<String, dynamic>> invitations = [];
 
-    // Current timestamp
+    bool inPast;
     var now = Timestamp.fromDate(DateTime.now());
-
-    print('Getting invitations for phone number: $phoneNumber'); // Debug log
 
     try {
       QuerySnapshot querySnapshot = await firestore
@@ -531,24 +529,22 @@ class _PastInvitationsState extends State<PastInvitations> {
         Map<String, dynamic> invitation = doc.data() as Map<String, dynamic>;
         invitation['id'] = doc.id;
 
-        // Calculate the endTime
         DateTime eventDateTime =
             (invitation['eventDateTime'] as Timestamp).toDate();
         DateTime endTime =
             eventDateTime.add(Duration(hours: invitation['duration']));
 
-        // Print the event name and endTime for debugging
-        print('Event "${invitation['eventName']}" endTime: $endTime');
-        print(now.toDate());
-
-        // Check if the endTime is in the past
         if (endTime.isBefore(now.toDate()) ||
             endTime.isAtSameMomentAs(now.toDate())) {
+          inPast = true;
+        } else {
+          inPast = false;
+        }
+        if (inPast == true) {
           invitations.add(invitation);
         }
       }
 
-      // Sort invitations: pending first, then accepted, and rejected last
       invitations.sort((a, b) {
         bool aAccepted = a['acceptedInvitees'].contains(phoneNumber);
         bool aRejected = a['rejectedInvitees'].contains(phoneNumber);
