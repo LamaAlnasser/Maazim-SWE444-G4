@@ -32,6 +32,31 @@ class _cWelcomePageState extends State<cWelcomePage> {
     _startCountdown(); // Start the countdown when the widget initializes
   }
 
+  void _startCountdown() {
+    _timer?.cancel(); // Cancel any existing timer
+    _timer = Timer.periodic(Duration(seconds: 1), (_) {
+      final now = DateTime.now();
+      if (now.isAfter(_eventDate)) {
+        _timer?.cancel();
+        setState(() {
+          _eventStatus =
+              'The event has started!'; // Message indicating the event has started
+          _countdown = '00:00:00:00'; // Reset the countdown to zero
+        });
+      } else {
+        setState(() {
+          Duration difference = _eventDate.difference(now);
+          String twoDigits(int n) => n.toString().padLeft(2, '0');
+          final days = twoDigits(difference.inDays);
+          final hours = twoDigits(difference.inHours.remainder(24));
+          final minutes = twoDigits(difference.inMinutes.remainder(60));
+          final seconds = twoDigits(difference.inSeconds.remainder(60));
+          _countdown = '$days:$hours:$minutes:$seconds';
+        });
+      }
+    });
+  }
+
   void _fetchEventDetails() async {
     try {
       DocumentSnapshot<Map<String, dynamic>> eventDoc = await FirebaseFirestore
@@ -60,31 +85,6 @@ class _cWelcomePageState extends State<cWelcomePage> {
     } catch (e) {
       print('Error fetching event details: $e');
     }
-  }
-
-  void _startCountdown() {
-    _timer?.cancel(); // Cancel any existing timer
-    _timer = Timer.periodic(Duration(seconds: 1), (_) {
-      final now = DateTime.now();
-      if (now.isAfter(_eventDate)) {
-        _timer?.cancel();
-        setState(() {
-          _eventStatus =
-              'The event has started!'; // Message indicating the event has started
-          _countdown = '00:00:00:00'; // Reset the countdown to zero
-        });
-      } else {
-        setState(() {
-          Duration difference = _eventDate.difference(now);
-          String twoDigits(int n) => n.toString().padLeft(2, '0');
-          final days = twoDigits(difference.inDays);
-          final hours = twoDigits(difference.inHours.remainder(24));
-          final minutes = twoDigits(difference.inMinutes.remainder(60));
-          final seconds = twoDigits(difference.inSeconds.remainder(60));
-          _countdown = '$days:$hours:$minutes:$seconds';
-        });
-      }
-    });
   }
 
   Widget _buildTimeBox(String value, String label,
