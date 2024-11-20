@@ -262,6 +262,44 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
     );
   }
 
+List<Widget> _buildAttendanceSections({
+  required BuildContext context,
+  required List<Map<String, dynamic>> sections,
+}) {
+  return sections.map((section) {
+    final title = section['title'];
+    final icon = section['icon'];
+    final color = section['color'];
+    final attendees = section['attendees'];
+
+    return ExpansionTile(
+      title: Text(
+        '$title Attendees (${attendees.length})',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      leading: Icon(icon, color: color),
+      children: [
+        FutureBuilder<List<String?>>(
+          future: Future.wait(
+            attendees.map((phoneNumber) =>
+                _getFullNameFromPhoneNumber(phoneNumber)),
+          ),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            }
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+            List<String?> fullNames = snapshot.data ?? [];
+            return Column(
+              children: List.generate(attendees.length, (index) {
+                return ListTile(
+                  title: Text(
+                    '${attendees[index]} (${fullNames[index] ?? 'Unknown'})',
+                  ),);}),);},), ],  );
+  }).toList();
+}
   void navigateToEditEventPage(BuildContext context, String eventId) {
     Navigator.push(
       context,
@@ -1124,136 +1162,50 @@ class _EventAttendancePageState extends State<EventAttendancePage> {
                         ],
                       ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            'Attendance Analysis',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.grey.withOpacity(0.5),
-                                  offset: Offset(2, 2),
-                                  blurRadius: 3,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(height: 2, color: Color(0xFF9a85a4)),
-                          SizedBox(height: 5),
-                          ExpansionTile(
-                            title: Text(
-                                'Accepted Attendees (${acceptedInvitees.length})'),
-                            leading:
-                                Icon(Icons.check_circle, color: Colors.green),
-                            children: [
-                              FutureBuilder<List<String?>>(
-                                future: Future.wait(
-                                  acceptedInvitees.map((phoneNumber) =>
-                                      _getFullNameFromPhoneNumber(phoneNumber)),
-                                ),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return CircularProgressIndicator();
-                                  }
-                                  if (snapshot.hasError) {
-                                    return Text('Error: ${snapshot.error}');
-                                  }
-                                  List<String?> fullNames = snapshot.data ?? [];
-                                  List<Widget> listTiles = [];
-                                  for (int i = 0;
-                                      i < acceptedInvitees.length;
-                                      i++) {
-                                    listTiles.add(
-                                      ListTile(
-                                        title: Text(
-                                            '${acceptedInvitees[i]} (${fullNames[i] ?? 'Unknown'})'),
-                                      ),
-                                    );
-                                  }
-                                  return Column(children: listTiles);
-                                },
-                              ),
-                            ],
-                          ),
-                          ExpansionTile(
-                            title: Text(
-                                'Rejected Attendees (${rejectedInvitees.length})'),
-                            leading: Icon(Icons.cancel, color: Colors.red),
-                            children: [
-                              FutureBuilder<List<String?>>(
-                                future: Future.wait(
-                                  rejectedInvitees.map((phoneNumber) =>
-                                      _getFullNameFromPhoneNumber(phoneNumber)),
-                                ),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return CircularProgressIndicator();
-                                  }
-                                  if (snapshot.hasError) {
-                                    return Text('Error: ${snapshot.error}');
-                                  }
-                                  List<String?> fullNames = snapshot.data ?? [];
-                                  List<Widget> listTiles = [];
-                                  for (int i = 0;
-                                      i < rejectedInvitees.length;
-                                      i++) {
-                                    listTiles.add(
-                                      ListTile(
-                                        title: Text(
-                                            '${rejectedInvitees[i]} (${fullNames[i] ?? 'Unknown'})'),
-                                      ),
-                                    );
-                                  }
-                                  return Column(children: listTiles);
-                                },
-                              ),
-                            ],
-                          ),
-                          ExpansionTile(
-                            title: Text(
-                                'Pending Attendees (${_calculatePendingInvitees(eventData).length})'),
-                            leading:
-                                Icon(Icons.access_time, color: Colors.orange),
-                            children: [
-                              FutureBuilder<List<String?>>(
-                                future: Future.wait(
-                                  _calculatePendingInvitees(eventData).map(
-                                      (phoneNumber) =>
-                                          _getFullNameFromPhoneNumber(
-                                              phoneNumber)),
-                                ),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return CircularProgressIndicator();
-                                  }
-                                  if (snapshot.hasError) {
-                                    return Text('Error: ${snapshot.error}');
-                                  }
-                                  List<String?> fullNames = snapshot.data ?? [];
-                                  List<Widget> listTiles = [];
-                                  for (int i = 0;
-                                      i <
-                                          _calculatePendingInvitees(eventData)
-                                              .length;
-                                      i++) {
-                                    listTiles.add(
-                                      ListTile(
-                                        title: Text(
-                                            '${_calculatePendingInvitees(eventData)[i]} (${fullNames[i] ?? 'Unknown'})'),
-                                      ),
-                                    );
-                                  }
-                                  return Column(children: listTiles);
-                                },
-                              ),
-                            ],
-                          ),
+  crossAxisAlignment: CrossAxisAlignment.stretch,
+  children: [
+    Text(
+      'Attendance Analysis',
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        shadows: [
+          Shadow(
+            color: Colors.grey.withOpacity(0.5),
+            offset: Offset(2, 2),
+            blurRadius: 3,
+          ),
+        ],
+      ),
+    ),
+    Divider(color: Color(0xFF9a85a4)),
+    ..._buildAttendanceSections(
+      context: context,
+      sections: [
+        {
+          'title': 'Accepted',
+          'icon': Icons.check_circle,
+          'color': Colors.green,
+          'attendees': acceptedInvitees,
+        },
+        {
+          'title': 'Rejected',
+          'icon': Icons.cancel,
+          'color': Colors.red,
+          'attendees': rejectedInvitees,
+        },
+        {
+          'title': 'Pending',
+          'icon': Icons.access_time,
+          'color': Colors.orange,
+          'attendees': _calculatePendingInvitees(eventData),
+        },
+      ],
+    ),
+  
+
+                       
                           SizedBox(height: 15),
                           Text(
                             textAlign: TextAlign.center,
