@@ -14,9 +14,9 @@ class ChangePass extends StatefulWidget {
 }
 
 class _ChangePassState extends State<ChangePass> {
-  late TextEditingController currentPasswordController;
+  late TextEditingController cPCtrl;
 
-  String? errorMessage;
+  String? errMsg;
 
   bool obscureCurrentPassword = true;
   final _formKey = GlobalKey<FormState>();
@@ -24,17 +24,17 @@ class _ChangePassState extends State<ChangePass> {
   @override
   void initState() {
     super.initState();
-    currentPasswordController = TextEditingController();
+    cPCtrl = TextEditingController();
   }
 
   @override
   void dispose() {
-    currentPasswordController.dispose();
+    cPCtrl.dispose();
     super.dispose();
   }
 
   void _validateCurrentPassword() async {
-    String currentPassword = currentPasswordController.text;
+    String currentPassword = cPCtrl.text;
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
@@ -46,14 +46,12 @@ class _ChangePassState extends State<ChangePass> {
         await user.reauthenticateWithCredential(credential);
 
         // If the current password is correct, navigate to the page where user can change the password
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => NewPasswordHost() )
-        );
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => NewPasswordHost()));
       } on FirebaseAuthException catch (error) {
         // If the current password is incorrect, show an error message
         setState(() {
-          errorMessage = "Current password is incorrect.";
+          errMsg = "Current password is incorrect.";
         });
       } catch (error) {
         print("Error: $error");
@@ -65,7 +63,6 @@ class _ChangePassState extends State<ChangePass> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-       
         title: Padding(
           padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
           child: Row(
@@ -109,12 +106,13 @@ class _ChangePassState extends State<ChangePass> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: TextFormField(
-                  controller: currentPasswordController,
+                  controller: cPCtrl,
                   obscureText: obscureCurrentPassword,
                   cursorColor: Color(0xFF9a85a4),
                   decoration: InputDecoration(
                     labelText: ' Current Password',
-                    labelStyle: TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
+                    labelStyle:
+                        TextStyle(color: Color(0xFF9a85a4), fontSize: 14),
                     errorStyle: TextStyle(fontSize: 10),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
@@ -148,7 +146,9 @@ class _ChangePassState extends State<ChangePass> {
                         });
                       },
                       icon: Icon(
-                      obscureCurrentPassword ? Icons.visibility_off : Icons.visibility,
+                        obscureCurrentPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         color: Colors.grey,
                       ),
                     ),
@@ -157,61 +157,50 @@ class _ChangePassState extends State<ChangePass> {
               ),
               SizedBox(height: 15),
               Center(
-  child: errorMessage != null ? Text(errorMessage!, style: TextStyle(color: Colors.red)) : Container(),
-),
-
- SizedBox(height: 15),
-
-      
-          
+                child: errMsg != null
+                    ? Text(errMsg!, style: TextStyle(color: Colors.red))
+                    : Container(),
+              ),
+              SizedBox(height: 15),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 85),
-              
-              child: ElevatedButton(
-                onPressed: () {
-                  _validateCurrentPassword();
-               
-                }, 
-                style: ElevatedButton.styleFrom(
-                  shape: StadiumBorder(), backgroundColor: Color(0xFF9a85a4).withOpacity(0.9),
-                  padding: EdgeInsets.symmetric(vertical: 10),
+                child: ElevatedButton(
+                  onPressed: () {
+                    _validateCurrentPassword();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: StadiumBorder(),
+                    backgroundColor: Color(0xFF9a85a4).withOpacity(0.9),
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                  ),
+                  child: Text(
+                    'Next',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
-                child: Text('Next',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),),
-              
-              ),),
-           
-       SizedBox(height: 10),
-       
-     
-Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 60),
-  child: TextButton(
-    onPressed: () {
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ForgotPasswordPage()));
-    },
-    child: Text(
-      'Forgot your password?',
-      style: TextStyle(
-        fontSize: 16,
-        color: Colors.grey[600], // Customize color as needed
-       
-      ),
-    ),
-  ),
-),
-     
-              
-                         
-
-
-              
+              ),
+              SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 60),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ForgotPasswordPage()));
+                  },
+                  child: Text(
+                    'Forgot your password?',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600], // Customize color as needed
+                    ),
+                  ),
+                ),
+              ),
             ],
-            
           ),
         ),
       ),
