@@ -1,16 +1,28 @@
-# maazim
+# Maazim 
 
-A new Flutter project.
+This repository contains the source code for the **Maazim project**, as part of the **SWE444 - Software Construction Laboratory** course.
 
-## Getting Started
+Built with **Flutter** and powered by **Firebase**, Maazim delivers a streamlined, user-friendly solution that enhances event planning and elevates the overall guest experience.
 
-This project is a starting point for a Flutter application.
+As part of the **SWE455 - Software Maintenance and Evolution** course, we applied refactoring techniques to improve the codebase.
 
-A few resources to get you started if this is your first Flutter project:
+## Maazim Refactoring 
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### 1. Source Code Before Refactoring
+- The main project branch (`Maazim-Main`) contains the original source code, including a folder named `AfterRefactoring`.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 2. Source Code After Refactoring
+- The `AfterRefactoring` folder contains the refactored version of the source code.
+- Key improvements include:
+  - **Meaningful variable names.**
+  - **Redundant code removal.**
+  - **Unused imports cleanup.** 
+  - **Code readability and structure optimization.**
+
+## How to Explore the Code
+
+1. **Before Refactoring:**
+   - Navigate to the `lib` folder.
+
+2. **After Refactoring:**
+   - Navigate to the `AfterRefactoring` folder.
