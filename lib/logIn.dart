@@ -61,27 +61,32 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (email.isNotEmpty && password.isNotEmpty) {
           // Check if it's an entry coordinator
-          if (email.toLowerCase().endsWith('@maazim.com')) {
+          if (email.toLowerCase().endsWith("@maazim.com")) {
             bool isValid = await verifyEntryCoordinator(email, password);
+
             if (isValid) {
               // Remove the "EC_" prefix
-              String coordinatorUsername = email.toLowerCase().startsWith('ec_')
+              String coordinatorUsername = email.toLowerCase().startsWith("ec_")
                   ? email.substring(3)
                   : email;
+
               // Remove the "@" symbol and everything after it
-              coordinatorUsername = coordinatorUsername.split('@')[0];
+              coordinatorUsername = coordinatorUsername.split("@")[0];
+
               // Redirect to entry coordinator page
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => EntityCoordinatorPage(
-                        coordinatorUsername: coordinatorUsername)),
+                  builder: (context) => EntityCoordinatorPage(
+                    coordinatorUsername: coordinatorUsername,
+                  ),
+                ),
               );
             } else {
               // Invalid credentials for entry coordinator
               setState(() {
                 _errorMessage =
-                    'You have entered wrong email/password, please try again.';
+                    "You have entered wrong email/password, please try again.";
               });
             }
           } else {
@@ -101,17 +106,21 @@ class _LoginScreenState extends State<LoginScreen> {
               // User is not authenticated
               setState(() {
                 _errorMessage =
-                    'You have entered wrong email/password, please try again.';
+                    "You have entered wrong email/password, please try again.";
               });
             }
           }
+        } else {
+          setState(() {
+            _errorMessage = "Email and password cannot be empty.";
+          });
         }
       }
     } on FirebaseAuthException catch (e) {
       setState(() {
-        _errorMessage = e.code == 'invalid-credential'
-            ? 'You have entered wrong email/password, please try again.'
-            : e.message ?? 'An error occurred';
+        _errorMessage = e.code == "invalid-credential"
+            ? "You have entered wrong email/password, please try again."
+            : e.message ?? "An error occurred";
       });
     }
   }
@@ -330,19 +339,22 @@ class _LoginScreenState extends State<LoginScreen> {
                           filled: true,
                           prefixIcon: Icon(Icons.lock),
                           suffixIcon: IconButton(
-  onPressed: () {
-    setState(() {
-      _obscureText = !_obscureText; // Toggle the visibility of the password
-    });
-  },
-  icon: Icon(
-    _obscureText ? Icons.visibility_off : Icons.visibility,
-    // Use Icons.visibility when password is obscured (_obscureText is true)
-    // Use Icons.visibility_off when password is visible (_obscureText is false)
-    color: Colors.grey, // Adjust the color of the icon if needed
-  ),
-),
-
+                            onPressed: () {
+                              setState(() {
+                                _obscureText =
+                                    !_obscureText; // Toggle the visibility of the password
+                              });
+                            },
+                            icon: Icon(
+                              _obscureText
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              // Use Icons.visibility when password is obscured (_obscureText is true)
+                              // Use Icons.visibility_off when password is visible (_obscureText is false)
+                              color: Colors
+                                  .grey, // Adjust the color of the icon if needed
+                            ),
+                          ),
                         ),
                         obscureText:
                             _obscureText, // Use the _obscureText variable to determine whether to obscure the text
